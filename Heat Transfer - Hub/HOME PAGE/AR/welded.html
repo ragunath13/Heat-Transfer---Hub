@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Welded Plate Heat Exchanger</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #cddc39; /* Light Green border */
+            box-shadow: 0 4px 15px rgba(205, 220, 57, 0.2); /* Light Green shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #cddc39; /* Light Green title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #cddc39; /* Light Green border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(205, 220, 57, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(205, 220, 57, 0.2); /* Lighter green on hover */
+            border-color: #e6ee9c; /* Lighter border on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Welded Plate Heat Exchanger - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-casing"><span class="color-indicator" style="background-color: #689f38;"></span>Toggle Casing</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-welded-plate-pack"><span class="color-indicator" style="background-color: #aed581;"></span>View Welded Plate Pack</button>
+        <button id="view-end-covers"><span class="color-indicator" style="background-color: #795548;"></span>View End Covers</button>
+        <button id="view-nozzles"><span class="color-indicator" style="background-color: #FFC107;"></span>View Nozzles</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 50); // Initial camera position
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(1, 1, 1);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-1, -1, -1);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along XZ plane)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            weldedPlatePack: null,
+            casing: null, // Outer casing
+            endCovers: null,
+            nozzles: null,
+            fluidFlowHot: null, 
+            fluidFlowCold: null, 
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'weldedPlatePack': {
+                title: 'Welded Plate Pack',
+                description: 'The core of the heat exchanger, consisting of thin, corrugated metal plates that are fully welded together (e.g., laser or plasma welded) to form a robust, pressure-resistant block. This eliminates the need for gaskets between plates, making it suitable for high-pressure and high-temperature applications and aggressive fluids.',
+                color: 0xaed581, // Light Green
+                internal: true
+            },
+            'casing': {
+                title: 'Casing / Shell',
+                description: 'The outer shell that encloses the welded plate pack. In some designs, the casing itself is part of the pressure boundary, while in others, it provides additional structural support or insulation. It often has integral nozzles for the external fluid.',
+                color: 0x689f38, // Medium Green
+                internal: false
+            },
+            'endCovers': {
+                title: 'End Covers',
+                description: 'Heavy plates or dished heads that seal the ends of the welded plate pack and casing. They are typically bolted or welded to the casing, providing access for inspection or cleaning in some designs, and house the nozzles for the internal fluid.',
+                color: 0x795548, // Brown
+                internal: false
+            },
+            'nozzles': {
+                title: 'Nozzles / Ports',
+                description: 'Inlet and outlet connections for both fluids. For welded plate heat exchangers, these are often integrated directly into the end covers or casing, providing secure and leak-proof connections for high-pressure applications.',
+                color: 0xFFC107, // Amber
+                internal: false
+            }
+        };
+
+        // Create all components of the welded plate heat exchanger
+        function createComponents() {
+            const plateWidth = 20;
+            const plateHeight = 15;
+            const plateThickness = 0.1;
+            const numPlates = 40; // More plates for a compact, welded look
+            const plateSpacing = plateThickness; // No gasket space
+            const totalPlateStackThickness = numPlates * plateSpacing;
+
+            const casingThickness = 1;
+            const casingWidth = totalPlateStackThickness + casingThickness * 2 + 2; // Enclose plates
+            const casingHeight = plateHeight + 4;
+            const casingDepth = plateWidth + 4;
+
+            const endCoverThickness = 2;
+            const nozzleRadius = 1;
+            const nozzleLength = 3;
+
+            // Welded Plate Pack (represented as a solid block of plates)
+            const weldedPlatePackMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.weldedPlatePack.color,
+                metalness: 0.8,
+                roughness: 0.2,
+                clearcoat: 0.1,
+                side: THREE.DoubleSide
+            });
+            components.weldedPlatePack = new THREE.Mesh(
+                new THREE.BoxGeometry(totalPlateStackThickness, plateHeight, plateWidth),
+                weldedPlatePackMaterial
+            );
+            components.weldedPlatePack.userData = { type: 'weldedPlatePack' };
+
+            // Casing
+            const casingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.casing.color,
+                metalness: 0.7,
+                roughness: 0.4,
+                transparent: true,
+                opacity: 0.7,
+                clearcoat: 0.4,
+                side: THREE.DoubleSide
+            });
+            components.casing = new THREE.Mesh(
+                new THREE.BoxGeometry(casingWidth, casingHeight, casingDepth),
+                casingMaterial
+            );
+            components.casing.userData = { type: 'casing' };
+
+            // End Covers
+            components.endCovers = new THREE.Group();
+            const endCoverMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.endCovers.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                clearcoat: 0.3
+            });
+
+            // Left End Cover
+            const leftEndCover = new THREE.Mesh(
+                new THREE.BoxGeometry(endCoverThickness, casingHeight, casingDepth),
+                endCoverMaterial
+            );
+            leftEndCover.position.x = -casingWidth / 2 - endCoverThickness / 2;
+            leftEndCover.userData = { type: 'endCovers' };
+            components.endCovers.add(leftEndCover);
+
+            // Right End Cover
+            const rightEndCover = new THREE.Mesh(
+                new THREE.BoxGeometry(endCoverThickness, casingHeight, casingDepth),
+                endCoverMaterial
+            );
+            rightEndCover.position.x = casingWidth / 2 + endCoverThickness / 2;
+            rightEndCover.userData = { type: 'endCovers' };
+            components.endCovers.add(rightEndCover);
+
+            // Nozzles
+            components.nozzles = new THREE.Group();
+            const nozzleMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.nozzles.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const flangeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x616161, // Darker grey for flange
+                metalness: 0.6,
+                roughness: 0.4
+            });
+
+            // Define nozzle positions (simplified for visual representation)
+            // Hot Fluid Inlet (on left end cover, top)
+            const hotInletNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16), nozzleMaterial);
+            hotInletNozzle.rotation.y = Math.PI / 2;
+            hotInletNozzle.position.set(-casingWidth / 2 - endCoverThickness - nozzleLength / 2, casingHeight / 4, 0);
+            hotInletNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(hotInletNozzle);
+
+            const hotInletFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16), flangeMaterial);
+            hotInletFlange.rotation.y = Math.PI / 2;
+            hotInletFlange.position.set(-casingWidth / 2 - endCoverThickness - nozzleLength - 0.25, casingHeight / 4, 0);
+            hotInletFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(hotInletFlange);
+
+            // Hot Fluid Outlet (on right end cover, bottom)
+            const hotOutletNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16), nozzleMaterial);
+            hotOutletNozzle.rotation.y = Math.PI / 2;
+            hotOutletNozzle.position.set(casingWidth / 2 + endCoverThickness + nozzleLength / 2, -casingHeight / 4, 0);
+            hotOutletNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(hotOutletNozzle);
+
+            const hotOutletFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16), flangeMaterial);
+            hotOutletFlange.rotation.y = Math.PI / 2;
+            hotOutletFlange.position.set(casingWidth / 2 + endCoverThickness + nozzleLength + 0.25, -casingHeight / 4, 0);
+            hotOutletFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(hotOutletFlange);
+
+            // Cold Fluid Inlet (on left end cover, bottom)
+            const coldInletNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16), nozzleMaterial);
+            coldInletNozzle.rotation.y = Math.PI / 2;
+            coldInletNozzle.position.set(-casingWidth / 2 - endCoverThickness - nozzleLength / 2, -casingHeight / 4, 0);
+            coldInletNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(coldInletNozzle);
+
+            const coldInletFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16), flangeMaterial);
+            coldInletFlange.rotation.y = Math.PI / 2;
+            coldInletFlange.position.set(-casingWidth / 2 - endCoverThickness - nozzleLength - 0.25, -casingHeight / 4, 0);
+            coldInletFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(coldInletFlange);
+
+            // Cold Fluid Outlet (on right end cover, top)
+            const coldOutletNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16), nozzleMaterial);
+            coldOutletNozzle.rotation.y = Math.PI / 2;
+            coldOutletNozzle.position.set(casingWidth / 2 + endCoverThickness + nozzleLength / 2, casingHeight / 4, 0);
+            coldOutletNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(coldOutletNozzle);
+
+            const coldOutletFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16), flangeMaterial);
+            coldOutletFlange.rotation.y = Math.PI / 2;
+            coldOutletFlange.position.set(casingWidth / 2 + endCoverThickness + nozzleLength + 0.25, casingHeight / 4, 0);
+            coldOutletFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(coldOutletFlange);
+
+
+            // Fluid Flow Animation
+            components.fluidFlowHot = new THREE.Group();
+            components.fluidFlowCold = new THREE.Group();
+
+            const numFluidParticles = 100;
+            const particleSize = 0.2;
+            const hotFluidColor = 0xff0000; // Red
+            const coldFluidColor = 0x0000ff; // Blue
+
+            function createFluidParticles(color, curve, numParticles) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: particleSize,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.8,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.curve = curve; // Store curve for animation
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Hot Fluid Path (through the plate pack)
+            const hotFluidPathPoints = [
+                new THREE.Vector3(-casingWidth / 2 - endCoverThickness - nozzleLength, casingHeight / 4, 0), // Inlet
+                new THREE.Vector3(-totalPlateStackThickness / 2, casingHeight / 4, 0), // Into plate pack
+                new THREE.Vector3(totalPlateStackThickness / 2, -casingHeight / 4, 0), // Through plate pack (diagonal for visual flow)
+                new THREE.Vector3(casingWidth / 2 + endCoverThickness + nozzleLength, -casingHeight / 4, 0) // Outlet
+            ];
+            const hotFluidCurve = new THREE.CatmullRomCurve3(hotFluidPathPoints);
+
+            // Cold Fluid Path (through the plate pack)
+            const coldFluidPathPoints = [
+                new THREE.Vector3(-casingWidth / 2 - endCoverThickness - nozzleLength, -casingHeight / 4, 0), // Inlet
+                new THREE.Vector3(-totalPlateStackThickness / 2, -casingHeight / 4, 0), // Into plate pack
+                new THREE.Vector3(totalPlateStackThickness / 2, casingHeight / 4, 0), // Through plate pack (diagonal for visual flow)
+                new THREE.Vector3(casingWidth / 2 + endCoverThickness + nozzleLength, casingHeight / 4, 0) // Outlet
+            ];
+            const coldFluidCurve = new THREE.CatmullRomCurve3(coldFluidPathPoints);
+
+
+            const hotFluidParticles = createFluidParticles(hotFluidColor, hotFluidCurve, numFluidParticles);
+            const coldFluidParticles = createFluidParticles(coldFluidColor, coldFluidCurve, numFluidParticles);
+
+            components.fluidFlowHot.add(hotFluidParticles);
+            components.fluidFlowCold.add(coldFluidParticles);
+            components.fluidFlowHot.visible = false; // Initially hidden
+            components.fluidFlowCold.visible = false; // Initially hidden
+            scene.add(components.fluidFlowHot);
+            scene.add(components.fluidFlowCold);
+
+
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.weldedPlatePack);
+            components.fullAssembly.add(components.casing);
+            components.fullAssembly.add(components.endCovers);
+            components.fullAssembly.add(components.nozzles);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp !== components.fluidFlowHot && comp !== components.fluidFlowCold) {
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views
+            components.fluidFlowHot.visible = false;
+            components.fluidFlowCold.visible = false;
+
+            // Show the requested component(s)
+            if (componentType === 'weldedPlatePack') {
+                components.weldedPlatePack.visible = true;
+                components.fluidFlowHot.visible = true; 
+                components.fluidFlowCold.visible = true; 
+            } else if (componentType === 'casing') {
+                components.casing.visible = true;
+            } else if (componentType === 'endCovers') {
+                components.endCovers.visible = true;
+                components.casing.visible = true; // Show casing for context
+                components.nozzles.visible = true; // Show nozzles for context
+            } else if (componentType === 'nozzles') {
+                components.nozzles.visible = true;
+                components.endCovers.visible = true; // Show end covers for context
+                components.casing.visible = true; // Show casing for context
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp) comp.visible = true;
+                });
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'weldedPlatePack') targetObject = components.weldedPlatePack;
+            else if (componentType === 'casing') targetObject = components.casing;
+            else if (componentType === 'endCovers') targetObject = components.endCovers;
+            else if (componentType === 'nozzles') targetObject = components.nozzles;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle casing visibility
+        function toggleCasingVisibility() {
+            components.casing.visible = !components.casing.visible;
+            document.getElementById('toggle-casing').innerHTML = 
+                `<span class="color-indicator" style="background-color: #${new THREE.Color(componentInfo.casing.color).getHexString()};"></span>` +
+                (components.casing.visible ? 'Hide Casing' : 'Show Casing');
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowHot.visible = isSectionView;
+            components.fluidFlowCold.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    if (child.parent && child.parent.userData.type === 'fullAssembly' || child.userData.type === 'weldedPlatePack' || child.userData.type === 'casing' || child.userData.type === 'endCovers') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-casing').addEventListener('click', toggleCasingVisibility);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-welded-plate-pack').addEventListener('click', () => showOnly('weldedPlatePack'));
+        document.getElementById('view-end-covers').addEventListener('click', () => showOnly('endCovers'));
+        document.getElementById('view-nozzles').addEventListener('click', () => showOnly('nozzles'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate fluid particles if visible
+            if (components.fluidFlowHot.visible) {
+                const hotParticles = components.fluidFlowHot.children[0];
+                const hotPositions = hotParticles.geometry.attributes.position.array;
+                const hotCurve = hotParticles.userData.curve;
+
+                for (let i = 0; i < hotParticles.userData.progress.length; i++) {
+                    hotParticles.userData.progress[i] = (hotParticles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                    const p = hotCurve.getPointAt(hotParticles.userData.progress[i]);
+                    hotPositions[i * 3] = p.x;
+                    hotPositions[i * 3 + 1] = p.y;
+                    hotPositions[i * 3 + 2] = p.z;
+                }
+                hotParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (components.fluidFlowCold.visible) {
+                const coldParticles = components.fluidFlowCold.children[0];
+                const coldPositions = coldParticles.geometry.attributes.position.array;
+                const coldCurve = coldParticles.userData.curve;
+
+                for (let i = 0; i < coldParticles.userData.progress.length; i++) {
+                    coldParticles.userData.progress[i] = (coldParticles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                    const p = coldCurve.getPointAt(coldParticles.userData.progress[i]);
+                    coldPositions[i * 3] = p.x;
+                    coldPositions[i * 3 + 1] = p.y;
+                    coldPositions[i * 3 + 2] = p.z;
+                }
+                coldParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

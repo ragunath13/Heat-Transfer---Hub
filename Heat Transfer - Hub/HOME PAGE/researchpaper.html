@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEAT HUB | Advanced Research Papers</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Import Google Fonts - Inter and Oswald */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
+
+        /* CSS Variables for consistent theming (copied from HEAT HUB main page) */
+        :root {
+            --primary: #FF4D00;
+            --primary-light: #FF6A00;
+            --secondary: #00B4D8;
+            --secondary-light: #00E0FF;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #2E2E2E;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --conduction: linear-gradient(135deg, #FF3D3D, #F86F3D, #ECD54D);
+            --convection: linear-gradient(135deg, #4ECDC4, #11999E);
+            --radiation: linear-gradient(135deg, #904E95, #E96443);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 126, 61, 0.605);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --primary-color: var(--primary);
+            --glow-color: #ff6b00;
+        }
+
+        /* Universal Box-Sizing */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and Base Styles (with static background) */
+        body {
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            background: radial-gradient(ellipse at bottom, #0a0a0a 0%, #000000 100%); /* Deep black with subtle glow for background */
+            min-height: 100vh; /* Use min-height for content to extend page */
+            display: flex;
+            flex-direction: column; /* Arrange content vertically */
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Heading Styles */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        p {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* ========== LAYOUT & CONTAINERS ========== */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* ========== SIDEBAR STYLES (copied from main page) ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            height: 100vh;
+            background: var(--dark-gray);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-header .logo {
+            font-size: 1.5rem;
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--text-shadow);
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu li a i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+            padding-left: 2rem;
+        }
+
+        .sidebar-menu li a.active {
+            background: rgba(255, 77, 0, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--medium-gray);
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 0 1rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        /* ========== MAIN CONTENT & MENU BUTTON (copied from main page) ========== */
+        .main-content {
+            transition: all 0.3s ease;
+            flex-grow: 1; /* Allow main content to take available space */
+            padding-top: 20px; /* Space for the menu button */
+        }
+
+        .main-content.sidebar-active {
+            margin-left: 350px;
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        /* ========== FOOTER (copied from main page) ========== */
+        footer {
+            background: var(--dark-gray);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--glass-border);
+            margin-top: auto; /* Push footer to the bottom */
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-link a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ========== ANIMATIONS (General Fade-In - copied from main page) ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+        .delay-5 { animation-delay: 1.0s; }
+        .delay-6 { animation-delay: 1.2s; }
+
+
+        /* ========== RESEARCH PAPER SPECIFIC STYLES ========== */
+        .research-papers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .paper-card {
+            background: var(--dark-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Push button to bottom */
+        }
+
+        .paper-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+            z-index: -1;
+        }
+
+        .paper-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 77, 0, 0.3);
+        }
+
+        .paper-card h3 {
+            color: var(--white);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .paper-card h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .paper-card p {
+            margin-bottom: 1.5rem;
+            flex-grow: 1; /* Allow description to take space */
+        }
+
+        .access-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            align-self: flex-start; /* Align button to start */
+        }
+
+        .access-button:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 77, 0, 0.3);
+        }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+                left: -280px;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: 280px;
+            }
+            
+            .menu-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .section {
+                padding: 4rem 0;
+            }
+            
+            .research-papers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Removed Animated background container -->
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">HEAT HUB</h1>
+            <button class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="HT.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="register.html"><i class="fas fa-user-plus"></i> Register</a></li>
+            <li><a href="AR/front.html"><i class="fas fa-cube"></i> AR Models</a></li>
+            <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="#" class="active"><i class="fas fa-book"></i> Research Papers</a></li> <!-- Marked as active -->
+            <li><a href="#"><i class="fas fa-calculator"></i> Calculators</a></li>
+            <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="search-box">
+                <input type="text" placeholder="Search..." class="search-input">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Menu Button -->
+        <button class="menu-btn"><i class="fas fa-bars"></i></button>
+
+        <!-- Page Header -->
+        <section class="section">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Advanced Research Papers</h2>
+                    <p class="delay-1">Explore cutting-edge studies and breakthroughs in heat transfer science</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Papers Grid -->
+        <section class="section" style="background: rgba(10, 10, 10, 0.5);">
+            <div class="container">
+                <div class="research-papers-grid">
+                    <!-- Paper 1 -->
+                    <div class="paper-card fade-in delay-1">
+                        <h3>Nano-Fluid Heat Transfer Enhancement</h3>
+                        <p>A comprehensive review on the application of nanofluids for improved thermal conductivity and heat transfer coefficients in various engineering systems.</p>
+                        <a href="https://www.sciencedirect.com/science/article/abs/pii/S0017931009001069" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- Paper 2 -->
+                    <div class="paper-card fade-in delay-2">
+                        <h3>Phase Change Materials for Thermal Energy Storage</h3>
+                        <p>Investigating the efficacy and applications of advanced phase change materials (PCMs) in passive and active thermal energy storage systems.</p>
+                        <a href="https://www.sciencedirect.com/science/article/abs/pii/S2352152X25018511" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- Paper 3 -->
+                    <div class="paper-card fade-in delay-3">
+                        <h3>Quantum Heat Transport in Low-Dimensional Systems</h3>
+                        <p>Delving into the fundamental mechanisms of heat conduction at the quantum scale in graphene, nanotubes, and other 2D materials.</p>
+                        <a href="https://pdf.sciencedirectassets.com/280687/1-s2.0-S2211379725X00061/1-s2.0-S2211379725001640/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEAaCXVzLWVhc3QtMSJHMEUCIQCBsJXdXQtWjusN5JDgrDTZQ0s2Uq1sfxdNaNIDAyolsQIgKDNTaOD6HDjn9WNyxOovIV6qkTpT7qB3r7C%2FqrhwlooqsgUIGBAFGgwwNTkwMDM1NDY4NjUiDC7a%2Fp4Hyy9PNqzEUiqPBRWSH8B9s5CFBnJQPu4VYotLK8WNZSEvepFkA9tH15UrozfS5WEqkezJpWxcseZpgDOYhno9Bi6GodwcSPdk3yBGT3ycC%2BJbXZb7xa0dJVWkfUmaqsb1%2BicthbCWWuWlMKMEhGL%2B4UsKAUqNLTIo3tSbH9xk3pHcFUcdFESO7TcSdePC53AbXO14NdTIcaU3O8%2FFwrYcKYHovAiEkX77PHt8mJmkdj3sxk609Bf87YbEBzud9%2FGUQFuTLT2j4%2FZ1G3bqR4wBEFBji5Qp%2FN6QT51NFlWtLAuON149u5q9cyM%2BWbnwk%2BcAsjk3pY%2Bim8BJ0B9vLytXCDtiqejAs7uqTgcxoHfkxLZZks%2BN1afnRnvrN%2FVvRKgzgPCdBgaVt%2FMcOy6Ct6QoWDfufMKSshjE%2B6064j827B3A27J2HIsS459zIJgot%2FgRmfEDfeuc9S1iOUJsH%2FUcHBhFEVzDGGWnymbNXAjjZMNs5PHpoGOmdfVIhv7rOoT%2FpBG78AA%2FMlFbF%2BfywgmT1WZcBG0sJVzDM6LLfa8nIOZ6MpSsR2hOp5AqEsUrQayT01GrLS%2BacdkfOyyGANcaW%2FoATqwsmML2GmyTtD6M71WlMO%2FOq7mkuRY1beyqZmt%2BeDm356yHmWJWg0oO1trplt%2BnQSfqWsLsemMhURuACzusD5J9piAvDnbHzEjU2U0VDhr19ahe7nhZX5yf8QZG8FhUQcaa5yW%2Br0TyOj559fLuYOZp2tqPR8F7KlnjdIplXbf0XGizGPjypN%2BY8UCZocK4R85HhL0qwhh%2BXwMOIZ5jFexqgQjhKyEenLVb35SfqXE6wGUelS%2FGb42F8dg1iSsdGAGFRiOkV6J6mzNWJShxrDpGday5VD4wqKL8wQY6sQGTp0Fy3YAPYUPBkcy%2FnI%2BcYcNSoYECa8l6iv1VBETy1785KTpz3HpkRDf9hOA16qMRfvKVl9Gpn4yX9LPvNTbd92rnOqMtqg4ndzmYaqa93ePvr3w1AGJTgCrzsIGtFGGeLtxh45rIlHVYV4i4R9adf9V8hGU%2FA2gn2YJqOrcvRG7Dt8mjphNvdGVgzvy4W9Xb4Ce8%2Br92BTKUibP1%2BskcO9v9NMiHm6Pl6QPf49xel30%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T154950Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYTP6QU67D%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=a3a76b0949a649fcff5934bafb3176f750adeb8fdf846361846643d31566177a&hash=f8409e5ad280c419c74c586e444b363d65fa5acec62b063ca7e132d1653dd5f2&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2211379725001640&tid=spdf-6f431167-99fc-43f9-80ba-1eeb676678e6&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d520550525301505a&rr=94a057c099717f93&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- Paper 4 -->
+                    <div class="paper-card fade-in delay-4">
+                        <h3>Heat Transfer in Additive Manufacturing</h3>
+                        <p>Analyzing the thermal phenomena during 3D printing processes and their impact on material properties and structural integrity.</p>
+                        <a href="https://pdf.sciencedirectassets.com/271641/1-s2.0-S1359431125X00132/1-s2.0-S1359431125012815/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjED8aCXVzLWVhc3QtMSJIMEYCIQDKnuztDU4wI%2F%2F%2FD7dwQ%2BBsuiObsnQZy3xUpMG7hciOygIhAM0NbRCo842AQqWhueukbrOGsIJif7Fj8qKQvHRt8C11KrMFCBcQBRoMMDU5MDAzNTQ2ODY1IgxgfnjUTHLojdj6jAIqkAUxTNJA%2BCtN%2BEM9vmKrPfPhO3Rpu%2FNKCu7hGAGAhkL75%2FgI%2Bi8JKgTTmYcp0AJ9QvUKcQKNUjeF9HlKKBtr76PbdN22q2Bu9SUNL1h668jg5LBuDiy4MXTmNViQ7WC464bc2v9WjBBIc2nlBqexR9nAPNk7Xjm95OA2cYX%2FEinIbLZWAhFJ6lXD2eBuXPbkWPteZVkzkEgy4qRhoqOhwjf6NPB2NjuNiWWHdonpKTnZ%2BN3i7BxbuN5nvdZk8gNRhyWJqEdEH1xzxdfTF64%2BpcXsCYRmCI0AfOu2A0%2FzleGe%2BcmniSUxUdUpNaz7TRLN0PQyiJMo3u6PDXTapVeE0PkEzaiaOn54cF49VGFXulaWMoe0lbMipLKCI6A7UXDsSZ6kJxkYXwwUBxpQ%2FeUDyp%2BqRjPzzi1dPklA8UvwthswNZHn4aAdOlEoJC49KOni8eakWn6gOAJqNqRkjFaI840TAsmE8ipeHQnI18PZmOa0aBQRUimy5hYgN0zYImcKz6dlTmaMCYNQVhhBbnCs4oFWgR2KHxDXXS1VC9bZl0N5e6agy6TcaEso4kP9eTOLSpWIu2%2FT6jUf%2BfufLJt7dD86SzNZhCLMVxizaOS6CRrIohRmYGqKIx1po27P9tBfri7H%2By7lsEdusk%2FfFhacjsIP2UunMVJkep4c%2BBiPqsRlyuOatmzyLqYr0S6VbtmDc1lrKAZr0Cqad80vJAEUoG9spme6bjrfc5aHSWQ2g%2BdwBt3t0h%2BwPkWw3runZypXI0Jg37DUzrba7vgBfqwi19%2F7B3LiJw4xn4bsFAdP1FBUTDBVI2vyDrmllHBrokIHN9hzYPm4M%2FvcKSQV5QEfzewxMJU01TDTo2GXUf3HrMr63zCohvzBBjqwARwAueEYQ3nnJCrSJAOvZtNA4QGNYQi743sSpoNSYmCV7%2F8TGH8%2BZjL%2B5VaQBtghwa9aq7kP%2BXeRG3fkv4aP%2Fd%2BsVTR%2BomiDKXbL9nHFXHHfFaG7ERhioqF2vHP5nM0RaXKYvbc2lOzFunp579eQBg4wsWeuWXFCPI%2BUG1LMN99oPBUjeKSQRKEa%2BE3FC0yyLDNwq0Jimq10U0Lfzr6jHNwbYp1xWjxudUpQPnnmIe7L&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T155127Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYVDRRN6LE%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=6f88d87d5859890cb61c8ef71515c9c26d503bb809b16a6f0dd0f6b102de7615&hash=98588d4cb1262f138bf97ef13d532799cdedae6a79690e67293f7dca3236bb21&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S1359431125012815&tid=spdf-03e1618c-e279-40c3-9ac1-e3fd14994ee3&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d5205505205535907&rr=94a05a19d8ea7f93&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- Paper 5 -->
+                    <div class="paper-card fade-in delay-5">
+                        <h3>Bio-Inspired Cooling Systems</h3>
+                        <p>Exploring designs and principles from biological systems (e.g., leaves, animal skin) to develop novel and efficient cooling technologies.</p>
+                        <a href="https://pdf.sciencedirectassets.com/320278/1-s2.0-S2590123024X00031/1-s2.0-S2590123024007485/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjED8aCXVzLWVhc3QtMSJFMEMCH0NTkzMr6CuNwhvhSYyZv1LV0VasUFeiGr0M0sCkxCgCIH2cM2jRS1ZTVHzX%2Fw%2FTPDPaFoIzD6xNMpZnJltWBioNKrMFCBgQBRoMMDU5MDAzNTQ2ODY1IgwXFgQ7iLFQ5qxi3DwqkAX9pVKFY8MUBn3C7%2FZFk3ClEW%2FSZe8VJzN97HA5aY0ehDfsnd97ihrPzQBVtxLuy7SnE4x%2F%2BojbEnbhD%2F2imyAbUkYC7IL%2BL16Ook5nPEbIN%2FLx2smrIBrqscBllsoxkdcVa1cK6mI8aFMnafo7iovaqU0iLUKD%2FzafprvKSRyr4rjjAG%2FGUJUYTEb3MopLp1aKz%2BFwBAJT2mBuRIw1L0s8rZ1oLaboxHTn%2FW7SED3UQDqwBh26VNam36r%2Fz%2FhNWu%2Bg34qIxu%2FOkiUuBcevtnDxW4ph4yGau3cvPUIJOqzNAWVEy%2BqR3rhtX7kDIejuy0YJGc7YAal0C%2FBD7toVHfKjIJqb%2BXtwFkCl6SnrcBJYZiQI%2FHoaE8yudVeentFeF6nKR9Nkw8Afrxn6Yj2oncZTDMQzTL9Niihfdkgsig%2Bf4%2BEvJsITFt90q4DUQlPUv8LFQY6%2FLSqTsTqHut2xewNpS9Uoemq9pHOuM9VrZYu8zPN46UEsor9KWAZ%2BcjLG2yQBhBlHBQdbKclJ8T1X056r%2BgI%2Fy6Ha0FctQEJZNe66pAHvqqZBCdjWFEhipl2uD6V%2By0d%2FQiKBlTJSEfbSzlC88aU8zriGPrvfUoIGuc%2F5JjLV%2BSbco%2FagjftfloqKfD2fICHwCwaOePsAIm%2BTuKQYUptrB8GNJaxykGhR%2B5vOfxJdxyHsvUilFIHDKpjy4MPOfKqcT1O4ZyfqNhCg%2FHtxiF6qr2aOAb0tmDhpnvYFciBhVpLk152WRUCEPgCj1S8OIIfNV7QWILMM7r%2Fhe9izUDdGuFGX9BF1u6Hjqb%2F0k%2BukxDl5K%2ByjHIoihAcH7MIhF69%2F%2BlZsPnT134UkWl5QgwYOrJ0yu2fTGnOrYrAFgzCQmPzBBjqzAXFakyTSdqXs3vJsFrH3TKSmmfllg77Geb0R5WopOsBppKkGmGVH5TBt2C8%2Fp1JtMoObTKx6u7bK7UW6mMSXd%2FJ0fCzO%2Fb63b7P1sIAVuRGgIH5R9lbMeQnkdykcxncj5uPDFbz2rveywjtpwK2T9x3Ijm6g%2FURA0V9CNAfD9TjyrzwJ9yFkrZ13HVN75wD%2BN1AZ2ghidAYq6bmJJD9Aj%2Bl6GfFhlViQcDR9lhMhFj75V%2FIZ&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T155248Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTY46UASTXY%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=fdffb6c6675339fa1d0b8d921625b1bf46ab89ce6231dfa1ba5f647c2df3be39&hash=d597ee4707ebe217cbeb03365431d41a6afecfa8948a60cd328b01bdf3f563a8&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2590123024007485&tid=spdf-a008b55e-b9ac-4949-98aa-2f99a5c036ee&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d5205505207535352&rr=94a05c1319a17f93&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- Paper 6 -->
+                    <div class="paper-card fade-in delay-6">
+                        <h3>Thermoelectric Generators for Waste Heat Recovery</h3>
+                        <p>Research on optimizing thermoelectric materials and devices for converting low-grade waste heat into usable electrical energy.</p>
+                        <a href="https://pdf.sciencedirectassets.com/320278/1-s2.0-S2590123025X00025/1-s2.0-S2590123025009582/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjED8aCXVzLWVhc3QtMSJGMEQCIHooore7YCJFHdfFcQByWKxr8JDmBApG1ivo3LpwdxBAAiBH00AD8LWCECysGSE3cYukQ1MniA1bzadkKvaZPi395SqzBQgYEAUaDDA1OTAwMzU0Njg2NSIMMQ6C6DorqcFGFaYeKpAFbOLUpEv1bndRrtpfeZ6xfMViZPH%2Bvr8SdyfWoVmPLCgTZFTXoHlTxpCMMTCwREcRfCvziZ1TtnnJOSNASLkGxvz9eKPbxMYYeByq7EtI2u7oER2IHBgp0071G8BX%2FVvZE93mZOcr%2F3mowwoWOkucf5Wxs%2Bm8JVhAiOUCUbOUer6eaZGN0AEtKcUS4m%2FjVAs0WMYhb0IHRps4dpPRlDtYZZg%2BnGCdgz%2FL3hQsSTO7GpxHUrarUWRLj2qXVod1IhYk8KWeLXlOUqLRwGg%2FFzcI%2FcId4nnmVNKOfzgODUu8mHwhy7i4iL0RHMdfOXK8VW6dBNQFWvnpJTKXxoXnV%2FwSSbWfkwgbXvm6jMtcpDmhe1p2SAnEGeBswZzbrPfCMWPhNrGdAIHTLIadYU55OcxXQhYCVjY1AlJQywFTNgJ%2F40RBTJtQdgH1u7%2BcNGqso6H991NJdBS7Kzpp7ArUw6syrsxMcDgXJVyQblSd%2BukvLYhw6woEoe177ZSjDMglQ1XbBK0ZN6zYPsQiDtshWS0KaC6urrzNnGDl325E%2FQGBFGQwNEd4muBRA2Q7n3J27gay0MA9%2BNy8fjnJvoq%2Fe6j%2FPUykYRNTWJWEJziVv2fAuzCVC2UqzQg%2FBsRyz8L%2BLoQlD8rMASPXVGfm2Z%2BrFhYL1%2FiRmUaDwDZkcTtw2eniO7JxUstTm%2F2hErvjkSrFobP7Qj6AJ6cb0qywuB5UbFNMZiC0jvAHTvjFwwl88jAs6HpC6dWCXRoPXyqNlj5Hu%2BKoc1hnZPuTwyP34%2BakEEn2g9qLWd4%2Bo2YWpLF5RWFifGej6PyglqIX1jZBavEPygXtH3lt43OI2%2Fa0Np4iHTqZAtPBSN9rJEKei2cHqLEtrvMwtpH8wQY6sgEbditJbI6Z%2FYem0t9Vp1mDuQMs0GX6NWfZCsBuyYj1qFltCmz2XgGB6xF2EmodojXaUTN0BsEgaxSHX2nCJx68KPg1665TmupYcf2XvmD6YwNile4Nv%2BSEImLNPw18dYLCPAQ9IaPKEFc0IDnmdEgwE501B08Rk5KfMToC800ZJBuBVQmpKKi4Zsn66fXidkDoc1%2FDD8cJdgWLLTeWKAV5vVZXL38POggaw5i5Ezq5R04L&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T155448Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYQ74PZV5O%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=02f6c2595ae7f1a0f1cc173e3e846e17e067aeaf53775039d2f22bfbbe258309&hash=1cd7a2e7943b7957a19524aec740b495178818e4cada4814f39305e949c93960&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2590123025009582&tid=spdf-7b092d92-fba0-4018-8638-6866d7f56764&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d5205505202525207&rr=94a05f02dc4e7f93&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- New Paper 7 -->
+                    <div class="paper-card fade-in delay-1">
+                        <h3>Microfluidic Heat Sinks for Electronics</h3>
+                        <p>Advanced designs and performance analysis of microfluidic channels for efficient cooling of high-power electronic devices.</p>
+                        <a href="https://pdf.sciencedirectassets.com/271451/1-s2.0-S0017931023X00180/1-s2.0-S0017931023010761/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEAaCXVzLWVhc3QtMSJIMEYCIQDY6UAM%2F7XX7V2AP%2BwarC9S%2BxUB7VgFKS5Uc9VcLlCdiAIhAKMo7EsjJ6NgKj8Kfweuz7bit1zaT0EwPVnALeGwdPqJKrMFCBkQBRoMMDU5MDAzNTQ2ODY1Igz2aF2tp4ULxH4Eb3YqkAX4meyXj0TII5VVyPRwjaXzv7QPb7cJWaVgqVCIL8rr%2FK6Gpbxams8GYwxu9K69arz%2Bnvidf9QwyrW354jRO23zT414LAWFQ1HCb%2BfAVPl0RbhM%2BILFO4%2FQLJ6OW%2F2wvtocaG%2B04dCglPTwV016VHwtFe7WMLIThkhNcMlZ%2BADbOk1vUb%2F5AGlY%2BV%2Fo9YL2IrJ3Qb9vjdEy8vGGWycbax5rdLauFHnuMLTLTGw5T%2BSbhe3Nbk7QX3bdq4%2BfFL2kvnB%2Bk%2FgpFqVU3BSrr2OzX%2BB3olVZBDx1fbKX49vsOz2i0WRx4qdpO0NCDL7Mh5Bnu1mP0PlxaOzrkU5ttgTxEMwmxYS4DkDFah0yNqxFxuFwBRMPp82JnS2ppqwwAk7mbqcEeiYJtMgVDgDn15BKz2qR1rBQqz9Mmj6fSgsNDbLJYCR4shZvQhuUwTptFncBxjNSB37nzANYa6I28MINQVnZbaz7r0BMKi5XMQ6e3TN9n2k53VJHkdwkv%2F3d1fuO8x9i8o3G6Tl5BB3rsCZ7IT9gUjZt5XthpiJqCFml26wolT%2F%2B5Pdy%2FAGSoaXRyQwxzvb4AykfWjR6FJqjVZUlhS%2FTyXGdh%2FxV4DuuTL3o2zBVIiQnS3xO2yVP7gjk%2BqTJ%2FVuTmOacPSaD9kZF1mTY8EdZ7OXb6Gltf%2BrqOWYad3czZz6jR0ueB5NEWfx3bxjceaby32n9Oxgx3cd6fgHS8MxbfZ%2B8CPB1aWVRlCoRhb4QzStQlZ6xd6aootcGKHCty5AC3GMyKdDwv71NcIrSQQoG8v27NLOXLB17cwxza0J1hxaOGnjXL77MBCd1xyplayGYoEZW%2FDZoGCXB0W9f%2Fx52BSfYFh%2FAWjwHrrVVmlfnBzCcsvzBBjqwAUoENiVZfwWsMZIRy7MrV3OWie%2ByD4mhAf1KkbXam%2Bw7FaENKgyuXJlb7Hc8QxibOX6bNBAxO04krPMPKDiuyqDikAcTiv1XOZszPWpH24uZBBykCFs5%2B9c2FaJ7ZxPCRl7cZx5m%2FMtrXigfDW8UH3Rq1WgceGDKaPv6xmFuycMbMSyfhXAL6xtnpxaRSYI3jdrA8Pvkbve43eciHccjd2UQmukk12TPoo%2BThbMxn7Hj&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T155617Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYS3ULVTH3%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=6e320cbd55c979ee1450addf75475abccc73346630c3adbb0d0a489ad74e969a&hash=802a4c38b45ab9ea27ba86d39d3ea2a3abe3e796b3c7def28f126290f39c9b55&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0017931023010761&tid=spdf-9424dd1a-411c-49bf-998f-7d2c7a096fd5&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d520550515550045b&rr=94a0612d8dad7ea6&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- New Paper 8 -->
+                    <div class="paper-card fade-in delay-2">
+                        <h3>Radiative Cooling Technologies</h3>
+                        <p>Innovations in passive radiative cooling materials and structures for zero-energy cooling applications in buildings and beyond.</p>
+                        <a href="https://pdf.sciencedirectassets.com/318494/1-s2.0-S2589004224X00127/1-s2.0-S2589004224025501/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEAaCXVzLWVhc3QtMSJHMEUCIBnd3kYVwHIE3Jr6bJX1cxxHSWm59rclu5lm07BCAXoWAiEAyMj5i0skUsCVV8YOjptxlndzr4zpAmXcBYuqYwhYokkqsgUIGBAFGgwwNTkwMDM1NDY4NjUiDBXDQz3GEqxXPUxqlCqPBQxvPUx68dOhgfHZ47Ue8G1XizbyjjPQgXmNwdqL6U0K7hYkFsdNR6FJw293mQdQbxNiB3dXdnopfviq%2BG5cwpDFDIEHv2OOyhZz1H6dD463w3eRKw1BO7OIIiJP5bBS1unKWiMAirbyJgQEUtFPDxCT2Mb2HFCaD0H8igVJu8D4I2QFfPRqCwJ0ybJSATb7NbvDU8QbUlC0s7YqX2LjamqZHxzJJPyNmLMJawUtTOMP3PGvZZ0G6SKR%2Fj5NE3dJsZyYYKUvf8QbMJbyA%2Fm5fVEFG6aISrFxgAF2RSfHnm6iyFGwks6PyoENqIiBxucUMRSRL1rMbGLQzHY24so%2FFfVgttsw6foEVL7MuwQSVQEdKcTISttmmeFEh9ccgS1URSNq1%2Fcap8KlWz2OLY8NbAVuScDkKDKekwkDD4vgkWNW5Fl%2FTykBjsa4CEzYENpti0ESEmEasVYgVRUinosFVG2U6xRMNEiIbmrfuj5MU1VV8Stp8fZUW8FuLjeneKWb5DCBEt1lQtQ%2Fud8C0JSGhFSBny8HdCx%2F5%2Bx5tjzdvLDJMpoeFTRattg16iQqn3mhDZXIy%2Fmrva39FcXRU8KDpBNtrydMy%2FahEHD%2ByNEmGIJXzofZpox4MO6dInz2PpABlrALQTIVGqGAG1g%2BHY5dBtqxh%2BZA7iqZyMyZ618DLhmy2cQiqp%2BA5cnukAFEhFGQsqjB0ggJMN%2Bqj%2FaOPaZ5j7hitrI7CxUbTjngp9bZREsR1jKDs169uS9cGqTyRaMlKWSUccXT8GrK73trJaBzdkM5RcZjwRPcWflcJdfRA0yjmsdRja1D7jeLo18yasqNdxYAI%2BrEQPcFzVxRfDJ1H4pqx5LFnwWnPDlkZMhS0cow7p%2F8wQY6sQH%2BOstc5dysF%2BPi9aMpKpa5YtoR6LI8INb%2BzebeCuUuazBegkZEaCQot46A8oMa4jrRnjzX%2Bk4tWddJdKW5o4eU5rh4KBUH7mJcR7kQqakMtMsHa5gGHlGxlCzAGd9cm07ddY2e93qWSZvLt3a9PE5PjHAHOnNEPk1gYXzBaPZsnFEGHSBt0hvhulaBChvlOULVz1ETfun9CVXln%2FquzzwyJQX%2F2GmzGM5jv5EOoFqzToE%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T155724Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYTQAO73MB%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=13af18976ddd0a0a36cc9deb10b8b6e59f665c767c44057b0cd46b8e1d0ad91c&hash=79fd722fd46bb6706c900bb8dc031516b920b94d980425858005c7822f414327&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2589004224025501&tid=spdf-56bbd518-1296-4f9f-9c6c-4da1f786aac4&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d5205505156065106&rr=94a062d1eee47ea6&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- New Paper 9 -->
+                    <div class="paper-card fade-in delay-3">
+                        <h3>Heat Transfer in Hypersonic Flows</h3>
+                        <p>Challenges and solutions for thermal management in extreme conditions encountered by hypersonic vehicles and re-entry spacecraft.</p>
+                        <a href="https://pdf.sciencedirectassets.com/286906/1-s2.0-S2214157X22X00099/1-s2.0-S2214157X22007122/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEAaCXVzLWVhc3QtMSJHMEUCIQCBsJXdXQtWjusN5JDgrDTZQ0s2Uq1sfxdNaNIDAyolsQIgKDNTaOD6HDjn9WNyxOovIV6qkTpT7qB3r7C%2FqrhwlooqsgUIGBAFGgwwNTkwMDM1NDY4NjUiDC7a%2Fp4Hyy9PNqzEUiqPBRWSH8B9s5CFBnJQPu4VYotLK8WNZSEvepFkA9tH15UrozfS5WEqkezJpWxcseZpgDOYhno9Bi6GodwcSPdk3yBGT3ycC%2BJbXZb7xa0dJVWkfUmaqsb1%2BicthbCWWuWlMKMEhGL%2B4UsKAUqNLTIo3tSbH9xk3pHcFUcdFESO7TcSdePC53AbXO14NdTIcaU3O8%2FFwrYcKYHovAiEkX77PHt8mJmkdj3sxk609Bf87YbEBzud9%2FGUQFuTLT2j4%2FZ1G3bqR4wBEFBji5Qp%2FN6QT51NFlWtLAuON149u5q9cyM%2BWbnwk%2BcAsjk3pY%2Bim8BJ0B9vLytXCDtiqejAs7uqTgcxoHfkxLZZks%2BN1afnRnvrN%2FVvRKgzgPCdBgaVt%2FMcOy6Ct6QoWDfufMKSshjE%2B6064j827B3A27J2HIsS459zIJgot%2FgRmfEDfeuc9S1iOUJsH%2FUcHBhFEVzDGGWnymbNXAjjZMNs5PHpoGOmdfVIhv7rOoT%2FpBG78AA%2FMlFbF%2BfywgmT1WZcBG0sJVzDM6LLfa8nIOZ6MpSsR2hOp5AqEsUrQayT01GrLS%2BacdkfOyyGANcaW%2FoATqwsmML2GmyTtD6M71WlMO%2FOq7mkuRY1beyqZmt%2BeDm356yHmWJWg0oO1trplt%2BnQSfqWsLsemMhURuACzusD5J9piAvDnbHzEjU2U0VDhr19ahe7nhZX5yf8QZG8FhUQcaa5yW%2Br0TyOj559fLuYOZp2tqPR8F7KlnjdIplXbf0XGizGPjypN%2BY8UCZocK4R85HhL0qwhh%2BXwMOIZ5jFexqgQjhKyEenLVb35SfqXE6wGUelS%2FGb42F8dg1iSsdGAGFRiOkV6J6mzNWJShxrDpGday5VD4wqKL8wQY6sQGTp0Fy3YAPYUPBkcy%2FnI%2BcYcNSoYECa8l6iv1VBETy1785KTpz3HpkRDf9hOA16qMRfvKVl9Gpn4yX9LPvNTbd92rnOqMtqg4ndzmYaqa93ePvr3w1AGJTgCrzsIGtFGGeLtxh45rIlHVYV4i4R9adf9V8hGU%2FA2gn2YJqOrcvRG7Dt8mjphNvdGVgzvy4W9Xb4Ce8%2Br92BTKUibP1%2BskcO9v9NMiHm6Pl6QPf49xel30%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T155822Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYTP6QU67D%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=87782ce365d33f64f710be322f94b30e404630145c6c698f98af6eff727be11d&hash=d3735bf95ff32c1e107291491fcf798ba3d9f59d58f2384799104e141135d239&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2214157X22007122&tid=spdf-a565651a-63a0-4676-b6e2-83a3b59a6379&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d5205505150510657&rr=94a0643f4dff7ea6&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- New Paper 10 -->
+                    <div class="paper-card fade-in delay-4">
+                        <h3>Porous Media Heat Transfer</h3>
+                        <p>Modeling and experimental studies on heat and mass transfer phenomena in various porous materials for energy and industrial applications.</p>
+                        <a href="https://pdf.sciencedirectassets.com/286906/1-s2.0-S2214157X25X00071/1-s2.0-S2214157X25005106/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEAaCXVzLWVhc3QtMSJHMEUCIQCBsJXdXQtWjusN5JDgrDTZQ0s2Uq1sfxdNaNIDAyolsQIgKDNTaOD6HDjn9WNyxOovIV6qkTpT7qB3r7C%2FqrhwlooqsgUIGBAFGgwwNTkwMDM1NDY4NjUiDC7a%2Fp4Hyy9PNqzEUiqPBRWSH8B9s5CFBnJQPu4VYotLK8WNZSEvepFkA9tH15UrozfS5WEqkezJpWxcseZpgDOYhno9Bi6GodwcSPdk3yBGT3ycC%2BJbXZb7xa0dJVWkfUmaqsb1%2BicthbCWWuWlMKMEhGL%2B4UsKAUqNLTIo3tSbH9xk3pHcFUcdFESO7TcSdePC53AbXO14NdTIcaU3O8%2FFwrYcKYHovAiEkX77PHt8mJmkdj3sxk609Bf87YbEBzud9%2FGUQFuTLT2j4%2FZ1G3bqR4wBEFBji5Qp%2FN6QT51NFlWtLAuON149u5q9cyM%2BWbnwk%2BcAsjk3pY%2Bim8BJ0B9vLytXCDtiqejAs7uqTgcxoHfkxLZZks%2BN1afnRnvrN%2FVvRKgzgPCdBgaVt%2FMcOy6Ct6QoWDfufMKSshjE%2B6064j827B3A27J2HIsS459zIJgot%2FgRmfEDfeuc9S1iOUJsH%2FUcHBhFEVzDGGWnymbNXAjjZMNs5PHpoGOmdfVIhv7rOoT%2FpBG78AA%2FMlFbF%2BfywgmT1WZcBG0sJVzDM6LLfa8nIOZ6MpSsR2hOp5AqEsUrQayT01GrLS%2BacdkfOyyGANcaW%2FoATqwsmML2GmyTtD6M71WlMO%2FOq7mkuRY1beyqZmt%2BeDm356yHmWJWg0oO1trplt%2BnQSfqWsLsemMhURuACzusD5J9piAvDnbHzEjU2U0VDhr19ahe7nhZX5yf8QZG8FhUQcaa5yW%2Br0TyOj559fLuYOZp2tqPR8F7KlnjdIplXbf0XGizGPjypN%2BY8UCZocK4R85HhL0qwhh%2BXwMOIZ5jFexqgQjhKyEenLVb35SfqXE6wGUelS%2FGb42F8dg1iSsdGAGFRiOkV6J6mzNWJShxrDpGday5VD4wqKL8wQY6sQGTp0Fy3YAPYUPBkcy%2FnI%2BcYcNSoYECa8l6iv1VBETy1785KTpz3HpkRDf9hOA16qMRfvKVl9Gpn4yX9LPvNTbd92rnOqMtqg4ndzmYaqa93ePvr3w1AGJTgCrzsIGtFGGeLtxh45rIlHVYV4i4R9adf9V8hGU%2FA2gn2YJqOrcvRG7Dt8mjphNvdGVgzvy4W9Xb4Ce8%2Br92BTKUibP1%2BskcO9v9NMiHm6Pl6QPf49xel30%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T160017Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYTP6QU67D%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=df3bd2cd5256a1a9e838ed9309ac5caead968b594fbb4b028dff376a73a0b61e&hash=0f0b9731c4c84e2fb28622b5181104b072f925c7992a212369f7937fb1fdae75&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2214157X25005106&tid=spdf-8ae6338e-b6e2-4578-8f54-b5b704de13bc&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d520550515352585a&rr=94a0670898107ea6&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- New Paper 11 -->
+                    <div class="paper-card fade-in delay-5">
+                        <h3>Thermal Management of Batteries</h3>
+                        <p>Strategies and systems for effective thermal control of lithium-ion batteries to enhance performance, safety, and lifespan in EVs and electronics.</p>
+                        <a href="https://pdf.sciencedirectassets.com/286906/1-s2.0-S2214157X25X00071/1-s2.0-S2214157X25006549/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEAaCXVzLWVhc3QtMSJHMEUCIQDgcN296e4vbiZDRUg%2BwcyJOzcT%2Fmy0k4r%2F4H9yxFlukQIgaHPy%2B%2BPRRi0r9n2GfTXeYDOVTjUn41iPkqJjfZ5TK%2F4qswUIGRAFGgwwNTkwMDM1NDY4NjUiDMkCKCbbEAFN5NCnKyqQBXiH9eQVArZnG7TbSK8rmPMH7xb4AZQISCjZmawxJqZNZMjfCWMYnzrX0veKdTedizUykAoIzhT5MxCd4BzGK0AI4cicXUWFaUmJfcujLqBVFqHdaQUpFZPjrPENS37CiUyOn35%2FgXBiyPEieFlcKKA0WP1tTNBrlKGMgw5aYoy6bUyHirttqFqloRtc68bPrjzyfwKCypa7hq%2B2wbScW8eVMFkKIyr5w%2B%2FVqpd9fWLpxLOQM9CNUc4kRXGlvPTHFcclyKLL3tCoKAASqMWy8P3xvQRhOFUdbTidhPKwaKLm8CdQaOOhKsu0lnOtMttzx2C1wY0YuaN5Mj7rByKNUDi9d%2BBb7fdEf0%2BNsLmzSRwXcnsFHVNjvNiYecVwITrdnYuOw5fJcgyIV8FgTIVyo6GGTnYMvZmAFb3iiAVxkDNgg9fya4M5AaSvsR9O1mTOAlYCQQCpqAEi6e2JqysV4Wj0R7RI7JexP5%2Fn6tn%2FUgEuO6pS%2Fdq%2BYFi5bKR8d%2BQM1QxDY%2FMsg31YESX4TcpPUoNqs%2FHlhZNNqjE5QdvCLVRyTDim3uuza1d%2BLhqYbfim9pTrhI3LUNvHXEN3gmXYSvGzyTVb1pI6wMfIK%2BWaYIudfBJ9aBfs%2Fm4cNUB7tnhaYwqr%2FoDlcYUP1Y70ttF%2B3ntyjifE0Wzn98KppI3Na%2BUIn%2B6I1%2BtA%2FkJ8FGEvM9pI%2Fxcvx%2F04%2B1FbCqwtlr9Ci%2FC0NybRuHa331QcyqwsAWSssxR%2FuQWlf8gbbU3B2aQLoR8bFWjaCHXl6LZA14RNEfR1WsZUO%2FfvR7Ke9iMzcPHvD0ZUGMk%2FJvsM8JfvcEtgqJhgAPRwURxyV6LD9fvd%2BD2nRuczyCKQaszNoWTnrhBQMK2r%2FMEGOrEBULlN3t0RKH0LHMlSh5bDk2jW5R9p2d8slKr07%2BpedWfa8BXJBgxR%2Bh7O8gkhNF%2FLe5DjYpLvIwhNCB5SkCUjQcjBQ%2B4oFKBBu5BByS8B1Dt3aGCkl6qCpOdCFvfi%2BFz3F0dXDgXaNEgMtGgjBXjWUsZ%2FRiIsRWQ38W7HZAyNLPaIRb75qCQIWSHtUDyLDtN6wRTAD%2FoRWDffDZLImYBglf0NrTK9PIKeD747U3CsGYjX&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T160136Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYTWQXKVWW%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=88a51e0f65e9f55119e66d7479c16419b597d0a71457590d21bda0f8dd73592c&hash=2363a582b019541e0d96a9477873f8f8d23adee207aad09bbfad610a570b945d&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2214157X25006549&tid=spdf-db3972bc-1adc-4314-9c11-eec4e80ba997&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d520550515c040200&rr=94a068fbcd9c7ea6&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <!-- New Paper 12 -->
+                    <div class="paper-card fade-in delay-6">
+                        <h3>Conjugate Heat Transfer Simulations</h3>
+                        <p>Advanced numerical methods and computational fluid dynamics (CFD) for simulating coupled fluid flow and heat conduction in complex geometries.</p>
+                        <a href="https://pdf.sciencedirectassets.com/286906/1-s2.0-S2214157X25X0006X/1-s2.0-S2214157X25004034/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEAaCXVzLWVhc3QtMSJIMEYCIQDY6UAM%2F7XX7V2AP%2BwarC9S%2BxUB7VgFKS5Uc9VcLlCdiAIhAKMo7EsjJ6NgKj8Kfweuz7bit1zaT0EwPVnALeGwdPqJKrMFCBkQBRoMMDU5MDAzNTQ2ODY1Igz2aF2tp4ULxH4Eb3YqkAX4meyXj0TII5VVyPRwjaXzv7QPb7cJWaVgqVCIL8rr%2FK6Gpbxams8GYwxu9K69arz%2Bnvidf9QwyrW354jRO23zT414LAWFQ1HCb%2BfAVPl0RbhM%2BILFO4%2FQLJ6OW%2F2wvtocaG%2B04dCglPTwV016VHwtFe7WMLIThkhNcMlZ%2BADbOk1vUb%2F5AGlY%2BV%2Fo9YL2IrJ3Qb9vjdEy8vGGWycbax5rdLauFHnuMLTLTGw5T%2BSbhe3Nbk7QX3bdq4%2BfFL2kvnB%2Bk%2FgpFqVU3BSrr2OzX%2BB3olVZBDx1fbKX49vsOz2i0WRx4qdpO0NCDL7Mh5Bnu1mP0PlxaOzrkU5ttgTxEMwmxYS4DkDFah0yNqxFxuFwBRMPp82JnS2ppqwwAk7mbqcEeiYJtMgVDgDn15BKz2qR1rBQqz9Mmj6fSgsNDbLJYCR4shZvQhuUwTptFncBxjNSB37nzANYa6I28MINQVnZbaz7r0BMKi5XMQ6e3TN9n2k53VJHkdwkv%2F3d1fuO8x9i8o3G6Tl5BB3rsCZ7IT9gUjZt5XthpiJqCFml26wolT%2F%2B5Pdy%2FAGSoaXRyQwxzvb4AykfWjR6FJqjVZUlhS%2FTyXGdh%2FxV4DuuTL3o2zBVIiQnS3xO2yVP7gjk%2BqTJ%2FVuTmOacPSaD9kZF1mTY8EdZ7OXb6Gltf%2BrqOWYad3czZz6jR0ueB5NEWfx3bxjceaby32n9Oxgx3cd6fgHS8MxbfZ%2B8CPB1aWVRlCoRhb4QzStQlZ6xd6aootcGKHCty5AC3GMyKdDwv71NcIrSQQoG8v27NLOXLB17cwxza0J1hxaOGnjXL77MBCd1xyplayGYoEZW%2FDZoGCXB0W9f%2Fx52BSfYFh%2FAWjwHrrVVmlfnBzCcsvzBBjqwAUoENiVZfwWsMZIRy7MrV3OWie%2ByD4mhAf1KkbXam%2Bw7FaENKgyuXJlb7Hc8QxibOX6bNBAxO04krPMPKDiuyqDikAcTiv1XOZszPWpH24uZBBykCFs5%2B9c2FaJ7ZxPCRl7cZx5m%2FMtrXigfDW8UH3Rq1WgceGDKaPv6xmFuycMbMSyfhXAL6xtnpxaRSYI3jdrA8Pvkbve43eciHccjd2UQmukk12TPoo%2BThbMxn7Hj&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250603T160232Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYS3ULVTH3%2F20250603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=b63f95556c3072e65210ec61b87ae1ab7673f50b38fe28bd750c9a067e7ffc3d&hash=6e7e30b98059190a4cf75d51caf3166a6a53856008395a5335c9c2567cf43041&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2214157X25004034&tid=spdf-33fe4897-d93e-4357-bd58-df71d596f3d4&sid=9791b3cf4b876342504a443267425fcf0c1dgxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13085d5205505105575454&rr=94a06a547a607ea6&cc=in" target="_blank" class="access-button">
+                            Access Paper <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="fade-in">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column">
+                        <h3>Explore</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="flowchart.html">Flow Chart</a></li>
+                            <li class="footer-link"><a href="problemsolving.html">Problem Solving</a></li>
+                            <li class="footer-link"><a href="AR/front.html">AR Models</a></li>
+                            <li class="footer-link"><a href="#">Research Papers</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Resources</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="#">Tutorials</a></li>
+                            <li class="footer-link"><a href="#">Calculators</a></li>
+                            <li class="footer-link"><a href="#">Case Studies</a></li>
+                            <li class="footer-link"><a href="#">Glossary</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Connect</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="#">Contact Us</a></li>
+                            <li class="footer-link"><a href="#">Contribute</a></li>
+                            <li class="footer-link"><a href="#">Feedback</a></li>
+                            <li class="footer-link"><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="copyright">
+                    <p>&copy; 2025 HEAT HUB | All Rights Reserved</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Sidebar functionality (copied from main page)
+        const menuBtn = document.querySelector('.menu-btn');
+        const closeBtn = document.querySelector('.close-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            mainContent.classList.add('sidebar-active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            mainContent.classList.remove('sidebar-active');
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mainContent.classList.remove('sidebar-active');
+            }
+        });
+
+        // Add loaded class for animations (copied from main page)
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 300);
+            
+            // Animate elements when they come into view (copied from main page)
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Add hover effects to cards (copied from main page)
+            const cards = document.querySelectorAll('.paper-card'); /* Changed selector to paper-card */
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-10px)';
+                    card.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.3)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                    card.style.boxShadow = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

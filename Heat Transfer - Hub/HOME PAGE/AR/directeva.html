@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Direct Evaporative Cooler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #2196F3; /* Blue border for cooler theme */
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2); /* Blue shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #90CAF9; /* Lighter blue for info panel title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #ffffff;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px;
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #ffffff;
+            border: 2px solid #2196F3; /* Thicker blue border */
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: 180px;
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        }
+        button:hover {
+            background-color: rgba(33, 150, 243, 0.3); /* Lighter blue on hover */
+            border-color: #90CAF9; /* Lighter border on hover */
+            box-shadow: 0 6px 15px rgba(33, 150, 243, 0.4);
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Direct Evaporative Cooler - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: #ffffff; font-size: 14px;">Component Quick View:</div>
+        <button id="view-casing"><span class="color-indicator" style="background-color: #607D8B;"></span>View Casing</button>
+        <button id="view-water-reservoir"><span class="color-indicator" style="background-color: #2196F3;"></span>View Water Reservoir</button>
+        <button id="view-pump"><span class="color-indicator" style="background-color: #FFC107;"></span>View Pump</button>
+        <button id="view-evaporative-pads"><span class="color-indicator" style="background-color: #8BC34A;"></span>View Evaporative Pads</button>
+        <button id="view-fan"><span class="color-indicator" style="background-color: #9E9E9E;"></span>View Fan</button>
+        <button id="view-water-distribution"><span class="color-indicator" style="background-color: #03A9F4;"></span>View Water Distribution</button>
+        <button id="view-air-inlet"><span class="color-indicator" style="background-color: #FF5722;"></span>View Air Inlet</button>
+        <button id="view-air-outlet"><span class="color-indicator" style="background-color: #4CAF50;"></span>View Air Outlet</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main Three.js variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(30, 25, 40); // Initial camera position
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 10, 0); // Point camera towards the center of the cooler
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(20, 50, 30); // Positioned above and to the side
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 150;
+        directionalLight.shadow.camera.left = -60;
+        directionalLight.shadow.camera.right = 60;
+        directionalLight.shadow.camera.top = 60;
+        directionalLight.shadow.camera.bottom = -60;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-20, -50, -30);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000);
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false;
+
+        // Component storage
+        const components = {
+            casing: null,
+            waterReservoir: null,
+            pump: null,
+            evaporativePads: null,
+            fan: null,
+            waterDistribution: null,
+            airInlet: null,
+            airOutlet: null,
+            waterParticles: null,
+            airParticles: null,
+            fullAssembly: null
+        };
+        
+        // Component information
+        const componentInfo = {
+            'casing': {
+                title: 'Cooler Casing',
+                description: 'The outer shell of the evaporative cooler, providing structural support and enclosing the internal components.',
+                color: 0x607D8B, // Blue Grey 500
+            },
+            'waterReservoir': {
+                title: 'Water Reservoir',
+                description: 'The basin at the bottom of the cooler that holds the water to be evaporated.',
+                color: 0x2196F3, // Blue 500
+            },
+            'pump': {
+                title: 'Water Pump',
+                description: 'Circulates water from the reservoir to the water distribution system at the top of the evaporative pads.',
+                color: 0xFFC107, // Amber 500
+            },
+            'evaporativePads': {
+                title: 'Evaporative Pads',
+                description: 'Porous media (e.g., cellulose or aspen wood) that absorb water and provide a large surface area for evaporation as air passes through.',
+                color: 0x8BC34A, // Light Green 500
+            },
+            'fan': {
+                title: 'Fan',
+                description: 'Draws warm, dry air into the cooler and pushes cooled, humidified air out into the space.',
+                color: 0x9E9E9E, // Grey 500
+            },
+            'waterDistribution': {
+                title: 'Water Distribution System',
+                description: 'A system of pipes and nozzles that evenly distributes water over the top of the evaporative pads.',
+                color: 0x03A9F4, // Light Blue 500
+            },
+            'airInlet': {
+                title: 'Air Inlet',
+                description: 'Openings on the sides of the casing where warm, dry ambient air enters the cooler.',
+                color: 0xFF5722, // Deep Orange 500
+            },
+            'airOutlet': {
+                title: 'Air Outlet',
+                description: 'The opening where the cooled, humidified air exits the cooler, typically driven by the fan.',
+                color: 0x4CAF50, // Green 500
+            }
+        };
+
+        // Global constants for cooler dimensions
+        const coolerWidth = 20;
+        const coolerHeight = 25;
+        const coolerDepth = 15;
+
+        const casingThickness = 0.8;
+        const reservoirHeight = 3;
+        const padThickness = 1.0;
+        const numPads = 3;
+        const fanRadius = 4;
+        const fanThickness = 2;
+        const pumpSize = 1.5;
+        const pipeRadius = 0.3;
+
+        // Global constants for fluid particles
+        const particleSizeWater = 0.3;
+        const particleSizeAir = 0.4;
+
+
+        // Create all components of the direct evaporative cooler
+        function createComponents() {
+            const coolerGroup = new THREE.Group();
+            coolerGroup.position.y = coolerHeight / 2; // Position base at Y=0
+
+            // Casing (transparent)
+            const casingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.casing.color,
+                metalness: 0.8,
+                roughness: 0.2,
+                clearcoat: 0.5,
+                transparent: true,
+                opacity: 0.3, // Make casing semi-transparent
+                side: THREE.DoubleSide
+            });
+            components.casing = new THREE.Mesh(
+                new THREE.BoxGeometry(coolerWidth, coolerHeight, coolerDepth),
+                casingMaterial
+            );
+            components.casing.position.y = 0;
+            components.casing.userData = { type: 'casing' };
+            coolerGroup.add(components.casing);
+
+            // Water Reservoir
+            const reservoirMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.waterReservoir.color,
+                transparent: true,
+                opacity: 0.7,
+                roughness: 0.3,
+                metalness: 0.1
+            });
+            components.waterReservoir = new THREE.Mesh(
+                new THREE.BoxGeometry(coolerWidth * 0.9, reservoirHeight, coolerDepth * 0.9),
+                reservoirMaterial
+            );
+            components.waterReservoir.position.y = -coolerHeight / 2 + reservoirHeight / 2;
+            components.waterReservoir.userData = { type: 'waterReservoir' };
+            coolerGroup.add(components.waterReservoir);
+
+            // Pump
+            const pumpMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.pump.color,
+                metalness: 0.8,
+                roughness: 0.4
+            });
+            components.pump = new THREE.Mesh(
+                new THREE.CylinderGeometry(pumpSize / 2, pumpSize / 2, pumpSize, 16),
+                pumpMaterial
+            );
+            components.pump.position.set(coolerWidth / 2 - pumpSize, -coolerHeight / 2 + reservoirHeight + pumpSize / 2, coolerDepth / 2 - pumpSize);
+            components.pump.userData = { type: 'pump' };
+            coolerGroup.add(components.pump);
+
+            // Evaporative Pads
+            components.evaporativePads = new THREE.Group();
+            const padMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.evaporativePads.color,
+                transparent: true,
+                opacity: 0.8,
+                roughness: 0.7,
+                side: THREE.DoubleSide
+            });
+            const totalPadsHeight = coolerHeight - reservoirHeight - fanThickness - casingThickness * 2;
+            const singlePadHeight = (totalPadsHeight - (numPads - 1) * 0.5) / numPads; // 0.5 is spacing between pads
+            const padWidth = coolerWidth * 0.8;
+            const padDepth = coolerDepth * 0.8;
+
+            for (let i = 0; i < numPads; i++) {
+                const pad = new THREE.Mesh(
+                    new THREE.BoxGeometry(padWidth, singlePadHeight, padDepth),
+                    padMaterial
+                );
+                pad.position.y = -coolerHeight / 2 + reservoirHeight + singlePadHeight / 2 + (singlePadHeight + 0.5) * i;
+                pad.userData = { type: 'evaporativePads' };
+                components.evaporativePads.add(pad);
+            }
+            coolerGroup.add(components.evaporativePads);
+
+            // Fan
+            components.fan = new THREE.Group();
+            const fanHousingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fan.color,
+                metalness: 0.6,
+                roughness: 0.5
+            });
+            const fanBladeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x546E7A, // Darker grey for blades
+                metalness: 0.9,
+                roughness: 0.3
+            });
+
+            const fanHousing = new THREE.Mesh(
+                new THREE.CylinderGeometry(fanRadius + 0.5, fanRadius + 0.5, fanThickness + 0.5, 32),
+                fanHousingMaterial
+            );
+            fanHousing.position.y = coolerHeight / 2 - fanThickness / 2;
+            fanHousing.userData = { type: 'fan' };
+            components.fan.add(fanHousing);
+
+            // Simple fan blades (3 blades)
+            for (let i = 0; i < 3; i++) {
+                const blade = new THREE.Mesh(
+                    new THREE.BoxGeometry(fanRadius * 0.8, fanRadius * 0.2, 0.5),
+                    fanBladeMaterial
+                );
+                blade.position.y = fanHousing.position.y;
+                blade.rotation.z = (Math.PI * 2 / 3) * i;
+                blade.userData = { type: 'fan' };
+                components.fan.add(blade);
+            }
+            coolerGroup.add(components.fan);
+
+            // Water Distribution System
+            components.waterDistribution = new THREE.Group();
+            const distMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.waterDistribution.color,
+                transparent: true,
+                opacity: 0.7,
+                roughness: 0.4
+            });
+            const distTray = new THREE.Mesh(
+                new THREE.BoxGeometry(padWidth * 0.9, 0.5, padDepth * 0.9),
+                distMaterial
+            );
+            distTray.position.y = components.evaporativePads.children[numPads - 1].position.y + singlePadHeight / 2 + 0.25;
+            distTray.userData = { type: 'waterDistribution' };
+            components.waterDistribution.add(distTray);
+
+            // Small pipes/nozzles on the tray
+            for (let i = 0; i < 5; i++) {
+                const nozzle = new THREE.Mesh(
+                    new THREE.CylinderGeometry(pipeRadius, pipeRadius, 0.5, 8),
+                    distMaterial
+                );
+                nozzle.position.set(
+                    (Math.random() - 0.5) * (padWidth * 0.8),
+                    distTray.position.y + 0.25,
+                    (Math.random() - 0.5) * (padDepth * 0.8)
+                );
+                nozzle.userData = { type: 'waterDistribution' };
+                components.waterDistribution.add(nozzle);
+            }
+            coolerGroup.add(components.waterDistribution);
+
+            // Air Inlet (represented by a plane/box on the side)
+            const airInletMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.airInlet.color,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide
+            });
+            components.airInlet = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, coolerHeight * 0.7, coolerDepth * 0.8),
+                airInletMaterial
+            );
+            components.airInlet.position.set(-coolerWidth / 2 + 0.05, 0, 0);
+            components.airInlet.userData = { type: 'airInlet' };
+            coolerGroup.add(components.airInlet);
+
+            // Air Outlet (represented by a plane/box on the top)
+            const airOutletMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.airOutlet.color,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide
+            });
+            components.airOutlet = new THREE.Mesh(
+                new THREE.BoxGeometry(fanRadius * 2 + 1, 0.1, fanRadius * 2 + 1),
+                airOutletMaterial
+            );
+            components.airOutlet.position.set(components.fan.position.x, coolerHeight / 2 - 0.05, components.fan.position.z);
+            components.airOutlet.userData = { type: 'airOutlet' };
+            coolerGroup.add(components.airOutlet);
+
+
+            // --- Fluid Flow Animations ---
+            function createFluidParticles(color, numParticles, size, blending = THREE.AdditiveBlending, opacity = 0.7) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: size,
+                    blending: blending,
+                    transparent: true,
+                    opacity: opacity,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random());
+                return points;
+            }
+
+            // Water Particles
+            components.waterParticles = createFluidParticles(0x00BFFF, 200, particleSizeWater); // Deep Sky Blue
+            components.waterParticles.userData.paths = [];
+
+            // Path for water circulation
+            for (let i = 0; i < 5; i++) {
+                const startPoint = new THREE.Vector3(
+                    (Math.random() - 0.5) * (coolerWidth * 0.8),
+                    components.waterReservoir.position.y + reservoirHeight / 2 - 0.5,
+                    (Math.random() - 0.5) * (coolerDepth * 0.8)
+                );
+                const midPointPump = components.pump.position.clone().add(new THREE.Vector3(0, pumpSize / 2 + 1, 0));
+                const midPointDist = components.waterDistribution.position.clone().add(new THREE.Vector3(
+                    (Math.random() - 0.5) * (padWidth * 0.5),
+                    0.5,
+                    (Math.random() - 0.5) * (padDepth * 0.5)
+                ));
+                const endPointPad = components.evaporativePads.children[0].position.clone().add(new THREE.Vector3(
+                    (Math.random() - 0.5) * (padWidth * 0.5),
+                    -singlePadHeight / 2 - 0.5,
+                    (Math.random() - 0.5) * (padDepth * 0.5)
+                ));
+
+                const pathPoints = [
+                    startPoint,
+                    midPointPump,
+                    midPointDist,
+                    endPointPad,
+                    startPoint.clone().add(new THREE.Vector3(0, -1, 0)) // Back to reservoir
+                ];
+                components.waterParticles.userData.paths.push(new THREE.CatmullRomCurve3(pathPoints));
+            }
+            coolerGroup.add(components.waterParticles);
+
+            // Air Particles
+            components.airParticles = createFluidParticles(0xF0F8FF, 300, particleSizeAir); // Alice Blue
+            components.airParticles.userData.paths = [];
+
+            // Path for air flow
+            for (let i = 0; i < 8; i++) {
+                const inletX = components.airInlet.position.x + 0.1 + (Math.random() * 2 - 1) * (coolerWidth * 0.1);
+                const inletY = (Math.random() - 0.5) * (coolerHeight * 0.6);
+                const inletZ = (Math.random() - 0.5) * (coolerDepth * 0.7);
+
+                const fanX = components.fan.position.x + (Math.random() * 2 - 1) * (fanRadius * 0.5);
+                const fanY = components.fan.position.y + fanThickness / 2 + 0.5;
+                const fanZ = components.fan.position.z + (Math.random() * 2 - 1) * (fanRadius * 0.5);
+
+                const pathPoints = [
+                    new THREE.Vector3(inletX, inletY, inletZ), // From inlet
+                    new THREE.Vector3(0, components.evaporativePads.children[0].position.y, 0).add(new THREE.Vector3((Math.random() - 0.5) * padWidth * 0.5, (Math.random() - 0.5) * totalPadsHeight * 0.5, (Math.random() - 0.5) * padDepth * 0.5)), // Through pads
+                    new THREE.Vector3(0, components.fan.position.y - fanThickness / 2, 0).add(new THREE.Vector3((Math.random() - 0.5) * fanRadius * 0.8, 0, (Math.random() - 0.5) * fanRadius * 0.8)), // Towards fan
+                    new THREE.Vector3(fanX, fanY, fanZ) // Exiting fan
+                ];
+                components.airParticles.userData.paths.push(new THREE.CatmullRomCurve3(pathPoints));
+            }
+            coolerGroup.add(components.airParticles);
+
+            // Initially hide fluid/particle animations
+            components.waterParticles.visible = false;
+            components.airParticles.visible = false;
+
+            components.fullAssembly = coolerGroup;
+            scene.add(components.fullAssembly);
+        }
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && 
+                    !comp.userData.isFluidFlow && comp !== components.waterParticles &&
+                    comp !== components.airParticles) { 
+                    comp.visible = false;
+                }
+            });
+            
+            components.waterParticles.visible = false;
+            components.airParticles.visible = false;
+
+            if (componentType === 'casing') {
+                components.casing.visible = true;
+            } else if (componentType === 'waterReservoir') {
+                components.casing.visible = true;
+                components.waterReservoir.visible = true;
+                components.pump.visible = true; // Context
+                components.waterParticles.visible = true;
+            } else if (componentType === 'pump') {
+                components.casing.visible = true;
+                components.waterReservoir.visible = true; // Context
+                components.pump.visible = true;
+                components.waterDistribution.visible = true; // Context
+                components.waterParticles.visible = true;
+            } else if (componentType === 'evaporativePads') {
+                components.casing.visible = true;
+                components.evaporativePads.visible = true;
+                components.waterReservoir.visible = true; // Context
+                components.waterDistribution.visible = true; // Context
+                components.fan.visible = true; // Context
+                components.waterParticles.visible = true;
+                components.airParticles.visible = true;
+            } else if (componentType === 'fan') {
+                components.casing.visible = true;
+                components.fan.visible = true;
+                components.airInlet.visible = true; // Context
+                components.airOutlet.visible = true; // Context
+                components.airParticles.visible = true;
+            } else if (componentType === 'waterDistribution') {
+                components.casing.visible = true;
+                components.waterDistribution.visible = true;
+                components.evaporativePads.visible = true; // Context
+                components.pump.visible = true; // Context
+                components.waterParticles.visible = true;
+            } else if (componentType === 'airInlet') {
+                components.casing.visible = true;
+                components.airInlet.visible = true;
+                components.evaporativePads.visible = true; // Context
+                components.airParticles.visible = true;
+            } else if (componentType === 'airOutlet') {
+                components.casing.visible = true;
+                components.airOutlet.visible = true;
+                components.fan.visible = true; // Context
+                components.airParticles.visible = true;
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fullAssembly) comp.visible = true;
+                });
+                components.waterParticles.visible = true;
+                components.airParticles.visible = true;
+            }
+            
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            let targetObject;
+            if (componentType === 'casing') targetObject = components.casing;
+            else if (componentType === 'waterReservoir') targetObject = components.waterReservoir;
+            else if (componentType === 'pump') targetObject = components.pump;
+            else if (componentType === 'evaporativePads') targetObject = components.evaporativePads;
+            else if (componentType === 'fan') targetObject = components.fan;
+            else if (componentType === 'waterDistribution') targetObject = components.waterDistribution;
+            else if (componentType === 'airInlet') targetObject = components.airInlet;
+            else if (componentType === 'airOutlet') targetObject = components.airOutlet;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false;
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 2.5;
+            
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize();
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05;
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) {
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true;
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            components.waterParticles.visible = isSectionView;
+            components.airParticles.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    const componentType = child.userData.type;
+                    if (componentType === 'casing' || componentType === 'waterReservoir' || 
+                        componentType === 'pump' || componentType === 'evaporativePads' || 
+                        componentType === 'fan' || componentType === 'waterDistribution' ||
+                        componentType === 'airInlet' || componentType === 'airOutlet') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-casing').addEventListener('click', () => showOnly('casing'));
+        document.getElementById('view-water-reservoir').addEventListener('click', () => showOnly('waterReservoir'));
+        document.getElementById('view-pump').addEventListener('click', () => showOnly('pump'));
+        document.getElementById('view-evaporative-pads').addEventListener('click', () => showOnly('evaporativePads'));
+        document.getElementById('view-fan').addEventListener('click', () => showOnly('fan'));
+        document.getElementById('view-water-distribution').addEventListener('click', () => showOnly('waterDistribution'));
+        document.getElementById('view-air-inlet').addEventListener('click', () => showOnly('airInlet'));
+        document.getElementById('view-air-outlet').addEventListener('click', () => showOnly('airOutlet'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Animate water particles
+            if (components.waterParticles && components.waterParticles.visible) {
+                const particles = components.waterParticles;
+                if (particles && particles.geometry && particles.geometry.attributes && particles.geometry.attributes.position) {
+                    const positions = particles.geometry.attributes.position.array;
+                    const paths = particles.userData.paths;
+                    const particlesPerPath = Math.floor(particles.userData.progress.length / paths.length);
+
+                    for (let i = 0; i < particles.userData.progress.length; i++) {
+                        const pathIndex = Math.floor(i / particlesPerPath);
+                        const currentPath = paths[pathIndex];
+                        if (!currentPath) continue;
+
+                        particles.userData.progress[i] = (particles.userData.progress[i] + 0.005) % 1; // Water speed
+                        const p = currentPath.getPointAt(particles.userData.progress[i]);
+                        positions[i * 3] = p.x + (Math.random() - 0.5) * 0.1;
+                        positions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.1;
+                        positions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.1;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                }
+            }
+
+            // Animate air particles
+            if (components.airParticles && components.airParticles.visible) {
+                const particles = components.airParticles;
+                if (particles && particles.geometry && particles.geometry.attributes && particles.geometry.attributes.position) {
+                    const positions = particles.geometry.attributes.position.array;
+                    const paths = particles.userData.paths;
+                    const particlesPerPath = Math.floor(particles.userData.progress.length / paths.length);
+
+                    for (let i = 0; i < particles.userData.progress.length; i++) {
+                        const pathIndex = Math.floor(i / particlesPerPath);
+                        const currentPath = paths[pathIndex];
+                        if (!currentPath) continue;
+
+                        particles.userData.progress[i] = (particles.userData.progress[i] + 0.008) % 1; // Air speed
+                        const p = currentPath.getPointAt(particles.userData.progress[i]);
+                        positions[i * 3] = p.x + (Math.random() - 0.5) * 0.2;
+                        positions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.2;
+                        positions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.2;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                }
+            }
+
+            // Animate fan blades
+            if (components.fan && components.fan.visible && components.fan.children.length > 1) {
+                const fanBlades = components.fan.children.filter(child => child.userData.type === 'fan' && child.geometry.type === 'BoxGeometry');
+                fanBlades.forEach(blade => {
+                    blade.rotation.z += 0.1; // Rotate blades
+                });
+            }
+
+            renderer.render(scene, camera);
+        }
+        
+        window.onload = function () {
+            createComponents();
+            showOnly('full');
+            animate(); 
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEAT HUB | Case Studies</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Import Google Fonts - Inter and Oswald */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
+
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary: #FF4D00;
+            --primary-light: #FF6A00;
+            --secondary: #00B4D8;
+            --secondary-light: #00E0FF;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #2E2E2E;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 126, 61, 0.605);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --primary-color: var(--primary);
+            --glow-color: #ff6b00;
+        }
+
+        /* Universal Box-Sizing */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and Base Styles */
+        body {
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            background: radial-gradient(ellipse at bottom, #0a0a0a 0%, #000000 100%); /* Deep black with subtle glow for background */
+            min-height: 100vh; /* Use min-height for content to extend page */
+            display: flex;
+            flex-direction: column; /* Arrange content vertically */
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Heading Styles */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        p {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* ========== LAYOUT & CONTAINERS ========== */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* ========== SIDEBAR STYLES ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            height: 100vh;
+            background: var(--dark-gray);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-header .logo {
+            font-size: 1.5rem;
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--text-shadow);
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu li a i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+            padding-left: 2rem;
+        }
+
+        .sidebar-menu li a.active {
+            background: rgba(255, 77, 0, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--medium-gray);
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 0 1rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        /* ========== MAIN CONTENT & MENU BUTTON ========== */
+        .main-content {
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            padding-top: 20px;
+        }
+
+        .main-content.sidebar-active {
+            margin-left: 350px;
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            background: var(--dark-gray);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--glass-border);
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-link a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+        .delay-5 { animation-delay: 1.0s; }
+        .delay-6 { animation-delay: 1.2s; }
+        .delay-7 { animation-delay: 1.4s; }
+        .delay-8 { animation-delay: 1.6s; }
+        .delay-9 { animation-delay: 1.8s; }
+        .delay-10 { animation-delay: 2.0s; }
+
+
+        /* ========== CASE STUDIES SPECIFIC STYLES ========== */
+        .case-studies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .case-study-card {
+            background: var(--dark-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .case-study-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+            z-index: -1;
+        }
+
+        .case-study-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 77, 0, 0.3);
+        }
+
+        .case-study-card h3 {
+            color: var(--white);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .case-study-card h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .case-study-card p {
+            /* Removed margin-bottom to allow natural spacing */
+            flex-grow: 1;
+        }
+        
+        /* Optional: Style for a "Read More" link if you decide to add it later */
+        .read-more-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+            margin-top: 1rem; /* Add some space above the link */
+        }
+
+        .read-more-link:hover {
+            color: var(--primary-light);
+            transform: translateX(5px);
+            text-decoration: underline;
+        }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+                left: -280px;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: 280px;
+            }
+            
+            .menu-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .section {
+                padding: 4rem 0;
+            }
+            
+            .case-studies-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">HEAT HUB</h1>
+            <button class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="HT.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="register.html"><i class="fas fa-user-plus"></i> Register</a></li>
+            <li><a href="AR/front.html"><i class="fas fa-cube"></i> AR Models</a></li>
+            <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="tutorials.html"><i class="fas fa-book"></i> Tutorials</a></li>
+            <li><a href="research_papers.html"><i class="fas fa-flask"></i> Research Papers</a></li>
+            <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculators</a></li>
+            <li><a href="#" class="active"><i class="fas fa-chart-pie"></i> Case Studies</a></li> <!-- Marked as active, new icon -->
+            <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="search-box">
+                <input type="text" placeholder="Search..." class="search-input">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Menu Button -->
+        <button class="menu-btn"><i class="fas fa-bars"></i></button>
+
+        <!-- Page Header -->
+        <section class="section">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Heat Transfer Case Studies</h2>
+                    <p class="delay-1">Real-world applications and problem-solving scenarios in heat transfer</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case Studies Grid -->
+        <section class="section" style="background: rgba(10, 10, 10, 0.5);">
+            <div class="container">
+                <div class="case-studies-grid">
+                    <!-- Case Study 1: Thermal Management in Laptops -->
+                    <div class="case-study-card fade-in delay-1">
+                        <h3>Thermal Management in High-Performance Laptops</h3>
+                        <p>Analyzing the design and effectiveness of heat pipes and cooling fans to prevent overheating in compact electronic devices.</p>
+                        <!-- <a href="https://example.com/case-study-laptop-cooling.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 2: Solar Water Heating Efficiency -->
+                    <div class="case-study-card fade-in delay-2">
+                        <h3>Optimizing Solar Water Heater Efficiency</h3>
+                        <p>A study on improving the heat absorption and storage capabilities of residential solar thermal systems for domestic hot water.</p>
+                        <!-- <a href="https://example.com/case-study-solar-heater.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 3: Insulation in Green Buildings -->
+                    <div class="case-study-card fade-in delay-3">
+                        <h3>Advanced Insulation for Energy-Efficient Buildings</h3>
+                        <p>Examining the impact of novel insulating materials and building envelope designs on reducing heating and cooling loads.</p>
+                        <!-- <a href="https://example.com/case-study-green-building.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 4: Heat Sinks in LED Lighting -->
+                    <div class="case-study-card fade-in delay-4">
+                        <h3>Designing Effective Heat Sinks for High-Power LEDs</h3>
+                        <p>Investigation into the thermal challenges of LED lighting and the role of heat sink geometry in extending product lifespan.</p>
+                        <!-- <a href="https://example.com/case-study-led-heatsink.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 5: Cryogenic Heat Transfer in Space -->
+                    <div class="case-study-card fade-in delay-5">
+                        <h3>Cryogenic Heat Transfer for Space Applications</h3>
+                        <p>Addressing the unique challenges of thermal management and heat rejection in spacecraft and satellite systems at extremely low temperatures.</p>
+                        <!-- <a href="https://example.com/case-study-cryo-space.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 6: Industrial Furnace Heat Recovery -->
+                    <div class="case-study-card fade-in delay-6">
+                        <h3>Waste Heat Recovery in Industrial Furnaces</h3>
+                        <p>Case study on implementing heat exchangers and recuperators to capture and reuse waste heat from high-temperature industrial processes.</p>
+                        <!-- <a href="https://example.com/case-study-furnace-recovery.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 7: Geothermal Energy Systems -->
+                    <div class="case-study-card fade-in delay-7">
+                        <h3>Geothermal Heat Pump System Performance</h3>
+                        <p>Evaluating the efficiency and environmental benefits of ground-source heat pumps for residential and commercial heating and cooling.</p>
+                        <!-- <a href="https://example.com/case-study-geothermal.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 8: Thermal Runaway in Batteries -->
+                    <div class="case-study-card fade-in delay-8">
+                        <h3>Preventing Thermal Runaway in Electric Vehicle Batteries</h3>
+                        <p>Examining thermal management strategies and safety mechanisms to mitigate thermal runaway in large battery packs.</p>
+                        <!-- <a href="https://example.com/case-study-battery-thermal.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 9: Cooling of Data Centers -->
+                    <div class="case-study-card fade-in delay-9">
+                        <h3>Optimizing Cooling Systems for Hyperscale Data Centers</h3>
+                        <p>A deep dive into liquid cooling, air economizers, and intelligent thermal management in modern data centers.</p>
+                        <!-- <a href="https://example.com/case-study-data-center.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- Case Study 10: Heat Transfer in Nuclear Reactors -->
+                    <div class="case-study-card fade-in delay-10">
+                        <h3>Heat Transfer Challenges in Nuclear Reactor Core Design</h3>
+                        <p>Understanding the critical role of heat removal and fluid dynamics in ensuring the safety and efficiency of nuclear power generation.</p>
+                        <!-- <a href="https://example.com/case-study-nuclear-reactor.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- New Case Study 11: Heat Transfer in 3D Printing -->
+                    <div class="case-study-card fade-in delay-1">
+                        <h3>Controlling Heat Transfer in Additive Manufacturing</h3>
+                        <p>Investigating how precise thermal control during 3D printing (e.g., laser powder bed fusion) impacts material properties and structural integrity.</p>
+                        <!-- <a href="https://example.com/case-study-3d-printing.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- New Case Study 12: Thermal Comfort in Smart Buildings -->
+                    <div class="case-study-card fade-in delay-2">
+                        <h3>Enhancing Thermal Comfort in Smart Buildings</h3>
+                        <p>Exploring the use of IoT sensors, predictive analytics, and smart HVAC systems to optimize indoor thermal environments for occupants.</p>
+                        <!-- <a href="https://example.com/case-study-smart-buildings.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- New Case Study 13: Permafrost Thaw and Infrastructure -->
+                    <div class="case-study-card fade-in delay-3">
+                        <h3>Mitigating Permafrost Thaw Impacts on Arctic Infrastructure</h3>
+                        <p>Addressing the heat transfer challenges and engineering solutions required to stabilize foundations and pipelines in thawing permafrost regions.</p>
+                        <!-- <a href="https://example.com/case-study-permafrost.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- New Case Study 14: Food Processing and Preservation -->
+                    <div class="case-study-card fade-in delay-4">
+                        <h3>Heat Transfer in Food Processing and Preservation</h3>
+                        <p>Examining heating, cooling, and freezing processes in the food industry to ensure product safety, quality, and extended shelf life.</p>
+                        <!-- <a href="https://example.com/case-study-food-processing.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- New Case Study 15: Spacecraft Re-entry Thermal Protection -->
+                    <div class="case-study-card fade-in delay-5">
+                        <h3>Thermal Protection Systems for Spacecraft Re-entry</h3>
+                        <p>Analyzing the extreme heat loads experienced during atmospheric re-entry and the advanced materials used for ablative and radiative cooling.</p>
+                        <!-- <a href="https://example.com/case-study-space-reentry.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+
+                    <!-- New Case Study 16: Biomedical Applications of Heat Transfer -->
+                    <div class="case-study-card fade-in delay-6">
+                        <h3>Biomedical Applications: Targeted Hyperthermia</h3>
+                        <p>Exploring the use of localized heat (e.g., radiofrequency, ultrasound) for therapeutic purposes, such as cancer treatment, and its thermal modeling.</p>
+                        <!-- <a href="https://example.com/case-study-biomedical-ht.html" target="_blank" class="read-more-link">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a> -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="fade-in">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column">
+                        <h3>Explore</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="flowchart.html">Flow Chart</a></li>
+                            <li class="footer-link"><a href="problemsolving.html">Problem Solving</a></li>
+                            <li class="footer-link"><a href="AR/front.html">AR Models</a></li>
+                            <li class="footer-link"><a href="research_papers.html">Research Papers</a></li>
+                            <li class="footer-link"><a href="#">Case Studies</a></li> <!-- Updated link -->
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Resources</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="tutorials.html">Tutorials</a></li>
+                            <li class="footer-link"><a href="calculator.html">Calculators</a></li>
+                            <li class="footer-link"><a href="#">Case Studies</a></li>
+                            <li class="footer-link"><a href="#">Glossary</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Connect</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="#">Contact Us</a></li>
+                            <li class="footer-link"><a href="#">Contribute</a></li>
+                            <li class="footer-link"><a href="#">Feedback</a></li>
+                            <li class="footer-link"><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="copyright">
+                    <p>&copy; 2025 HEAT HUB | All Rights Reserved</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        const menuBtn = document.querySelector('.menu-btn');
+        const closeBtn = document.querySelector('.close-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            mainContent.classList.add('sidebar-active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            mainContent.classList.remove('sidebar-active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mainContent.classList.remove('sidebar-active');
+            }
+        });
+
+        // Add loaded class for animations
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 300);
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.case-study-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-10px)';
+                    card.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.3)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                    card.style.boxShadow = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

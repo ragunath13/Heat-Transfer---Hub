@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEAT HUB | AR Models - Industrial Equipment</title>
+    <link rel="icon" href="https://placehold.co/32x32/FF4D00/FFFFFF?text=🔥" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS Variables (from previous theme) */
+        :root {
+            --primary: #FF4D00;
+            --primary-light: #FF6A00;
+            --secondary: #00B4D8;
+            --secondary-light: #00E0FF;
+            --dark: #000000; /* Deep black */
+            --dark-gray: #0A0A0A; /* Slightly lighter for elements */
+            --medium-gray: #1A1A1A;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 126, 61, 0.2);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+            /* New section background colors */
+            --boilers-bg: rgba(255, 99, 71, 0.05); /* Tomato */
+            --condensers-bg: rgba(100, 149, 237, 0.05); /* CornflowerBlue */
+            --evaporators-bg: rgba(153, 50, 204, 0.05); /* DarkOrchid */
+            --cooling-towers-bg: rgba(60, 179, 113, 0.05); /* MediumSeaGreen */
+            --furnaces-bg: rgba(255, 165, 0, 0.05); /* Orange */
+            --evaporative-coolers-bg: rgba(135, 206, 235, 0.05); /* SkyBlue */
+            --reboilers-bg: rgba(255, 20, 147, 0.05); /* DeepPink */
+            --economizers-bg: rgba(0, 128, 0, 0.05); /* Green */
+            --superheaters-bg: rgba(255, 69, 0, 0.05); /* OrangeRed */
+            --recuperators-bg: rgba(75, 0, 130, 0.05); /* Indigo */
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 106, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(0, 180, 216, 0.05) 0%, transparent 20%);
+        }
+
+        /* Headings */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-family: 'Oswald', sans-serif;
+            text-align: center;
+            background: linear-gradient(90deg, var(--white), var(--light-gray));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--text-shadow);
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+        }
+
+        /* ========== LAYOUT & CONTAINERS ========== */
+        .main-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* Header Specifics */
+        .header {
+            padding: 4rem 0 2rem;
+            text-align: center;
+            background: var(--dark-gray);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* AR Models Grid */
+        .ar-models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .ar-card {
+            background: var(--medium-gray);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden; /* Ensures image corners are rounded */
+        }
+
+        .ar-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            border-color: var(--primary);
+        }
+
+        .ar-card img {
+            width: 100%;
+            height: 200px; /* Fixed height for consistency */
+            object-fit: cover; /* Ensures image covers the area without distortion */
+            border-radius: 10px; /* Rounded corners for images */
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .ar-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .ar-card h3 {
+            color: var(--primary-light);
+            margin-bottom: 0.8rem;
+            font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+        }
+
+        .ar-card p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            flex-grow: 1; /* Allows description to take available space */
+            margin-bottom: 1rem;
+        }
+
+        .ar-card .view-model-btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            background: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 77, 0, 0.3);
+        }
+
+        .ar-card .view-model-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 77, 0, 0.5);
+        }
+
+        /* Section Backgrounds for visual distinction */
+        .ar-section-bg {
+            background: rgba(0, 180, 216, 0.05); /* Subtle secondary color tint for main section */
+        }
+
+        .boilers-section-bg {
+            background: var(--boilers-bg);
+        }
+
+        .condensers-section-bg {
+            background: var(--condensers-bg);
+        }
+
+        .evaporators-section-bg {
+            background: var(--evaporators-bg);
+        }
+
+        .cooling-towers-section-bg {
+            background: var(--cooling-towers-bg);
+        }
+
+        .furnaces-section-bg {
+            background: var(--furnaces-bg);
+        }
+
+        .evaporative-coolers-section-bg {
+            background: var(--evaporative-coolers-bg);
+        }
+
+        .reboilers-section-bg {
+            background: var(--reboilers-bg);
+        }
+
+        .economizers-section-bg {
+            background: var(--economizers-bg);
+        }
+
+        .superheaters-section-bg {
+            background: var(--superheaters-bg);
+        }
+
+        .recuperators-section-bg {
+            background: var(--recuperators-bg);
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            margin-top: auto;
+            background: var(--dark-gray);
+            padding: 2rem 0;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .copyright p {
+            color: rgba(255, 255, 255, 0.5);
+            margin: 0;
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .section {
+                padding: 4rem 0;
+            }
+
+            .ar-models-grid {
+                gap: 1.5rem;
+            }
+
+            h1 {
+                font-size: clamp(2rem, 7vw, 3.5rem);
+            }
+
+            h2 {
+                font-size: clamp(1.5rem, 4.5vw, 2.5rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            h1 {
+                font-size: clamp(1.8rem, 6vw, 3rem);
+            }
+
+            h2 {
+                font-size: clamp(1.3rem, 4vw, 2rem);
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <header class="header">
+            <div class="container">
+                <h1 class="page-title fade-in">AR Models: Industrial Equipment</h1>
+                <p class="subtitle fade-in delay-1">Explore interactive 3D models of various industrial thermal equipment.</p>
+            </div>
+        </header>
+
+        <section class="section ar-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Heat Exchangers</h2>
+                    <p class="delay-1">Devices for efficient heat transfer between two or more fluids.</p>
+                </div>
+
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/FF4D00/FFFFFF?text=Shell+and+Tube" alt="Shell and Tube Heat Exchanger AR Model">
+                        <h3>Shell and Tube</h3>
+                        <p>A versatile heat exchanger with a bundle of tubes inside a shell, allowing heat transfer between two fluids.</p>
+                        <a href="shellandtube.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/00B4D8/FFFFFF?text=Plate+Heat+Exchanger" alt="Plate Heat Exchanger AR Model">
+                        <h3>Plate Heat Exchanger</h3>
+                        <p>Composed of multiple thin, corrugated plates, offering high heat transfer efficiency in a compact design.</p>
+                        <a href="plate.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/FF6A00/FFFFFF?text=Double+Pipe" alt="Double Pipe Heat Exchanger AR Model">
+                        <h3>Double Pipe</h3>
+                        <p>Simple design consisting of two concentric pipes, ideal for small flow rates and high temperature differences.</p>
+                        <a href="doblepipe.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/904E95/FFFFFF?text=Finned+Tube" alt="Finned Tube Heat Exchanger AR Model">
+                        <h3>Finned Tube</h3>
+                        <p>Features extended surfaces (fins) on the tubes to enhance heat transfer, commonly used in air-cooling applications.</p>
+                        <a href="finned.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/4ECDC4/FFFFFF?text=Compact+HE" alt="Compact Heat Exchanger AR Model">
+                        <h3>Compact Heat Exchanger</h3>
+                        <p>Designed for very high heat transfer area to volume ratio, often found in automotive and aerospace industries.</p>
+                        <a href="compact.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/FF3D3D/FFFFFF?text=Spiral+HE" alt="Spiral Heat Exchanger AR Model">
+                        <h3>Spiral Heat Exchanger</h3>
+                        <p>Consists of two concentric spiral channels, suitable for handling viscous fluids and slurries.</p>
+                        <a href="spiral.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/00E0FF/FFFFFF?text=Air+Cooled+HE" alt="Air Cooled Heat Exchanger AR Model">
+                        <h3>Air Cooled Heat Exchanger</h3>
+                        <p>Uses ambient air to cool a process fluid, often with large finned tube bundles and fans.</p>
+                        <a href="aircooled.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/F86F3D/FFFFFF?text=Gasketed+Plate+HE" alt="Gasketed Plate Heat Exchanger AR Model">
+                        <h3>Gasketed Plate</h3>
+                        <p>Plates are sealed with gaskets, allowing for easy cleaning and modification of heat transfer area.</p>
+                        <a href="gaskted.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/ECD54D/FFFFFF?text=Welded+Plate+HE" alt="Welded Plate Heat Exchanger AR Model">
+                        <h3>Welded Plate</h3>
+                        <p>Plates are welded together, providing a robust design suitable for high pressures and temperatures.</p>
+                        <a href="welded.html" class="view-model-btn">View Model</a>
+                    </div>
+
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/11999E/FFFFFF?text=Brazed+Plate+HE" alt="Brazed Plate Heat Exchanger AR Model">
+                        <h3>Brazed Plate</h3>
+                        <p>Plates are brazed together, creating a compact and efficient unit without gaskets, ideal for refrigeration.</p>
+                        <a href="brazed.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section boilers-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Boilers</h2>
+                    <p class="delay-1">Equipment used to generate steam or hot water by transferring heat from a fuel source.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/FF6347/FFFFFF?text=Fire-Tube+Boiler" alt="Fire-Tube Boiler AR Model">
+                        <h3>Fire-Tube Boiler</h3>
+                        <p>Hot gases pass through tubes surrounded by water, commonly used for smaller capacities and lower pressures.</p>
+                        <a href="firetube.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/CD5C5C/FFFFFF?text=Water-Tube+Boiler" alt="Water-Tube Boiler AR Model">
+                        <h3>Water-Tube Boiler</h3>
+                        <p>Water flows inside tubes, which are heated externally by hot gases, suitable for high pressures and large capacities.</p>
+                        <a href="watertube.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/DC143C/FFFFFF?text=Electric+Boiler" alt="Electric Boiler AR Model">
+                        <h3>Electric Boiler</h3>
+                        <p>Uses electricity to heat water, offering clean operation without combustion, often for smaller, localized needs.</p>
+                        <a href="electricboiler.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/8B0000/FFFFFF?text=Packaged+Boiler" alt="Packaged Boiler AR Model">
+                        <h3>Packaged Boiler</h3>
+                        <p>A self-contained unit with all necessary components pre-assembled, ideal for ease of installation.</p>
+                        <a href="packedgedbooiler.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/A52A2A/FFFFFF?text=Fluidized+Bed+Boiler" alt="Fluidized Bed Boiler AR Model">
+                        <h3>Fluidized Bed Boiler</h3>
+                        <p>Combustion occurs in a bed of hot, fluidized particles, allowing for efficient burning of various fuels with reduced emissions.</p>
+                        <a href="fludizedbedboiler.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section condensers-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Condensers</h2>
+                    <p class="delay-1">Devices that condense a substance from its gaseous to its liquid state, typically by cooling it.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/6495ED/FFFFFF?text=Surface+Condenser" alt="Surface Condenser AR Model">
+                        <h3>Surface Condenser</h3>
+                        <p>Separates cooling fluid from the condensing vapor, widely used in power plants to condense exhaust steam.</p>
+                        <a href="surfacecondenser.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/4169E1/FFFFFF?text=Jet+Condenser" alt="Jet Condenser AR Model">
+                        <h3>Jet Condenser</h3>
+                        <p>Direct contact between cooling water and vapor, resulting in a mixture of condensate and cooling water.</p>
+                        <a href="jetcondenser.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/1E90FF/FFFFFF?text=Air-Cooled+Condenser" alt="Air-Cooled Condenser AR Model">
+                        <h3>Air-Cooled Condenser</h3>
+                        <p>Uses ambient air as the cooling medium, eliminating the need for water, suitable for arid regions.</p>
+                        <a href="aircooledcondenser.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/0000CD/FFFFFF?text=Evaporative+Condenser" alt="Evaporative Condenser AR Model">
+                        <h3>Evaporative Condenser</h3>
+                        <p>Combines features of a cooling tower and a shell-and-tube condenser, using evaporative cooling for efficiency.</p>
+                        <a href="evaporativecondenser.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section evaporators-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Evaporators</h2>
+                    <p class="delay-1">Heat exchangers used to turn a liquid into a vapor, often to concentrate a solution.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/9932CC/FFFFFF?text=Falling+Film+Evaporator" alt="Falling Film Evaporator AR Model">
+                        <h3>Falling Film Evaporator</h3>
+                        <p>Liquid flows as a thin film down heated tubes, ideal for heat-sensitive products due to short contact time.</p>
+                        <a href="fallinf.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/8A2BE2/FFFFFF?text=Rising+Film+Evaporator" alt="Rising Film Evaporator AR Model">
+                        <h3>Rising Film Evaporator</h3>
+                        <p>Vaporization occurs as liquid rises in heated tubes, creating a pumping effect for efficient circulation.</p>
+                        <a href="rising.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/4B0082/FFFFFF?text=Forced+Circulation+Evaporator" alt="Forced Circulation Evaporator AR Model">
+                        <h3>Forced Circulation Evaporator</h3>
+                        <p>Uses a pump to circulate liquid through heat exchanger tubes, preventing fouling and allowing high heat transfer rates.</p>
+                        <a href="forced.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/BA55D3/FFFFFF?text=Plate+Evaporator" alt="Plate Evaporator AR Model">
+                        <h3>Plate Evaporator</h3>
+                        <p>Similar to plate heat exchangers, but designed for boiling, offering high efficiency and compactness.</p>
+                        <a href="plate.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section cooling-towers-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Cooling Towers</h2>
+                    <p class="delay-1">Equipment used to dissipate waste heat from water to the atmosphere, typically through evaporation.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/3CB371/FFFFFF?text=Natural+Draft+CT" alt="Natural Draft Cooling Tower AR Model">
+                        <h3>Natural Draft Cooling Tower</h3>
+                        <p>Uses buoyancy of hot, moist air to create airflow, characterized by large hyperbolic structures.</p>
+                        <a href="naturalct.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/2E8B57/FFFFFF?text=Mechanical+Draft+CT" alt="Mechanical Draft Cooling Tower AR Model">
+                        <h3>Mechanical Draft Cooling Tower</h3>
+                        <p>Uses fans to force or induce air through the tower, offering more control over airflow and cooling.</p>
+                        <a href="mechanicalct.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/32CD32/FFFFFF?text=Crossflow+CT" alt="Crossflow Cooling Tower AR Model">
+                        <h3>Crossflow Cooling Tower</h3>
+                        <p>Air flows horizontally through the fill while water flows vertically, simplifying water distribution.</p>
+                        <a href="crossflowct.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/006400/FFFFFF?text=Counterflow+CT" alt="Counterflow Cooling Tower AR Model">
+                        <h3>Counterflow Cooling Tower</h3>
+                        <p>Air flows vertically upward, counter to the downward flow of water, providing highly efficient heat transfer.</p>
+                        <a href="counterflowct.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section furnaces-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Furnaces</h2>
+                    <p class="delay-1">Industrial equipment used for high-temperature heating processes, often involving combustion.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/FFA500/FFFFFF?text=Box+Furnace" alt="Box Furnace AR Model">
+                        <h3>Box Furnace</h3>
+                        <p>Rectangular chamber with heating elements or burners, used for batch processing and heat treatment.</p>
+                        <a href="boxfurnance.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/FF8C00/FFFFFF?text=Tunnel+Furnace" alt="Tunnel Furnace AR Model">
+                        <h3>Tunnel Furnace</h3>
+                        <p>Long, continuous chamber where products move through different temperature zones, ideal for continuous processing.</p>
+                        <a href="tunnelfurnance.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/FF4500/FFFFFF?text=Rotary+Hearth+Furnace" alt="Rotary Hearth Furnace AR Model">
+                        <h3>Rotary Hearth Furnace</h3>
+                        <p>Features a rotating circular hearth for heating parts uniformly, commonly used in forging and heat treatment.</p>
+                        <a href="rotaryfurnance.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/B22222/FFFFFF?text=Muffle+Furnace" alt="Muffle Furnace AR Model">
+                        <h3>Muffle Furnace</h3>
+                        <p>Provides an isolated chamber where material is heated without direct contact with combustion products.</p>
+                        <a href="muffel.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/8B0000/FFFFFF?text=Blast+Furnace" alt="Blast+Furnace+AR+Model">
+                        <h3>Blast Furnace</h3>
+                        <p>Used for smelting iron from iron ore, a large, vertical shaft furnace operating at high temperatures.</p>
+                        <a href="blastfurnance.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section evaporative-coolers-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Evaporative Coolers</h2>
+                    <p class="delay-1">Cooling devices that use the evaporation of water to cool air.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/87CEEB/FFFFFF?text=Direct+Evaporative+Cooler" alt="Direct Evaporative Cooler AR Model">
+                        <h3>Direct Evaporative Cooler</h3>
+                        <p>Humidifies and cools air directly by passing it over water-saturated pads, ideal for dry climates.</p>
+                        <a href="directeva.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/6A5ACD/FFFFFF?text=Indirect+Evaporative+Cooler" alt="Indirect Evaporative Cooler AR Model">
+                        <h3>Indirect Evaporative Cooler</h3>
+                        <p>Cools air without adding humidity by using a heat exchanger, providing cooler, drier air.</p>
+                        <a href="indirectev.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section reboilers-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Reboilers</h2>
+                    <p class="delay-1">Heat exchangers used to generate vapor at the bottom of distillation columns.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/FF1493/FFFFFF?text=Kettle+Reboiler" alt="Kettle Reboiler AR Model">
+                        <h3>Kettle Reboiler</h3>
+                        <p>A horizontal shell-and-tube heat exchanger where liquid boils in the shell side, generating vapor.</p>
+                        <a href="kettle.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/C71585/FFFFFF?text=Thermosiphon+Reboiler" alt="Thermosiphon Reboiler AR Model">
+                        <h3>Thermosiphon Reboiler</h3>
+                        <p>Relies on natural circulation due to density differences to circulate liquid through heated tubes.</p>
+                        <a href="Thermosiphon.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-3">
+                        <img src="https://placehold.co/400x200/DB7093/FFFFFF?text=Forced+Circulation+Reboiler" alt="Forced Circulation Reboiler AR Model">
+                        <h3>Forced Circulation Reboiler</h3>
+                        <p>Uses a pump to ensure high liquid velocity through the tubes, preventing fouling and improving heat transfer.</p>
+                        <a href="forced.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section economizers-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Economizers</h2>
+                    <p class="delay-1">Heat recovery devices that preheat boiler feedwater using waste heat from flue gases.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/008000/FFFFFF?text=Finned+Tube+Economizer" alt="Finned Tube Economizer AR Model">
+                        <h3>Finned Tube Economizer</h3>
+                        <p>Uses finned tubes to maximize heat transfer area, commonly found in industrial boilers.</p>
+                        <a href="finnedecono.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/3CB371/FFFFFF?text=Plain+Tube+Economizer" alt="Plain Tube Economizer AR Model">
+                        <h3>Plain Tube Economizer</h3>
+                        <p>Simpler design with bare tubes, suitable for applications where flue gas is relatively clean.</p>
+                        <a href="plaineconom.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section superheaters-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Superheaters</h2>
+                    <p class="delay-1">Heat exchangers that convert saturated steam into superheated steam, increasing efficiency.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/FF4500/FFFFFF?text=Radiant+Superheater" alt="Radiant Superheater AR Model">
+                        <h3>Radiant Superheater</h3>
+                        <p>Located in the furnace, receives heat primarily by radiation from the combustion gases.</p>
+                        <a href="radiantsuper.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/DC143C/FFFFFF?text=Convective+Superheater" alt="Convective Superheater AR Model">
+                        <h3>Convective Superheater</h3>
+                        <p>Placed in the path of hot flue gases, receives heat primarily by convection.</p>
+                        <a href="convective.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section recuperators-section-bg">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Recuperators</h2>
+                    <p class="delay-1">Air-to-air heat exchangers used for heat recovery from exhaust gases to preheat combustion air.</p>
+                </div>
+                <div class="ar-models-grid">
+                    <div class="ar-card fade-in delay-1">
+                        <img src="https://placehold.co/400x200/4B0082/FFFFFF?text=Metallic+Recuperator" alt="Metallic Recuperator AR Model">
+                        <h3>Metallic Recuperator</h3>
+                        <p>Constructed from metal alloys, suitable for lower temperature applications and corrosive environments.</p>
+                        <a href="metal.html" class="view-model-btn">View Model</a>
+                    </div>
+                    <div class="ar-card fade-in delay-2">
+                        <img src="https://placehold.co/400x200/8A2BE2/FFFFFF?text=Ceramic+Recuperator" alt="Ceramic Recuperator AR Model">
+                        <h3>Ceramic Recuperator</h3>
+                        <p>Made from ceramic materials, capable of operating at very high temperatures where metals would fail.</p>
+                        <a href="ceramic.html" class="view-model-btn">View Model</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="fade-in">
+            <div class="container">
+                <div class="copyright">
+                    <p>&copy; 2025 HEAT HUB | All Rights Reserved</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Add loaded class for animations
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 300);
+            
+            // Animate elements when they come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

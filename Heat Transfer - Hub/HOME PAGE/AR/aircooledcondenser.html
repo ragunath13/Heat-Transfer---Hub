@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Air Cooled Condenser</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #4fc3f7; /* Light Blue border */
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2); /* Light Blue shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #4fc3f7; /* Light Blue title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #4fc3f7; /* Light Blue border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(79, 195, 247, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(79, 195, 247, 0.2); /* Lighter blue on hover */
+            border-color: #b3e5fc; /* Lighter border on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Air Cooled Condenser - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-structure"><span class="color-indicator" style="background-color: #616161;"></span>Toggle Structure Transparency</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-structure"><span class="color-indicator" style="background-color: #616161;"></span>View Structure</button>
+        <button id="view-fan-section"><span class="color-indicator" style="background-color: #e0e0e0;"></span>View Fan Section</button>
+        <button id="view-fin-tube-bundles"><span class="color-indicator" style="background-color: #03a9f4;"></span>View Fin-Tube Bundles</button>
+        <button id="view-steam-duct-header"><span class="color-indicator" style="background-color: #ffeb3b;"></span>View Steam Duct/Header</button>
+        <button id="view-condensate-header-outlet"><span class="color-indicator" style="background-color: #8bc34a;"></span>View Condensate Header/Outlet</button>
+        <button id="view-vacuum-connection"><span class="color-indicator" style="background-color: #ff7043;"></span>View Vacuum Connection</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 20, 50); // Initial camera position, elevated
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 5, 0); // Point camera towards the center
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(10, 30, 20);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024; // default
+        directionalLight.shadow.mapSize.height = 1024; // default
+        directionalLight.shadow.camera.near = 0.5; // default
+        directionalLight.shadow.camera.far = 100; // default
+        directionalLight.shadow.camera.left = -50;
+        directionalLight.shadow.camera.right = 50;
+        directionalLight.shadow.camera.top = 50;
+        directionalLight.shadow.camera.bottom = -50;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-10, -30, -20);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along XZ plane)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            structure: null,
+            fanSection: null,
+            finTubeBundles: null,
+            steamDuctHeader: null,
+            condensateHeaderOutlet: null,
+            vacuumConnection: null,
+            fluidFlowAir: null,
+            fluidFlowSteam: null,
+            fluidFlowCondensate: null,
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'structure': {
+                title: 'Supporting Structure/Frame',
+                description: 'The steel framework that supports all the components of the air-cooled condenser, including the fan deck, fin-tube bundles, and headers.',
+                color: 0x616161, // Dark Grey
+                internal: false
+            },
+            'fanSection': {
+                title: 'Fan Section',
+                description: 'Consists of large axial fans (typically induced draft) that draw ambient air up through the fin-tube bundles to provide cooling.',
+                color: 0xe0e0e0, // Light Grey
+                internal: false
+            },
+            'finTubeBundles': {
+                title: 'Fin-Tube Bundles',
+                description: 'Horizontal or inclined banks of tubes with extended surfaces (fins) to maximize heat transfer. Exhaust steam flows inside the tubes, and air flows over the fins, condensing the steam.',
+                color: 0x03a9f4, // Light Blue
+                internal: true
+            },
+            'steamDuctHeader': {
+                title: 'Steam Duct and Header',
+                description: 'The large duct that transports exhaust steam from the turbine to the inlet header, which distributes the steam evenly into the fin-tube bundles.',
+                color: 0xffeb3b, // Yellow
+                internal: false
+            },
+            'condensateHeaderOutlet': {
+                title: 'Condensate Header and Outlet',
+                description: 'The lower header that collects the condensed steam (liquid water) from the fin-tube bundles, and the outlet pipe that drains it for return to the boiler.',
+                color: 0x8bc34a, // Light Green
+                internal: false
+            },
+            'vacuumConnection': {
+                title: 'Vacuum Connection',
+                description: 'A port connected to a vacuum pump or ejector system, used to remove non-condensable gases and maintain the desired vacuum level inside the condenser.',
+                color: 0xff7043, // Deep Orange
+                internal: false
+            }
+        };
+
+        // Global constants for condenser dimensions
+        const structureWidth = 40;
+        const structureLength = 30;
+        const structureHeight = 25;
+        const beamThickness = 1;
+
+        const fanDiameter = 10;
+        const fanHeight = 3;
+        const numFans = 4; // Arranged in a grid
+
+        const bundleWidth = structureWidth * 0.8;
+        const bundleLength = structureLength * 0.8;
+        const bundleHeight = 5;
+        const numBundles = 3; // Stacked vertically or side-by-side
+        const tubeRadius = 0.2;
+        const finThickness = 0.1;
+        const numFinsPerTube = 20;
+
+        const steamDuctWidth = 8;
+        const steamDuctHeight = 10;
+        const steamDuctLength = structureLength;
+
+        const headerRadius = 1.5;
+        const headerLength = bundleWidth;
+
+        const condensateOutletRadius = 1;
+        const condensateOutletLength = 5;
+
+        const vacuumConnectionRadius = 0.8;
+        const vacuumConnectionLength = 4;
+
+        // Global constants for fluid particles
+        const particleSizeAir = 0.5;
+        const particleSizeSteam = 0.3;
+        const particleSizeCondensate = 0.2;
+
+
+        // Create all components of the air-cooled condenser
+        function createComponents() {
+            // Structure/Frame
+            const structureMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.structure.color,
+                metalness: 0.6,
+                roughness: 0.4,
+                transparent: true,
+                opacity: 0.2, // Initially transparent
+                side: THREE.DoubleSide
+            });
+            components.structure = new THREE.Group();
+
+            // Base beams
+            const baseBeamGeo = new THREE.BoxGeometry(structureWidth, beamThickness, beamThickness);
+            const baseBeam1 = new THREE.Mesh(baseBeamGeo, structureMaterial);
+            baseBeam1.position.set(0, -structureHeight / 2, structureLength / 2 - beamThickness / 2);
+            components.structure.add(baseBeam1);
+            const baseBeam2 = baseBeam1.clone();
+            baseBeam2.position.z = -(structureLength / 2 - beamThickness / 2);
+            components.structure.add(baseBeam2);
+
+            const sideBeamGeo = new THREE.BoxGeometry(beamThickness, beamThickness, structureLength);
+            const sideBeam1 = new THREE.Mesh(sideBeamGeo, structureMaterial);
+            sideBeam1.position.set(structureWidth / 2 - beamThickness / 2, -structureHeight / 2, 0);
+            components.structure.add(sideBeam1);
+            const sideBeam2 = sideBeam1.clone();
+            sideBeam2.position.x = -(structureWidth / 2 - beamThickness / 2);
+            components.structure.add(sideBeam2);
+
+            // Vertical columns
+            const columnGeo = new THREE.BoxGeometry(beamThickness, structureHeight, beamThickness);
+            const col1 = new THREE.Mesh(columnGeo, structureMaterial);
+            col1.position.set(structureWidth / 2 - beamThickness / 2, 0, structureLength / 2 - beamThickness / 2);
+            components.structure.add(col1);
+            const col2 = col1.clone(); col2.position.x *= -1; components.structure.add(col2);
+            const col3 = col1.clone(); col3.position.z *= -1; components.structure.add(col3);
+            const col4 = col1.clone(); col4.position.x *= -1; col4.position.z *= -1; components.structure.add(col4);
+
+            // Top beams (fan deck support)
+            const topBeamGeo = new THREE.BoxGeometry(structureWidth, beamThickness, beamThickness);
+            const topBeam1 = new THREE.Mesh(topBeamGeo, structureMaterial);
+            topBeam1.position.set(0, structureHeight / 2, structureLength / 2 - beamThickness / 2);
+            components.structure.add(topBeam1);
+            const topBeam2 = topBeam1.clone();
+            topBeam2.position.z = -(structureLength / 2 - beamThickness / 2);
+            components.structure.add(topBeam2);
+            components.structure.userData = { type: 'structure' };
+
+
+            // Fan Section
+            components.fanSection = new THREE.Group();
+            const fanHousingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fanSection.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const fanBladeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x424242, // Dark grey for blades
+                metalness: 0.8,
+                roughness: 0.2
+            });
+
+            const fanSpacingX = structureWidth / (Math.sqrt(numFans) + 1);
+            const fanSpacingZ = structureLength / (Math.sqrt(numFans) + 1);
+            const fanGridSize = Math.ceil(Math.sqrt(numFans));
+
+            for (let i = 0; i < fanGridSize; i++) {
+                for (let j = 0; j < fanGridSize; j++) {
+                    if (i * fanGridSize + j >= numFans) break;
+
+                    const fanX = (i * fanSpacingX) - (fanGridSize - 1) * fanSpacingX / 2;
+                    const fanZ = (j * fanSpacingZ) - (fanGridSize - 1) * fanSpacingZ / 2;
+
+                    const fanHousing = new THREE.Mesh(
+                        new THREE.CylinderGeometry(fanDiameter / 2, fanDiameter / 2, fanHeight, 32),
+                        fanHousingMaterial
+                    );
+                    fanHousing.position.set(fanX, structureHeight / 2 + fanHeight / 2, fanZ);
+                    fanHousing.userData = { type: 'fanSection' };
+                    components.fanSection.add(fanHousing);
+
+                    // Fan blades (simplified)
+                    const bladeGeo = new THREE.BoxGeometry(fanDiameter * 0.4, 0.2, fanDiameter * 0.1);
+                    const blade1 = new THREE.Mesh(bladeGeo, fanBladeMaterial);
+                    blade1.rotation.y = Math.PI / 4;
+                    fanHousing.add(blade1);
+                    const blade2 = blade1.clone();
+                    blade2.rotation.y = -Math.PI / 4;
+                    fanHousing.add(blade2);
+                }
+            }
+            components.fanSection.userData = { type: 'fanSection' };
+
+
+            // Fin-Tube Bundles
+            components.finTubeBundles = new THREE.Group();
+            const tubeMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.finTubeBundles.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            const finMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x2196f3, // Blue for fins
+                metalness: 0.5,
+                roughness: 0.5
+            });
+
+            const bundleVerticalSpacing = (structureHeight * 0.6) / (numBundles + 1);
+            for (let b = 0; b < numBundles; b++) {
+                const bundleGroup = new THREE.Group();
+                const bundleY = -structureHeight / 2 + bundleHeight / 2 + (b * bundleVerticalSpacing) + 5; // Position above base
+
+                // Simulate tubes and fins
+                const numTubesPerBundleRow = Math.floor(bundleWidth / (tubeRadius * 2 + 0.5));
+                const numTubeRowsPerBundle = Math.floor(bundleLength / (tubeRadius * 2 + 0.5));
+
+                for (let i = 0; i < numTubesPerBundleRow; i++) {
+                    for (let j = 0; j < numTubeRowsPerBundle; j++) {
+                        const tubeX = (i * (tubeRadius * 2 + 0.5)) - (numTubesPerBundleRow - 1) * (tubeRadius * 2 + 0.5) / 2;
+                        const tubeZ = (j * (tubeRadius * 2 + 0.5)) - (numTubeRowsPerBundle - 1) * (tubeRadius * 2 + 0.5) / 2;
+
+                        // Tube
+                        const tube = new THREE.Mesh(
+                            new THREE.CylinderGeometry(tubeRadius, tubeRadius, bundleHeight, 16),
+                            tubeMaterial
+                        );
+                        tube.rotation.x = Math.PI / 2; // Orient horizontally
+                        tube.position.set(tubeX, bundleY, tubeZ);
+                        bundleGroup.add(tube);
+
+                        // Fins (simplified as planes)
+                        for (let k = 0; k < numFinsPerTube; k++) {
+                            const fin = new THREE.Mesh(
+                                new THREE.PlaneGeometry(tubeRadius * 4, tubeRadius * 4), // Square fin
+                                finMaterial
+                            );
+                            fin.rotation.x = Math.PI / 2;
+                            fin.position.set(tubeX, bundleY, tubeZ + (k * (bundleHeight / numFinsPerTube)) - bundleHeight / 2 + finThickness / 2);
+                            bundleGroup.add(fin);
+                        }
+                    }
+                }
+                bundleGroup.userData = { type: 'finTubeBundles' };
+                components.finTubeBundles.add(bundleGroup);
+            }
+
+
+            // Steam Duct and Header
+            components.steamDuctHeader = new THREE.Group();
+            const steamDuctMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.steamDuctHeader.color,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            const steamHeaderMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.steamDuctHeader.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+
+            // Steam Duct (from turbine side)
+            const steamDuct = new THREE.Mesh(
+                new THREE.BoxGeometry(steamDuctWidth, steamDuctHeight, steamDuctLength),
+                steamDuctMaterial
+            );
+            steamDuct.position.set(0, structureHeight / 2 - steamDuctHeight / 2, -structureLength / 2 - steamDuctLength / 2 + 5);
+            components.steamDuctHeader.add(steamDuct);
+
+            // Steam Header (distributes to bundles)
+            const steamHeader = new THREE.Mesh(
+                new THREE.CylinderGeometry(headerRadius, headerRadius, headerLength, 32),
+                steamHeaderMaterial
+            );
+            steamHeader.rotation.z = Math.PI / 2; // Horizontal
+            steamHeader.position.set(0, structureHeight / 2 - bundleHeight - headerRadius, -structureLength / 2 + 2); // Above bundles
+            components.steamDuctHeader.add(steamHeader);
+            components.steamDuctHeader.userData = { type: 'steamDuctHeader' };
+
+
+            // Condensate Header and Outlet
+            components.condensateHeaderOutlet = new THREE.Group();
+            const condensateHeaderMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.condensateHeaderOutlet.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const condensateOutletMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.condensateHeaderOutlet.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+
+            // Condensate Header (collects from bundles)
+            const condensateHeader = new THREE.Mesh(
+                new THREE.CylinderGeometry(headerRadius * 0.8, headerRadius * 0.8, headerLength, 32),
+                condensateHeaderMaterial
+            );
+            condensateHeader.rotation.z = Math.PI / 2; // Horizontal
+            condensateHeader.position.set(0, -structureHeight / 2 + bundleHeight + headerRadius * 0.8, structureLength / 2 - 2); // Below bundles
+            components.condensateHeaderOutlet.add(condensateHeader);
+
+            // Condensate Outlet Pipe
+            const condensateOutlet = new THREE.Mesh(
+                new THREE.CylinderGeometry(condensateOutletRadius, condensateOutletRadius, condensateOutletLength, 16),
+                condensateOutletMaterial
+            );
+            condensateOutlet.position.set(0, -structureHeight / 2 - condensateOutletLength / 2, structureLength / 2 - 2); // Below header
+            components.condensateHeaderOutlet.add(condensateOutlet);
+            components.condensateHeaderOutlet.userData = { type: 'condensateHeaderOutlet' };
+
+
+            // Vacuum Connection
+            const vacuumMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.vacuumConnection.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            components.vacuumConnection = new THREE.Mesh(
+                new THREE.CylinderGeometry(vacuumConnectionRadius, vacuumConnectionRadius, vacuumConnectionLength, 16),
+                vacuumMaterial
+            );
+            components.vacuumConnection.rotation.y = Math.PI / 2; // Horizontal
+            components.vacuumConnection.position.set(-structureWidth / 2 - vacuumConnectionLength / 2 - 2, structureHeight / 2 - 5, 0); // Side of steam duct
+            components.vacuumConnection.userData = { type: 'vacuumConnection' };
+
+
+            // Fluid Flow Animation
+            components.fluidFlowAir = new THREE.Group();
+            components.fluidFlowSteam = new THREE.Group();
+            components.fluidFlowCondensate = new THREE.Group();
+
+            const airColor = 0xadd8e6; // Light Blue for air
+            const steamColor = 0xffffff; // White for steam
+            const condensateColor = 0x8bc34a; // Light Green for condensate
+
+            function createFluidParticles(color, numParticles, size) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: size,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.7,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Air Flow (upwards through bundles)
+            const airParticles = createFluidParticles(airColor, 300, particleSizeAir);
+            components.fluidFlowAir.add(airParticles);
+
+            // Steam Flow (from duct, through header, into tubes, condensing)
+            const steamParticles = createFluidParticles(steamColor, 200, particleSizeSteam);
+            steamParticles.userData.paths = [];
+            
+            // Path from steam duct to header
+            const ductToHeaderPath = new THREE.CatmullRomCurve3([
+                components.steamDuctHeader.children[0].position.clone().add(new THREE.Vector3(0, 0, steamDuctLength / 2 - 1)),
+                components.steamDuctHeader.children[1].position.clone().add(new THREE.Vector3(0, 0, headerLength / 2 - 1))
+            ]);
+            steamParticles.userData.paths.push(ductToHeaderPath);
+
+            // Path through a representative tube
+            const sampleTube = components.finTubeBundles.children[0].children[0]; // First tube of first bundle
+            const steamTubePath = new THREE.CatmullRomCurve3([
+                sampleTube.position.clone().add(new THREE.Vector3(-bundleHeight / 2, 0, 0)),
+                sampleTube.position.clone().add(new THREE.Vector3(bundleHeight / 2, 0, 0))
+            ]);
+            steamParticles.userData.paths.push(steamTubePath);
+            components.fluidFlowSteam.add(steamParticles);
+
+            // Condensate Flow (from tubes to condensate header, then outlet)
+            const condensateParticles = createFluidParticles(condensateColor, 100, particleSizeCondensate);
+            condensateParticles.userData.paths = [];
+            const condensatePathPoints = [
+                components.condensateHeaderOutlet.children[0].position.clone().add(new THREE.Vector3(0, 0, -headerLength / 2 + 1)), // From header
+                components.condensateHeaderOutlet.children[1].position.clone().add(new THREE.Vector3(0, condensateOutletLength / 2, 0)) // To outlet
+            ];
+            condensateParticles.userData.paths.push(new THREE.CatmullRomCurve3(condensatePathPoints));
+            components.fluidFlowCondensate.add(condensateParticles);
+
+
+            components.fluidFlowAir.visible = false;
+            components.fluidFlowSteam.visible = false;
+            components.fluidFlowCondensate.visible = false;
+            scene.add(components.fluidFlowAir);
+            scene.add(components.fluidFlowSteam);
+            scene.add(components.fluidFlowCondensate);
+
+
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.structure);
+            components.fullAssembly.add(components.fanSection);
+            components.fullAssembly.add(components.finTubeBundles);
+            components.fullAssembly.add(components.steamDuctHeader);
+            components.fullAssembly.add(components.condensateHeaderOutlet);
+            components.fullAssembly.add(components.vacuumConnection);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp.isObject3D && comp.isMesh === undefined) { 
+                     // If it's a group, iterate its children
+                    comp.children.forEach(child => child.visible = false);
+                } else if (comp && comp !== components.fullAssembly && comp.isMesh) {
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views
+            components.fluidFlowAir.visible = false;
+            components.fluidFlowSteam.visible = false;
+            components.fluidFlowCondensate.visible = false;
+
+            // Make structure transparent for internal views
+            if (components.structure) {
+                components.structure.children.forEach(child => {
+                    if (child.isMesh) {
+                        child.material.opacity = 0.2;
+                        child.material.needsUpdate = true;
+                    }
+                });
+                document.getElementById('toggle-structure').textContent = 'Make Structure Opaque';
+            }
+
+            // Show the requested component(s) and relevant context
+            if (componentType === 'structure') {
+                components.structure.children.forEach(child => {
+                    if (child.isMesh) {
+                        child.visible = true;
+                        child.material.opacity = 0.7; // Make structure more visible for its own view
+                    }
+                });
+                document.getElementById('toggle-structure').textContent = 'Make Structure Transparent';
+            } else if (componentType === 'fanSection') {
+                components.fanSection.children.forEach(child => child.visible = true);
+                components.structure.children.forEach(child => child.visible = true); // Context
+                components.fluidFlowAir.visible = true;
+            } else if (componentType === 'finTubeBundles') {
+                components.finTubeBundles.children.forEach(bundleGroup => bundleGroup.children.forEach(child => child.visible = true));
+                components.structure.children.forEach(child => child.visible = true); // Context
+                components.steamDuctHeader.children.forEach(child => child.visible = true); // Context
+                components.condensateHeaderOutlet.children.forEach(child => child.visible = true); // Context
+                components.fluidFlowAir.visible = true;
+                components.fluidFlowSteam.visible = true;
+                components.fluidFlowCondensate.visible = true;
+            } else if (componentType === 'steamDuctHeader') {
+                components.steamDuctHeader.children.forEach(child => child.visible = true);
+                components.structure.children.forEach(child => child.visible = true); // Context
+                components.finTubeBundles.children.forEach(bundleGroup => bundleGroup.children.forEach(child => child.visible = true)); // Context
+                components.fluidFlowSteam.visible = true;
+            } else if (componentType === 'condensateHeaderOutlet') {
+                components.condensateHeaderOutlet.children.forEach(child => child.visible = true);
+                components.structure.children.forEach(child => child.visible = true); // Context
+                components.finTubeBundles.children.forEach(bundleGroup => bundleGroup.children.forEach(child => child.visible = true)); // Context
+                components.fluidFlowCondensate.visible = true;
+            } else if (componentType === 'vacuumConnection') {
+                components.vacuumConnection.visible = true;
+                components.structure.children.forEach(child => child.visible = true); // Context
+                components.steamDuctHeader.children.forEach(child => child.visible = true); // Context
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fullAssembly && comp.isObject3D && comp.isMesh === undefined) { 
+                        comp.children.forEach(child => child.visible = true);
+                    } else if (comp && comp.isMesh) {
+                        comp.visible = true;
+                    }
+                });
+                components.structure.children.forEach(child => {
+                    if (child.isMesh) {
+                        child.material.opacity = 0.2; // Keep structure transparent in full view
+                        child.material.needsUpdate = true;
+                    }
+                });
+                document.getElementById('toggle-structure').textContent = 'Make Structure Opaque';
+
+                // Show all fluid animations in full view by default
+                components.fluidFlowAir.visible = true;
+                components.fluidFlowSteam.visible = true;
+                components.fluidFlowCondensate.visible = true;
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'structure') targetObject = components.structure;
+            else if (componentType === 'fanSection') targetObject = components.fanSection;
+            else if (componentType === 'finTubeBundles') targetObject = components.finTubeBundles;
+            else if (componentType === 'steamDuctHeader') targetObject = components.steamDuctHeader;
+            else if (componentType === 'condensateHeaderOutlet') targetObject = components.condensateHeaderOutlet;
+            else if (componentType === 'vacuumConnection') targetObject = components.vacuumConnection;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle structure transparency
+        function toggleStructureTransparency() {
+            components.structure.children.forEach(child => {
+                if (child.isMesh) {
+                    if (child.material.opacity < 1) {
+                        child.material.opacity = 0.7; // Make opaque
+                        document.getElementById('toggle-structure').textContent = 'Make Structure Transparent';
+                    } else {
+                        child.material.opacity = 0.2; // Make transparent
+                        document.getElementById('toggle-structure').textContent = 'Make Structure Opaque';
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowAir.visible = isSectionView;
+            components.fluidFlowSteam.visible = isSectionView;
+            components.fluidFlowCondensate.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    if (child.parent && child.parent.userData.type === 'fullAssembly' || child.userData.type) { // Apply to all defined components
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-structure').addEventListener('click', toggleStructureTransparency);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-structure').addEventListener('click', () => showOnly('structure'));
+        document.getElementById('view-fan-section').addEventListener('click', () => showOnly('fanSection'));
+        document.getElementById('view-fin-tube-bundles').addEventListener('click', () => showOnly('finTubeBundles'));
+        document.getElementById('view-steam-duct-header').addEventListener('click', () => showOnly('steamDuctHeader'));
+        document.getElementById('view-condensate-header-outlet').addEventListener('click', () => showOnly('condensateHeaderOutlet'));
+        document.getElementById('view-vacuum-connection').addEventListener('click', () => showOnly('vacuumConnection'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate air particles (upwards through bundles)
+            if (components.fluidFlowAir.visible) {
+                const airParticles = components.fluidFlowAir.children[0];
+                const airPositions = airParticles.geometry.attributes.position.array;
+                const numAirParticles = airParticles.userData.progress.length;
+                const fanDeckY = structureHeight / 2;
+                const baseDeckY = -structureHeight / 2;
+
+                for (let i = 0; i < numAirParticles; i++) {
+                    airPositions[i * 3 + 1] += 0.2; // Move upwards
+
+                    if (airPositions[i * 3 + 1] > fanDeckY) {
+                        // Reset particle to bottom
+                        airPositions[i * 3] = (Math.random() * structureWidth * 0.8) - (structureWidth * 0.4);
+                        airPositions[i * 3 + 1] = baseDeckY + Math.random() * 2; // Start slightly above base
+                        airPositions[i * 3 + 2] = (Math.random() * structureLength * 0.8) - (structureLength * 0.4);
+                    }
+                    // Add slight horizontal drift for realism
+                    airPositions[i * 3] += (Math.random() - 0.5) * 0.1;
+                    airPositions[i * 3 + 2] += (Math.random() - 0.5) * 0.1;
+
+                    // Keep within structure boundaries (simplified)
+                    airPositions[i * 3] = Math.max(-structureWidth * 0.4, Math.min(structureWidth * 0.4, airPositions[i * 3]));
+                    airPositions[i * 3 + 2] = Math.max(-structureLength * 0.4, Math.min(structureLength * 0.4, airPositions[i * 3 + 2]));
+                }
+                airParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate steam particles
+            if (components.fluidFlowSteam.visible) {
+                const steamParticles = components.fluidFlowSteam.children[0];
+                const steamPositions = steamParticles.geometry.attributes.position.array;
+                const steamPaths = steamParticles.userData.paths;
+                const particlesPerPath = Math.floor(steamParticles.userData.progress.length / steamPaths.length);
+
+                for (let i = 0; i < steamParticles.userData.progress.length; i++) {
+                    const pathIndex = Math.floor(i / particlesPerPath);
+                    const currentPath = steamPaths[pathIndex];
+                    if (!currentPath) continue;
+
+                    steamParticles.userData.progress[i] = (steamParticles.userData.progress[i] + 0.005) % 1; 
+                    const p = currentPath.getPointAt(steamParticles.userData.progress[i]);
+                    steamPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.5; 
+                    steamPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.5;
+                    steamPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.5;
+                }
+                steamParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate condensate particles
+            if (components.fluidFlowCondensate.visible) {
+                const condensateParticles = components.fluidFlowCondensate.children[0];
+                const condensatePositions = condensateParticles.geometry.attributes.position.array;
+                const condensatePath = condensateParticles.userData.paths[0]; 
+
+                for (let i = 0; i < condensateParticles.userData.progress.length; i++) {
+                    condensateParticles.userData.progress[i] = (condensateParticles.userData.progress[i] + 0.003) % 1; 
+                    const p = condensatePath.getPointAt(condensateParticles.userData.progress[i]);
+                    condensatePositions[i * 3] = p.x;
+                    condensatePositions[i * 3 + 1] = p.y;
+                    condensatePositions[i * 3 + 2] = p.z;
+                }
+                condensateParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Heat Exchanger - Isolated Component View</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000;
+            font-family: Arial, sans-serif;
+        }
+        canvas { 
+            display: block; 
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #4fc3f7;
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #4fc3f7;
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #4fc3f7;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: 160px;
+            text-align: left;
+        }
+        button:hover {
+            background-color: rgba(79, 195, 247, 0.2);
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Shell and Tube Heat Exchanger - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-shell"><span class="color-indicator" style="background-color: #555555;"></span>Toggle Shell</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-shell"><span class="color-indicator" style="background-color: #555555;"></span>View Shell</button>
+        <button id="view-tubes"><span class="color-indicator" style="background-color: #bbbbbb;"></span>View Tubes</button>
+        <button id="view-baffles"><span class="color-indicator" style="background-color: #888888;"></span>View Baffles</button>
+        <button id="view-tie-rods"><span class="color-indicator" style="background-color: #aaaaaa;"></span>View Tie Rods</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 50);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        backLight.position.set(-1, -1, -1);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000);
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        
+        // Component storage
+        const components = {
+            shell: null,
+            tubes: null,
+            endCaps: null,
+            pipes: null,
+            baffles: null,
+            tubeSheets: null,
+            tieRods: null,
+            passPartitions: null,
+            fullAssembly: null
+        };
+        
+        // Component information
+        const componentInfo = {
+            'shell': {
+                title: 'Shell',
+                description: 'The outer cylindrical vessel (typically 300-1500mm diameter) that contains the tube bundle. Constructed from carbon steel or stainless steel depending on service conditions. Designed to withstand internal pressure and external loads.',
+                color: 0x555555,
+                internal: false
+            },
+            'tubes': {
+                title: 'Tube Bundle',
+                description: 'Array of small diameter tubes (typically 15-50mm OD) through which one fluid flows. Tubes are usually arranged in triangular or square pitch patterns (1.25-1.5x tube OD spacing). Materials include stainless steel, copper alloys, or titanium for corrosion resistance.',
+                color: 0xbbbbbb,
+                internal: true
+            },
+            'tubeSheet': {
+                title: 'Tube Sheet',
+                description: 'Thick perforated plate (typically 25-100mm thick) that secures tubes in place. Tubes are expanded, welded, or both into precisely drilled holes. Prevents fluid mixing between shell and tube sides. Often made from thicker material than shell.',
+                color: 0x777777,
+                internal: true
+            },
+            'endCap': {
+                title: 'End Cap / Header',
+                description: 'Contains the tube-side fluid distribution system. Removable for tube maintenance and inspection. In multi-pass designs, includes pass partitions to direct flow through different tube sections.',
+                color: 0x777777,
+                internal: false
+            },
+            'baffle': {
+                title: 'Baffle',
+                description: 'Segmental plates (20-45% cut) that direct shell-side flow across tubes for optimal heat transfer. Also provide tube support and prevent vibration. Baffle spacing typically 0.2-1x shell diameter. Can be single, double, or helical segmental designs.',
+                color: 0x888888,
+                internal: true
+            },
+            'shellInlet': {
+                title: 'Shell-Side Inlet Nozzle',
+                description: 'Entry point for shell-side fluid, sized for 1-3 m/s velocity. Often includes impingement plate to protect tube bundle from direct high-velocity flow. Nozzle size calculated based on flow rate and pressure drop requirements.',
+                color: 0x999999,
+                internal: false
+            },
+            'shellOutlet': {
+                title: 'Shell-Side Outlet Nozzle',
+                description: 'Exit point for shell-side fluid after heat exchange. Positioned to maximize temperature difference (counter-current flow preferred). Nozzle size matches inlet for balanced flow distribution.',
+                color: 0x999999,
+                internal: false
+            },
+            'tubeInlet': {
+                title: 'Tube-Side Inlet Nozzle',
+                description: 'Entry point for tube-side fluid, sized for 1-3 m/s velocity. May include flow distribution devices for even flow through all tubes. Material matches tube sheet for compatibility.',
+                color: 0x999999,
+                internal: false
+            },
+            'tubeOutlet': {
+                title: 'Tube-Side Outlet Nozzle',
+                description: 'Exit point for tube-side fluid after heat exchange. Positioned opposite to inlet for multi-pass designs. Nozzle size matches inlet for consistent velocity profile.',
+                color: 0x999999,
+                internal: false
+            },
+            'tieRods': {
+                title: 'Tie Rods & Spacers',
+                description: 'Secures baffle assembly and maintains proper spacing (typically 4-12 rods around periphery). Rod diameter sized to withstand vibration and assembly loads. Spacers maintain precise baffle spacing during operation.',
+                color: 0xaaaaaa,
+                internal: true
+            },
+            'passPartition': {
+                title: 'Pass Partition',
+                description: 'Divides header space to create multiple tube passes (2, 4, or 6 passes common). Increases tube-side velocity for improved heat transfer. Partition thickness designed to withstand pressure differential.',
+                color: 0x666666,
+                internal: true
+            }
+        };
+
+        // Create all components
+        function createComponents() {
+            // Shell
+            const shellGeometry = new THREE.CylinderGeometry(8, 8, 30, 32, 1, true);
+            const shellMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: componentInfo.shell.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.7,
+                clearcoat: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.shell = new THREE.Mesh(shellGeometry, shellMaterial);
+            components.shell.rotation.x = Math.PI / 2;
+            components.shell.userData = { type: 'shell' };
+            
+            // Tubes
+            const tubes = new THREE.Group();
+            const tubeGeometry = new THREE.CylinderGeometry(0.3, 0.3, 28, 16);
+            
+            // Triangular pitch arrangement
+            const tubeCount = 127;
+            const pitch = 0.3 * 2.5;
+            let count = 0;
+            
+            for (let r = 0; r < 5; r++) {
+                const radius = r * pitch;
+                const circumference = 2 * Math.PI * radius;
+                const tubesInRing = Math.max(6, Math.floor(circumference / pitch));
+                
+                for (let i = 0; i < tubesInRing && count < tubeCount; i++) {
+                    const angle = (i / tubesInRing) * Math.PI * 2;
+                    const tube = new THREE.Mesh(tubeGeometry, new THREE.MeshPhysicalMaterial({ 
+                        color: componentInfo.tubes.color,
+                        metalness: 0.8,
+                        roughness: 0.1
+                    }));
+                    tube.position.set(radius * Math.cos(angle), radius * Math.sin(angle), 0);
+                    tube.rotation.x = Math.PI / 2;
+                    tube.userData = { type: 'tubes' };
+                    tubes.add(tube);
+                    count++;
+                }
+            }
+            components.tubes = tubes;
+            
+            // Tube Sheets
+            const tubeSheets = new THREE.Group();
+            const tubeSheetGeometry = new THREE.CylinderGeometry(7.9, 7.9, 0.5, 32);
+            const tubeSheetMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: componentInfo.tubeSheet.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            
+            const frontTubeSheet = new THREE.Mesh(tubeSheetGeometry, tubeSheetMaterial);
+            frontTubeSheet.rotation.x = Math.PI / 2;
+            frontTubeSheet.position.z = -14.75;
+            frontTubeSheet.userData = { type: 'tubeSheet' };
+            
+            const rearTubeSheet = new THREE.Mesh(tubeSheetGeometry, tubeSheetMaterial);
+            rearTubeSheet.rotation.x = Math.PI / 2;
+            rearTubeSheet.position.z = 14.75;
+            rearTubeSheet.userData = { type: 'tubeSheet' };
+            
+            tubeSheets.add(frontTubeSheet);
+            tubeSheets.add(rearTubeSheet);
+            components.tubeSheets = tubeSheets;
+            
+            // End Caps
+            const endCaps = new THREE.Group();
+            const endCapGeometry = new THREE.CylinderGeometry(8.2, 8.2, 1, 32);
+            const endCapMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: componentInfo.endCap.color,
+                metalness: 0.7,
+                roughness: 0.4
+            });
+            
+            const frontCap = new THREE.Mesh(endCapGeometry, endCapMaterial);
+            frontCap.rotation.x = Math.PI / 2;
+            frontCap.position.z = -15;
+            frontCap.userData = { type: 'endCap' };
+            
+            const rearCap = new THREE.Mesh(endCapGeometry, endCapMaterial);
+            rearCap.rotation.x = Math.PI / 2;
+            rearCap.position.z = 15;
+            rearCap.userData = { type: 'endCap' };
+            
+            endCaps.add(frontCap);
+            endCaps.add(rearCap);
+            components.endCaps = endCaps;
+            
+            // Pass Partitions
+            const passPartitions = new THREE.Group();
+            const partitionGeometry = new THREE.BoxGeometry(0.5, 14, 1);
+            const partitionMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: componentInfo.passPartition.color,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            
+            const frontPartition = new THREE.Mesh(partitionGeometry, partitionMaterial);
+            frontPartition.position.set(0, 0, -15.5);
+            frontPartition.userData = { type: 'passPartition' };
+            
+            const rearPartition = new THREE.Mesh(partitionGeometry, partitionMaterial);
+            rearPartition.position.set(0, 0, 15.5);
+            rearPartition.userData = { type: 'passPartition' };
+            
+            passPartitions.add(frontPartition);
+            passPartitions.add(rearPartition);
+            components.passPartitions = passPartitions;
+            
+            // Tie Rods
+            const tieRods = new THREE.Group();
+            const rodGeometry = new THREE.CylinderGeometry(0.15, 0.15, 28, 8);
+            const spacerGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 8);
+            const rodMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: componentInfo.tieRods.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                const x = 7 * Math.cos(angle);
+                const y = 7 * Math.sin(angle);
+                
+                const rod = new THREE.Mesh(rodGeometry, rodMaterial);
+                rod.position.set(x, y, 0);
+                rod.rotation.x = Math.PI / 2;
+                rod.userData = { type: 'tieRods' };
+                tieRods.add(rod);
+                
+                for (let z = -12; z <= 12; z += 8) {
+                    const spacer = new THREE.Mesh(spacerGeometry, rodMaterial);
+                    spacer.position.set(x, y, z);
+                    spacer.rotation.x = Math.PI / 2;
+                    spacer.userData = { type: 'tieRods' };
+                    tieRods.add(spacer);
+                }
+            }
+            components.tieRods = tieRods;
+            
+            // Baffles
+            const baffles = new THREE.Group();
+            const baffleGeometry = new THREE.CylinderGeometry(7.5, 7.5, 0.3, 32, 1, true);
+            const baffleMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: componentInfo.baffle.color,
+                metalness: 0.4,
+                roughness: 0.6,
+                side: THREE.DoubleSide
+            });
+            
+            for (let i = 0; i < 4; i++) {
+                const baffle = new THREE.Mesh(baffleGeometry, baffleMaterial);
+                baffle.rotation.x = Math.PI / 2;
+                baffle.position.z = -12 + i * 8;
+                baffle.userData = { type: 'baffle' };
+                baffles.add(baffle);
+            }
+            components.baffles = baffles;
+            
+            // Pipes
+            const pipes = new THREE.Group();
+            const pipeGeometry = new THREE.CylinderGeometry(1.5, 1.5, 5, 16);
+            const flangeGeometry = new THREE.CylinderGeometry(2, 2, 0.5, 16);
+            const pipeMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: componentInfo.shellInlet.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            const flangeMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: 0x666666,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            
+            // Shell side connections
+            const shellInlet = new THREE.Mesh(pipeGeometry, pipeMaterial);
+            shellInlet.rotation.z = Math.PI / 2;
+            const shellInletFlange = new THREE.Mesh(flangeGeometry, flangeMaterial);
+            shellInletFlange.position.set(-2.5, 0, 0);
+            const shellInletGroup = new THREE.Group();
+            shellInletGroup.add(shellInlet);
+            shellInletGroup.add(shellInletFlange);
+            shellInletGroup.position.set(-10, 0, -12);
+            shellInletGroup.userData = { type: 'shellInlet' };
+            
+            const shellOutlet = new THREE.Mesh(pipeGeometry, pipeMaterial);
+            shellOutlet.rotation.z = Math.PI / 2;
+            const shellOutletFlange = new THREE.Mesh(flangeGeometry, flangeMaterial);
+            shellOutletFlange.position.set(2.5, 0, 0);
+            const shellOutletGroup = new THREE.Group();
+            shellOutletGroup.add(shellOutlet);
+            shellOutletGroup.add(shellOutletFlange);
+            shellOutletGroup.position.set(10, 0, 12);
+            shellOutletGroup.userData = { type: 'shellOutlet' };
+            
+            // Tube side connections
+            const tubeInlet = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 10, 16), pipeMaterial);
+            const tubeInletFlange = new THREE.Mesh(flangeGeometry, flangeMaterial);
+            tubeInletFlange.position.set(0, 0, -5);
+            tubeInletFlange.rotation.x = Math.PI / 2;
+            const tubeInletGroup = new THREE.Group();
+            tubeInletGroup.add(tubeInlet);
+            tubeInletGroup.add(tubeInletFlange);
+            tubeInletGroup.position.set(0, 9, -18);
+            tubeInletGroup.rotation.x = Math.PI / 4;
+            tubeInletGroup.userData = { type: 'tubeInlet' };
+            
+            const tubeOutlet = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 10, 16), pipeMaterial);
+            const tubeOutletFlange = new THREE.Mesh(flangeGeometry, flangeMaterial);
+            tubeOutletFlange.position.set(0, 0, -5);
+            tubeOutletFlange.rotation.x = Math.PI / 2;
+            const tubeOutletGroup = new THREE.Group();
+            tubeOutletGroup.add(tubeOutlet);
+            tubeOutletGroup.add(tubeOutletFlange);
+            tubeOutletGroup.position.set(0, -9, -18);
+            tubeOutletGroup.rotation.x = -Math.PI / 4;
+            tubeOutletGroup.userData = { type: 'tubeOutlet' };
+            
+            pipes.add(shellInletGroup);
+            pipes.add(shellOutletGroup);
+            pipes.add(tubeInletGroup);
+            pipes.add(tubeOutletGroup);
+            components.pipes = pipes;
+            
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.shell);
+            components.fullAssembly.add(components.tubes);
+            components.fullAssembly.add(components.tubeSheets);
+            components.fullAssembly.add(components.endCaps);
+            components.fullAssembly.add(components.passPartitions);
+            components.fullAssembly.add(components.tieRods);
+            components.fullAssembly.add(components.baffles);
+            components.fullAssembly.add(components.pipes);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly) {
+                    comp.visible = false;
+                }
+            });
+            
+            // Show the requested component(s)
+            if (componentType === 'shell') {
+                components.shell.visible = true;
+                components.endCaps.visible = true;
+                components.pipes.visible = true;
+            } 
+            else if (componentType === 'tubes') {
+                components.tubes.visible = true;
+                components.tubeSheets.visible = true;
+            }
+            else if (componentType === 'baffles') {
+                components.baffles.visible = true;
+                components.tieRods.visible = true;
+            }
+            else if (componentType === 'tieRods') {
+                components.tieRods.visible = true;
+                components.baffles.visible = true;
+            }
+            else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp) comp.visible = true;
+                });
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'shell') targetObject = components.shell;
+            else if (componentType === 'tubes') targetObject = components.tubes;
+            else if (componentType === 'baffles') targetObject = components.baffles;
+            else if (componentType === 'tieRods') targetObject = components.tieRods;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false;
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.5;
+            
+            const objectPosition = new THREE.Vector3();
+            object.getWorldPosition(objectPosition);
+            
+            const direction = new THREE.Vector3().subVectors(camera.position, objectPosition).normalize();
+            if (direction.length() === 0) direction.set(0, 0, 1);
+            
+            targetPosition = new THREE.Vector3().copy(objectPosition).add(direction.multiplyScalar(distance));
+            targetLookAt = objectPosition.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.1;
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) {
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true;
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle shell visibility
+        function toggleShellVisibility() {
+            components.shell.visible = !components.shell.visible;
+            document.getElementById('toggle-shell').textContent = 
+                components.shell.visible ? 'Hide Shell' : 'Show Shell';
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                while (clickedObject && !clickedObject.userData.type) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-shell').addEventListener('click', toggleShellVisibility);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-shell').addEventListener('click', () => showOnly('shell'));
+        document.getElementById('view-tubes').addEventListener('click', () => showOnly('tubes'));
+        document.getElementById('view-baffles').addEventListener('click', () => showOnly('baffles'));
+        document.getElementById('view-tie-rods').addEventListener('click', () => showOnly('tieRods'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
