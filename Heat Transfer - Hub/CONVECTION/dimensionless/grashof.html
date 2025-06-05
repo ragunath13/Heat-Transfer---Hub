@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grashof Number in Natural Convection</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    :root {
+      --grashof-blue: #448AFF;
+      --buoyancy-purple: #B388FF;
+      --resistance-gray: #B0BEC5;
+      --formula-bg: #1c1c1c;
+      --formula-text: #e0f7fa;
+    }
+
+    .grashof-container {
+      background: var(--formula-bg);
+      color: var(--formula-text);
+      padding: 30px;
+      border-radius: 15px;
+      margin: 30px auto;
+      max-width: 800px;
+      border-left: 5px solid var(--grashof-blue);
+    }
+
+    .grashof-formula {
+      color: var(--grashof-blue);
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+    }
+
+    .flow-box {
+      height: 200px;
+      background: var(--buoyancy-purple);
+      border-radius: 10px;
+      margin: 25px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      animation: rise 6s infinite;
+      opacity: 0.7;
+    }
+
+    @keyframes rise {
+      0% {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-200%);
+        opacity: 0;
+      }
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 40px auto;
+    }
+
+    .regime-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .regime-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Grashof Number in Natural Convection</div>
+
+  <div class="grashof-container">
+    <h2>What is Grashof Number?</h2>
+    <p>The <span class="grashof-formula">Grashof Number (Gr)</span> is a dimensionless number that helps us understand natural convection. It measures the ratio of the buoyancy forces to the viscous forces in a fluid. This number tells us how fluid will move when it is heated and why convection occurs in many natural systems, like the air around a heated object or the rising of hot air in a room.</p>
+
+    <div style="background: rgba(68,138,255,0.1); padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+      <p class="grashof-formula" style="font-size: 24px;">Gr = [g·β·(T<sub>s</sub> - T<sub>∞</sub>)·L³] / ν²</p>
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <span style="margin: 10px;"><span class="grashof-formula">g</span>: Acceleration due to gravity (m/s²)</span>
+        <span style="margin: 10px;"><span class="grashof-formula">β</span>: Thermal expansion coefficient (1/K)</span>
+        <span style="margin: 10px;"><span class="grashof-formula">T<sub>s</sub> - T<sub>∞</sub></span>: Temperature difference (K)</span>
+        <span style="margin: 10px;"><span class="grashof-formula">L</span>: Characteristic length (m)</span>
+        <span style="margin: 10px;"><span class="grashof-formula">ν</span>: Kinematic viscosity (m²/s)</span>
+      </div>
+    </div>
+
+    <div class="flow-box" id="bubbleBox">
+      <!-- Animated bubbles will appear here -->
+    </div>
+
+    <h3>Physical Significance:</h3>
+    <ul>
+      <li>The Grashof Number compares <span class="grashof-formula">buoyancy forces</span> (upward forces due to heated fluid) to <span class="grashof-formula">viscous forces</span> (resistance to fluid flow due to viscosity).</li>
+      <li>It determines the onset of natural convection in a system.</li>
+      <li>If the Grashof number is higher, it means there will be stronger convection currents, which results in more heat transfer.</li>
+    </ul>
+    
+    <h3>Why is Grashof Number Important?</h3>
+    <p>The Grashof number helps engineers and scientists understand and predict how heat will transfer in systems like:</p>
+    <ul>
+      <li>Heating and cooling systems</li>
+      <li>Natural ventilation in buildings</li>
+      <li>Cooling of electronic devices</li>
+      <li>Atmospheric processes (like the rising of hot air)</li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">Flow Regimes in Natural Convection</div>
+
+  <div class="comparison-grid">
+    <div class="regime-card" style="border-top: 4px solid var(--resistance-gray);">
+      <h3>Low Grashof (Gr &lt; 10⁸)</h3>
+      <ul>
+        <li>Laminar natural convection</li>
+        <li>Slow, steady upward flow of fluid</li>
+        <li>Heat transfer is mainly by conduction and mild convection</li>
+      </ul>
+    </div>
+
+    <div class="regime-card" style="border-top: 4px solid var(--grashof-blue);">
+      <h3>Moderate to High Grashof (Gr &gt; 10⁸)</h3>
+      <ul>
+        <li>Turbulent natural convection</li>
+        <li>Chaotic fluid motion enhances mixing</li>
+        <li>Significantly higher heat transfer rates</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">Grashof Number & Heat Transfer</div>
+
+  <div class="grashof-container">
+    <h2>Combined with Prandtl Number</h2>
+    <p>The product <span class="grashof-formula">Gr·Pr</span> helps determine the convective heat transfer regime:</p>
+
+    <div style="background: rgba(179,136,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+      <p class="grashof-formula" style="font-size: 24px;">Nu = C·(Gr·Pr)<sup>n</sup></p>
+      <p>Where <span class="grashof-formula">Nu</span> is the Nusselt number, which gives us the convective heat transfer coefficient, and <span class="grashof-formula">C, n</span> are constants depending on the geometry of the system and boundary conditions.</p>
+    </div>
+
+    <h3>Applications:</h3>
+    <ul>
+      <li>Cooling of electronic components</li>
+      <li>Natural ventilation systems in buildings</li>
+      <li>Solar panel and building surface cooling</li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">Example Calculation</div>
+
+  <div style="max-width: 800px; margin: 30px auto; background: rgba(0,0,0,0.2); padding: 25px; border-radius: 15px;">
+    <h3>Example</h3>
+    <p>Consider a vertical plate with a characteristic length (L) of 0.5 m, heated to a temperature of 80°C, while the air surrounding it is at 20°C.</p>
+
+    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Courier New'; margin: 15px 0;">
+      <p>Given: </p>
+      <ul>
+        <li>g = 9.81 m/s²</li>
+        <li>β ≈ 1/300 K⁻¹</li>
+        <li>T<sub>s</sub> - T<sub>∞</sub> = 60 K</li>
+        <li>L = 0.5 m</li>
+        <li>ν = 1.6×10⁻⁵ m²/s</li>
+      </ul>
+      <p class="grashof-formula">Gr = (9.81 × 1/300 × 60 × 0.5³) / (1.6×10⁻⁵)² ≈ 6.38 × 10⁸</p>
+    </div>
+
+    <p>This value of <span class="grashof-formula">Gr</span> suggests <strong>turbulent natural convection</strong>, indicating that the fluid will experience a rapid rise, leading to efficient heat transfer.</p>
+  </div>
+
+  <script>
+    // Create animated bubbles for buoyancy effect
+    function createBubbles() {
+      const box = document.getElementById("bubbleBox");
+      for (let i = 0; i < 20; i++) {
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.style.left = `${Math.random() * 95}%`;
+        bubble.style.bottom = "-20px";
+        bubble.style.animationDuration = `${3 + Math.random() * 4}s`;
+        bubble.style.animationDelay = `${Math.random() * 5}s`;
+        bubble.style.width = bubble.style.height = `${6 + Math.random() * 10}px`;
+        box.appendChild(bubble);
+      }
+    }
+
+    createBubbles();
+  </script>
+
+</body>
+</html>

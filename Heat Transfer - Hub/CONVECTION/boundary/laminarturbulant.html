@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Thermal vs Velocity Boundary Layers</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    /* Additional animation styles */
+    @keyframes thermal-pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+    
+    @keyframes velocity-flow {
+      0% { transform: translateX(-20px) translateY(0); }
+      100% { transform: translateX(calc(100% + 20px)) translateY(0); }
+    }
+    
+    @keyframes thermal-flow {
+      0% { transform: translateX(-20px) translateY(0); background: #FF8A8A; }
+      50% { background: #FF416C; }
+      100% { transform: translateX(calc(100% + 20px)) translateY(0); background: #FF8A8A; }
+    }
+    
+    .boundary-layer-demo {
+      height: 200px;
+      background: linear-gradient(to bottom, #f5f7fa, #e0e5ec);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      margin: 30px 0;
+      border: 1px solid #ddd;
+    }
+    
+    .surface {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(to right, #2c3e50, #4a6491);
+      z-index: 10;
+    }
+    
+    .velocity-particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #3498db;
+      border-radius: 50%;
+      animation: velocity-flow linear infinite;
+    }
+    
+    .thermal-particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #FF416C;
+      border-radius: 50%;
+      animation: thermal-flow linear infinite;
+    }
+    
+    .boundary-line {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(0,0,0,0.2);
+      z-index: 5;
+    }
+    
+    .prandtl-demo {
+      display: flex;
+      justify-content: space-around;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+    
+    .pr-container {
+      width: 300px;
+      margin: 10px;
+      text-align: center;
+    }
+    
+    .pr-visual {
+      height: 150px;
+      position: relative;
+      margin-bottom: 15px;
+    }
+    
+    .pr-velocity {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(52, 152, 219, 0.3);
+      border-radius: 0 0 5px 5px;
+    }
+    
+    .pr-thermal {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(255, 65, 108, 0.3);
+      border-radius: 0 0 5px 5px;
+    }
+    
+    .pr-label {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    .temp-gradient {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      width: 20px;
+      height: 180px;
+      background: linear-gradient(to top, #FF416C, #f5f7fa);
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    
+    .velocity-gradient {
+      position: absolute;
+      right: 40px;
+      top: 10px;
+      width: 20px;
+      height: 180px;
+      background: linear-gradient(to top, #3498db, #f5f7fa);
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    
+    .gradient-label {
+      position: absolute;
+      right: 15px;
+      font-size: 12px;
+      color: white;
+      text-shadow: 0 0 2px black;
+    }
+    
+    .interactive-controls {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .control-group {
+      display: inline-block;
+      margin: 0 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    input[type="range"] {
+      width: 200px;
+    }
+    
+    .value-display {
+      font-size: 0.9em;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Thermal vs Velocity Boundary Layers</div>
+
+  <div class="hero-section">
+    <h1>Understanding Boundary Layers in Convective Heat Transfer</h1>
+    <p>Both velocity and thermal boundary layers play a crucial role in determining the efficiency of heat transfer from surfaces to fluids.</p>
+  </div>
+
+  <div class="def">
+    <h2>What Are Boundary Layers?</h2>
+    <p>When a fluid flows over a surface, the layer of fluid near the surface is affected by viscosity and temperature gradients. This gives rise to two types of boundary layers:</p>
+    <ul class="future_tch_points">
+      <li><strong>Velocity Boundary Layer:</strong> Region where fluid velocity changes from zero (at surface) to free stream velocity.</li>
+      <li><strong>Thermal Boundary Layer:</strong> Region where temperature varies from surface temperature to fluid temperature.</li>
+    </ul>
+  </div>
+
+  <!-- Interactive Boundary Layer Demo -->
+  <div class="interactive-controls">
+    <h3>Interactive Boundary Layer Visualization</h3>
+    <div class="control-group">
+      <label for="prandtlSlider">Prandtl Number (Pr)</label>
+      <input type="range" id="prandtlSlider" min="0.01" max="100" step="0.01" value="0.7">
+      <div class="value-display">Current: <span id="prandtlValue">0.7</span></div>
+    </div>
+    <div class="control-group">
+      <label for="reynoldsSlider">Flow Speed</label>
+      <input type="range" id="reynoldsSlider" min="1" max="10" step="0.1" value="5">
+      <div class="value-display">Current: <span id="reynoldsValue">5</span></div>
+    </div>
+  </div>
+
+  <div class="boundary-layer-demo" id="boundaryDemo">
+    <div class="surface"></div>
+    <div class="temp-gradient">
+      <div class="gradient-label" style="top: 5px;">T<sub>s</sub></div>
+      <div class="gradient-label" style="bottom: 5px;">T<sub>∞</sub></div>
+    </div>
+    <div class="velocity-gradient">
+      <div class="gradient-label" style="top: 5px;">V=0</div>
+      <div class="gradient-label" style="bottom: 5px;">V<sub>∞</sub></div>
+    </div>
+    <!-- Velocity boundary particles will be added here by JS -->
+    <!-- Thermal boundary particles will be added here by JS -->
+  </div>
+
+  <div class="motion-visual">
+    <div class="motion-type still-fluid">
+      <h2>Velocity Boundary Layer</h2>
+      <div class="flow-animation">
+        <div class="flow-particles" style="animation-delay: 0s; top: 40px;"></div>
+        <div class="flow-particles" style="animation-delay: 1s; top: 60px;"></div>
+        <div class="flow-particles" style="animation-delay: 2s; top: 80px;"></div>
+      </div>
+      <p>Caused by viscous effects slowing down fluid near the surface.</p>
+      <ul class="future_tch_points">
+        <li>Zero velocity at surface (no-slip condition)</li>
+        <li>Increases in thickness downstream</li>
+        <li>Important for momentum transfer</li>
+      </ul>
+    </div>
+
+    <div class="motion-type moving-fluid">
+      <h2>Thermal Boundary Layer</h2>
+      <div class="flow-animation">
+        <div class="flow-particles" style="background:#FF416C; animation-delay: 0s; top: 30px;"></div>
+        <div class="flow-particles" style="background:#FF416C; animation-delay: 1s; top: 50px;"></div>
+        <div class="flow-particles" style="background:#FF416C; animation-delay: 2s; top: 70px;"></div>
+      </div>
+      <p>Develops due to temperature differences between surface and fluid.</p>
+      <ul class="future_tch_points">
+        <li>Temperature gradient highest near surface</li>
+        <li>Thickness depends on fluid's Prandtl number</li>
+        <li>Controls rate of heat transfer</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Prandtl Number Comparison -->
+  <div class="prandtl-demo">
+    <div class="pr-container">
+      <h3>Liquid Metal (Pr &lt; 1)</h3>
+      <div class="pr-visual">
+        <div class="pr-velocity" style="height: 40%;"></div>
+        <div class="pr-thermal" style="height: 60%;"></div>
+        <div class="pr-label" style="top: 30%;">Thermal BL</div>
+        <div class="pr-label" style="top: 60%;">Velocity BL</div>
+      </div>
+      <p>Thermal boundary layer is thicker than velocity layer</p>
+    </div>
+    <div class="pr-container">
+      <h3>Air (Pr ≈ 1)</h3>
+      <div class="pr-visual">
+        <div class="pr-velocity" style="height: 50%;"></div>
+        <div class="pr-thermal" style="height: 50%;"></div>
+        <div class="pr-label" style="top: 45%;">Similar thickness</div>
+      </div>
+      <p>Both boundary layers have similar thickness</p>
+    </div>
+    <div class="pr-container">
+      <h3>Oil (Pr &gt; 1)</h3>
+      <div class="pr-visual">
+        <div class="pr-velocity" style="height: 70%;"></div>
+        <div class="pr-thermal" style="height: 30%;"></div>
+        <div class="pr-label" style="top: 20%;">Thermal BL</div>
+        <div class="pr-label" style="top: 50%;">Velocity BL</div>
+      </div>
+      <p>Velocity boundary layer is much thicker</p>
+    </div>
+  </div>
+
+  <div class="key-concept">
+    <h3>Key Concept: Prandtl Number (Pr)</h3>
+    <p>The Prandtl number determines the relative thickness of thermal and velocity boundary layers. It is defined as:</p>
+    <code>Pr = ν / α = μc<sub>p</sub> / k</code>
+    <p>
+      Where:<br>
+      <strong>ν</strong> = kinematic viscosity<br>
+      <strong>α</strong> = thermal diffusivity<br>
+      <strong>μ</strong> = dynamic viscosity<br>
+      <strong>c<sub>p</sub></strong> = specific heat<br>
+      <strong>k</strong> = thermal conductivity
+    </p>
+    <p>
+      - For Pr &lt; 1 (e.g. liquid metals): thermal boundary layer is thicker.<br>
+      - For Pr &gt; 1 (e.g. oils): velocity boundary layer is thicker.
+    </p>
+  </div>
+
+  <div class="conduction_all_subtopics">Comparison Between Boundary Layers</div>
+
+  <table class="comparison-table">
+    <tr>
+      <th>Aspect</th>
+      <th>Velocity Boundary Layer</th>
+      <th>Thermal Boundary Layer</th>
+    </tr>
+    <tr>
+      <td>Origin</td>
+      <td>Due to viscosity</td>
+      <td>Due to temperature difference</td>
+    </tr>
+    <tr>
+      <td>Influences</td>
+      <td>Momentum transfer</td>
+      <td>Heat transfer</td>
+    </tr>
+    <tr>
+      <td>Zero at Surface</td>
+      <td>Velocity = 0</td>
+      <td>Temperature = surface temperature</td>
+    </tr>
+    <tr>
+      <td>Thickness Dependence</td>
+      <td>Reynolds number</td>
+      <td>Prandtl number</td>
+    </tr>
+  </table>
+
+  <div class="def">
+    <h3>Example Scenario</h3>
+    <p>Consider air (Pr ≈ 0.7) flowing over a heated plate:</p>
+    <ul class="future_tch_points">
+      <li>Thermal boundary layer is slightly thicker than velocity boundary layer.</li>
+      <li>Temperature rises more gradually than velocity.</li>
+    </ul>
+    <p>Now consider oil (Pr ≈ 100):</p>
+    <ul class="future_tch_points">
+      <li>Thermal boundary layer is very thin compared to velocity layer.</li>
+      <li>Heat is confined close to the surface — higher gradients!</li>
+    </ul>
+  </div>
+
+  <div class="convection-box" style="background: linear-gradient(to right, #203a43, #2c5364);">
+    <h2>Why It Matters in Design</h2>
+    <p>Engineers must consider both boundary layers when designing cooling systems, heat exchangers, or aerodynamic surfaces.</p>
+    <p><strong>Insight:</strong> A thin thermal boundary layer (large temperature gradient) leads to higher heat transfer rates.</p>
+  </div>
+
+  <script>
+    // Interactive boundary layer visualization
+    document.addEventListener('DOMContentLoaded', function() {
+      const prandtlSlider = document.getElementById('prandtlSlider');
+      const reynoldsSlider = document.getElementById('reynoldsSlider');
+      const prandtlValue = document.getElementById('prandtlValue');
+      const reynoldsValue = document.getElementById('reynoldsValue');
+      const demoArea = document.getElementById('boundaryDemo');
+      
+      // Update displayed values
+      prandtlSlider.addEventListener('input', updateVisualization);
+      reynoldsSlider.addEventListener('input', updateVisualization);
+      
+      function updateVisualization() {
+        const pr = parseFloat(prandtlSlider.value);
+        const re = parseFloat(reynoldsSlider.value);
+        
+        prandtlValue.textContent = pr.toFixed(2);
+        reynoldsValue.textContent = re.toFixed(1);
+        
+        // Clear existing particles
+        demoArea.querySelectorAll('.velocity-particle, .thermal-particle, .boundary-line').forEach(el => el.remove());
+        
+        // Calculate boundary layer thicknesses based on Prandtl number
+        const velocityThickness = 100 / Math.sqrt(re); // Simplified model
+        const thermalThickness = velocityThickness * Math.pow(pr, -1/3); // Approximate relation
+        
+        // Add boundary lines
+        const velocityLine = document.createElement('div');
+        velocityLine.className = 'boundary-line';
+        velocityLine.style.bottom = `${velocityThickness}px`;
+        velocityLine.style.background = 'rgba(52, 152, 219, 0.5)';
+        demoArea.appendChild(velocityLine);
+        
+        const thermalLine = document.createElement('div');
+        thermalLine.className = 'boundary-line';
+        thermalLine.style.bottom = `${thermalThickness}px`;
+        thermalLine.style.background = 'rgba(255, 65, 108, 0.5)';
+        demoArea.appendChild(thermalLine);
+        
+        // Add velocity particles
+        for (let i = 0; i < 20; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'velocity-particle';
+          
+          // Parabolic velocity profile
+          const yPos = Math.random() * velocityThickness * 1.5;
+          const speedFactor = 1 - Math.pow(yPos / velocityThickness, 2);
+          const duration = 3 + (2 * (1 - speedFactor));
+          
+          particle.style.bottom = `${yPos}px`;
+          particle.style.animation = `velocity-flow ${duration}s linear infinite`;
+          particle.style.animationDelay = `${Math.random() * 2}s`;
+          particle.style.opacity = 0.7 - (0.5 * (yPos / velocityThickness));
+          
+          demoArea.appendChild(particle);
+        }
+        
+        // Add thermal particles
+        for (let i = 0; i < 15; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'thermal-particle';
+          
+          const yPos = Math.random() * thermalThickness * 1.5;
+          const speedFactor = 1 - Math.pow(yPos / thermalThickness, 2);
+          const duration = 3 + (2 * (1 - speedFactor));
+          
+          particle.style.bottom = `${yPos}px`;
+          particle.style.animation = `thermal-flow ${duration}s linear infinite`;
+          particle.style.animationDelay = `${Math.random() * 2}s`;
+          particle.style.opacity = 0.7 - (0.5 * (yPos / thermalThickness));
+          
+          demoArea.appendChild(particle);
+        }
+      }
+      
+      // Initialize visualization
+      updateVisualization();
+    });
+  </script>
+
+</body>
+</html>

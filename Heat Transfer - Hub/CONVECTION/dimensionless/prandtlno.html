@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prandtl Number in Heat Transfer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    /* Color Scheme */
+    :root {
+      --prandtl-purple: #BA68C8;
+      --thermal-orange: #FF8A65;
+      --momentum-blue: #4FC3F7;
+      --formula-dark: #111;
+      --formula-light: #f8f9fa;
+    }
+    
+    /* Formula Styling */
+    .prandtl-formula {
+      color: var(--prandtl-purple);
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .thermal-formula {
+      color: var(--thermal-orange);
+    }
+    
+    .momentum-formula {
+      color: var(--momentum-blue);
+    }
+    
+    /* Main Content Styling */
+    .prandtl-container {
+      background: var(--formula-dark);
+      color: var(--formula-light);
+      padding: 30px;
+      border-radius: 15px;
+      margin: 30px auto;
+      max-width: 800px;
+      border-left: 5px solid var(--prandtl-purple);
+    }
+    
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 40px auto;
+    }
+    
+    .property-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .property-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    /* Visualizations */
+    .diffusion-visual {
+      height: 200px;
+      background: linear-gradient(to right, 
+        rgba(79,195,247,0.8), 
+        rgba(186,104,200,0.5), 
+        rgba(255,138,101,0.8));
+      border-radius: 10px;
+      margin: 25px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .molecule {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      animation: diffuse 15s linear infinite;
+    }
+    
+    @keyframes diffuse {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(50px, 30px); }
+      50% { transform: translate(100px, -20px); }
+      75% { transform: translate(150px, 10px); }
+      100% { transform: translate(200px, 0); }
+    }
+    
+    .prandtl-scale {
+      height: 40px;
+      background: linear-gradient(to right, 
+        var(--momentum-blue), 
+        var(--prandtl-purple), 
+        var(--thermal-orange));
+      border-radius: 20px;
+      margin: 30px 0;
+      position: relative;
+    }
+    
+    .scale-marker {
+      position: absolute;
+      width: 3px;
+      height: 50px;
+      background: white;
+      top: -5px;
+    }
+    
+    .scale-label {
+      position: absolute;
+      top: -30px;
+      transform: translateX(-50%);
+      font-family: 'Audiowide', cursive;
+      text-align: center;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+      animation: pulse 3s infinite;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Prandtl Number in Heat Transfer</div>
+
+  <div class="prandtl-container">
+    <h2>What is the Prandtl Number?</h2>
+    <p>The Prandtl Number (<span class="prandtl-formula">Pr</span>) is a dimensionless quantity that relates momentum diffusivity to thermal diffusivity:</p>
+    
+    <div style="background: rgba(186,104,200,0.1); padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+      <p class="prandtl-formula" style="font-size: 24px;">Pr = ν/α = μ·c<sub>p</sub>/k</p>
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <span style="margin: 0 15px;"><span class="momentum-formula">ν</span>: Kinematic viscosity (m²/s)</span>
+        <span style="margin: 0 15px;"><span class="thermal-formula">α</span>: Thermal diffusivity (m²/s)</span>
+        <span style="margin: 0 15px;"><span class="momentum-formula">μ</span>: Dynamic viscosity (Pa·s)</span>
+        <span style="margin: 0 15px;"><span class="thermal-formula">c<sub>p</sub></span>: Specific heat (J/kg·K)</span>
+        <span style="margin: 0 15px;"><span class="thermal-formula">k</span>: Thermal conductivity (W/m·K)</span>
+      </div>
+    </div>
+    
+    <div class="diffusion-visual" id="diffusionDemo">
+      <!-- Molecules will be added by JavaScript -->
+    </div>
+    
+    <h3>Physical Interpretation:</h3>
+    <ul>
+      <li>Compares how quickly <span class="momentum-formula">momentum</span> diffuses relative to <span class="thermal-formula">heat</span></li>
+      <li>Determines the relative thickness of <span class="momentum-formula">velocity</span> and <span class="thermal-formula">thermal</span> boundary layers</li>
+      <li>Key parameter in convective heat transfer correlations</li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Prandtl Number Spectrum
+  </div>
+
+  <div class="prandtl-scale">
+    <div class="scale-marker" style="left: 10%;">
+      <div class="scale-label">Liquid Metals<br>Pr ≈ 0.01-0.1</div>
+    </div>
+    <div class="scale-marker" style="left: 30%;">
+      <div class="scale-label">Gases<br>Pr ≈ 0.7-1.0</div>
+    </div>
+    <div class="scale-marker" style="left: 50%;">
+      <div class="scale-label">Water<br>Pr ≈ 1-10</div>
+    </div>
+    <div class="scale-marker" style="left: 80%;">
+      <div class="scale-label">Oils<br>Pr ≈ 100-1000</div>
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="property-card" style="border-top: 4px solid var(--momentum-blue);">
+      <h3><span class="momentum-formula">Pr &lt; 1</span> (Liquid Metals)</h3>
+      <ul>
+        <li>Heat diffuses <span class="thermal-formula">faster</span> than momentum</li>
+        <li>Thermal boundary layer <span class="thermal-formula">thicker</span> than velocity boundary layer</li>
+        <li>Excellent heat transfer properties</li>
+        <li>Example: Mercury (Pr ≈ 0.025)</li>
+      </ul>
+    </div>
+    
+    <div class="property-card" style="border-top: 4px solid var(--prandtl-purple);">
+      <h3><span class="prandtl-formula">Pr ≈ 1</span> (Gases)</h3>
+      <ul>
+        <li>Heat and momentum diffuse at <span class="prandtl-formula">similar rates</span></li>
+        <li>Boundary layers of <span class="prandtl-formula">similar thickness</span></li>
+        <li>Example: Air (Pr ≈ 0.71)</li>
+      </ul>
+    </div>
+    
+    <div class="property-card" style="border-top: 4px solid var(--thermal-orange);">
+      <h3><span class="thermal-formula">Pr &gt; 1</span> (Oils)</h3>
+      <ul>
+        <li>Momentum diffuses <span class="momentum-formula">faster</span> than heat</li>
+        <li>Velocity boundary layer <span class="momentum-formula">thicker</span> than thermal boundary layer</li>
+        <li>Poor heat transfer properties</li>
+        <li>Example: Engine oil (Pr ≈ 100-1000)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Role in Heat Transfer Calculations
+  </div>
+
+  <div class="prandtl-container">
+    <h2>Prandtl Number in Convective Heat Transfer</h2>
+    <p>The Prandtl Number appears in all convective heat transfer correlations:</p>
+    
+    <div style="background: rgba(255,138,101,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+      <p class="prandtl-formula" style="font-size: 24px;">Nu = C·Re<sup>m</sup>·Pr<sup>n</sup></p>
+      <p>Where <span class="prandtl-formula">Nu</span> is the Nusselt number and <span class="prandtl-formula">Re</span> is the Reynolds number.</p>
+    </div>
+    
+    <h3>Practical Implications:</h3>
+    <ul>
+      <li>For <span class="momentum-formula">Pr &lt; 1</span>, heat transfer is more efficient than momentum transfer</li>
+      <li>For <span class="thermal-formula">Pr &gt; 1</span>, momentum transfers more readily than heat</li>
+      <li>Affects the design of heat exchangers and cooling systems</li>
+    </ul>
+    
+    <div class="diffusion-visual" style="background: linear-gradient(to right, 
+      rgba(79,195,247,0.3), 
+      rgba(186,104,200,0.3), 
+      rgba(255,138,101,0.3));">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+           text-align: center; color: white; font-family: 'Audiowide';">
+        <p style="font-size: 24px;">Thermal vs Momentum Boundary Layers</p>
+        <p>Prandtl Number determines their relative thickness</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Example Calculations
+  </div>
+
+  <div style="max-width: 800px; margin: 30px auto; background: rgba(0,0,0,0.2); padding: 25px; border-radius: 15px;">
+    <h3>Calculating Prandtl Number for Water at 20°C</h3>
+    
+    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Courier New'; margin: 15px 0;">
+      <p>μ = 0.001002 Pa·s</p>
+      <p>c<sub>p</sub> = 4182 J/kg·K</p>
+      <p>k = 0.603 W/m·K</p>
+      <p class="prandtl-formula">Pr = (0.001002 × 4182) / 0.603 ≈ 6.99</p>
+    </div>
+    
+    <p>This <span class="prandtl-formula">Pr ≈ 7</span> indicates that for water, momentum diffuses about 7 times faster than heat.</p>
+  </div>
+
+  <script>
+    // Create diffusion visualization
+    function createDiffusionVisualization() {
+      const container = document.getElementById('diffusionDemo');
+      
+      // Create momentum molecules (blue)
+      for (let i = 0; i < 10; i++) {
+        const molecule = document.createElement('div');
+        molecule.className = 'molecule';
+        molecule.style.background = 'radial-gradient(circle, var(--momentum-blue), #01579B)';
+        molecule.style.left = `${10 + Math.random()*20}%`;
+        molecule.style.top = `${20 + Math.random()*60}%`;
+        molecule.style.animationDelay = `${Math.random()*5}s`;
+        molecule.style.animationDuration = `${10 + Math.random()*10}s`;
+        container.appendChild(molecule);
+      }
+      
+      // Create thermal molecules (orange)
+      for (let i = 0; i < 10; i++) {
+        const molecule = document.createElement('div');
+        molecule.className = 'molecule';
+        molecule.style.background = 'radial-gradient(circle, var(--thermal-orange), #BF360C)';
+        molecule.style.left = `${30 + Math.random()*20}%`;
+        molecule.style.top = `${20 + Math.random()*60}%`;
+        molecule.style.animationDelay = `${Math.random()*5}s`;
+        molecule.style.animationDuration = `${15 + Math.random()*15}s`;
+        container.appendChild(molecule);
+      }
+      
+      // Create combined molecules (purple)
+      for (let i = 0; i < 5; i++) {
+        const molecule = document.createElement('div');
+        molecule.className = 'molecule';
+        molecule.style.background = 'radial-gradient(circle, var(--prandtl-purple), #4A148C)';
+        molecule.style.left = `${60 + Math.random()*20}%`;
+        molecule.style.top = `${20 + Math.random()*60}%`;
+        molecule.style.animationDelay = `${Math.random()*5}s`;
+        molecule.style.animationDuration = `${12 + Math.random()*12}s';
+        container.appendChild(molecule);
+      }
+    }
+    
+    // Initialize visualization
+    createDiffusionVisualization();
+  </script>
+  
+
+</body>
+</html>

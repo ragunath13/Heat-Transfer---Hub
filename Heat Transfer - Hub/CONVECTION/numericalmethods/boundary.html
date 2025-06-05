@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boundary Conditions in Convection Problems</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+    <style>
+        /* Base styles matching previous themes */
+        * {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            line-height: 1.6;
+        }
+
+        .main_heading {
+            background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+            font-size: 50px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        p, li {
+            font-size: 22px;
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .subtopics {
+            background: linear-gradient(to right, #B06AB3, #4568DC);
+            color: white;
+            font-size: 28px;
+            font-family: 'Audiowide', cursive;
+            padding: 15px 25px;
+            margin: 20px auto;
+            text-align: center;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: 0.4s;
+            max-width: 90%;
+        }
+
+        .subtopics:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to right, #00ffe1, #0162bd);
+            color: black;
+        }
+
+        .def, .fact, .application {
+            background-color: #111;
+            padding: 30px;
+            margin: 25px auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .fact {
+            color: #05eeff;
+            font-size: 34px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+        }
+
+        .tech_points {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+            font-size: 20px;
+            color: #dadada;
+            font-family: 'Audiowide', cursive;
+            font-weight: bold;
+            text-align: left;
+            border-radius: 10px;
+            max-width: 90%;
+        }
+
+        .tech_points li {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tech_points li:last-child {
+            border-bottom: none;
+        }
+
+        /* BC specific styles */
+        .bc-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px auto;
+            max-width: 90%;
+            background: #111;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.1);
+            position: relative;
+        }
+
+        .bc-diagram {
+            width: 90%;
+            height: 200px;
+            background-color: #222;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .surface {
+            width: 80%;
+            height: 50px;
+            background-color: #555;
+            border-radius: 5px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            color: white;
+            z-index: 2;
+        }
+
+        /* Dirichlet */
+        .dirichlet .surface {
+            background: linear-gradient(to right, #00ffd5, #00c6ff);
+            box-shadow: 0 0 15px #00ffd5;
+        }
+        .dirichlet .surface::before {
+            content: 'T_s = Constant';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: black;
+            font-weight: bold;
+        }
+
+        /* Neumann */
+        .neumann .surface {
+            background: linear-gradient(to right, #ff416c, #ff8a8a);
+            box-shadow: 0 0 15px #ff416c;
+        }
+        .heat-flux-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 15px solid #ff416c;
+            transform: rotate(90deg);
+            top: 50%;
+            animation: flux-in 1.5s infinite alternate;
+            opacity: 0;
+            z-index: 1;
+        }
+        .heat-flux-arrow.left { left: 10%; animation-delay: 0s; }
+        .heat-flux-arrow.right { right: 10%; animation-delay: 0.5s; }
+        .heat-flux-arrow.insulated {
+            border-bottom-color: #ccc;
+            animation: none;
+            opacity: 1;
+            transform: rotate(0deg); /* No heat flux */
+            width: 30px;
+            height: 2px;
+            background-color: #ccc;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
+        }
+        .neumann .surface::before {
+            content: 'q_s = Constant';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: black;
+            font-weight: bold;
+        }
+        .neumann .surface.insulated::before {
+            content: 'Insulated (q_s = 0)';
+        }
+
+        /* Robin */
+        .robin .surface {
+            background: linear-gradient(to right, #B06AB3, #4568DC);
+            box-shadow: 0 0 15px #B06AB3;
+        }
+        .fluid-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #00c6ff;
+            animation: fluid-flow 3s linear infinite;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .convection-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 15px solid #00ffd5;
+            transform: rotate(-90deg); /* Arrow pointing towards surface */
+            top: 50%;
+            left: 20%;
+            animation: convection-pulse 2s infinite alternate;
+            opacity: 0;
+            z-index: 1;
+        }
+        .convection-arrow.right {
+            left: auto;
+            right: 20%;
+            transform: rotate(90deg); /* Arrow pointing away from surface */
+        }
+        .robin .surface::before {
+            content: 'Convection (h, T_inf)';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: black;
+            font-weight: bold;
+        }
+
+
+        /* Animations */
+        @keyframes flux-in {
+            0% { transform: translateX(-50px) rotate(90deg); opacity: 0; }
+            50% { transform: translateX(0px) rotate(90deg); opacity: 1; }
+            100% { transform: translateX(50px) rotate(90deg); opacity: 0; }
+        }
+        @keyframes fluid-flow {
+            0% { left: -20px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: calc(100% + 20px); opacity: 0; }
+        }
+        @keyframes convection-pulse {
+            0% { opacity: 0; transform: scale(0.8) rotate(-90deg); }
+            50% { opacity: 1; transform: scale(1) rotate(-90deg); }
+            100% { opacity: 0; transform: scale(0.8) rotate(-90deg); }
+        }
+
+
+        /* Application examples grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        .app-item {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .app-item:hover {
+            transform: scale(1.05);
+            background: #333;
+        }
+
+        .app-icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00c6ff;
+        }
+
+        .app-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main_heading {
+                font-size: 36px;
+                padding: 30px;
+            }
+            .subtopics {
+                font-size: 22px;
+                padding: 12px 20px;
+            }
+            p, li {
+                font-size: 18px;
+            }
+            .fact {
+                font-size: 28px;
+            }
+            .bc-diagram {
+                height: 150px;
+            }
+            .surface {
+                font-size: 16px;
+            }
+            .heat-flux-arrow, .fluid-particle, .convection-arrow {
+                width: 6px;
+                height: 6px;
+                border-left-width: 6px;
+                border-right-width: 6px;
+                border-bottom-width: 12px;
+            }
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main_heading {
+                font-size: 28px;
+                padding: 20px;
+            }
+            .subtopics {
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+            p, li {
+                font-size: 16px;
+            }
+            .fact {
+                font-size: 24px;
+            }
+            .bc-diagram {
+                height: 120px;
+            }
+            .surface {
+                font-size: 14px;
+            }
+            .heat-flux-arrow, .fluid-particle, .convection-arrow {
+                width: 4px;
+                height: 4px;
+                border-left-width: 4px;
+                border-right-width: 4px;
+                border-bottom-width: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main_heading">Boundary Conditions in Convection Problems</div>
+
+    <div class="def">
+        <p>Boundary conditions are mathematical statements that define the state of a system at its boundaries. In convection heat transfer, they are crucial for solving the governing differential equations and accurately predicting temperature distributions and heat transfer rates.</p>
+        <p>They specify how the system interacts with its surroundings, providing the necessary constraints for a unique solution.</p>
+    </div>
+
+    <div class="subtopics">Types of Boundary Conditions</div>
+
+    <div class="bc-container">
+        <h3>1. Dirichlet Boundary Condition (Constant Surface Temperature)</h3>
+        <div class="bc-diagram dirichlet">
+            <div class="surface"></div>
+        </div>
+        <p>This condition specifies a constant temperature at the surface of the object. It's often used when a surface is in contact with a very large thermal reservoir or undergoes a phase change.</p>
+        <p>Mathematically: $T(x_s, y_s, z_s, t) = T_s$</p>
+        <p>Where $T_s$ is the specified constant surface temperature.</p>
+    </div>
+
+    <div class="bc-container">
+        <h3>2. Neumann Boundary Condition (Constant Heat Flux)</h3>
+        <div class="bc-diagram neumann">
+            <div class="surface"></div>
+            <div class="heat-flux-arrow left"></div>
+            <div class="heat-flux-arrow right"></div>
+        </div>
+        <p>This condition specifies a constant heat flux across the boundary. A special case is an insulated surface, where the heat flux is zero.</p>
+        <p>Mathematically: $-k \frac{\partial T}{\partial n} \Big|_{surface} = q_s''$</p>
+        <p>Where $k$ is thermal conductivity, $\frac{\partial T}{\partial n}$ is the temperature gradient normal to the surface, and $q_s''$ is the specified constant heat flux.</p>
+        <p>For an insulated surface: $\frac{\partial T}{\partial n} \Big|_{surface} = 0$</p>
+    </div>
+
+    <div class="bc-container">
+        <h3>3. Robin Boundary Condition (Convection Boundary Condition)</h3>
+        <div class="bc-diagram robin">
+            <div class="surface"></div>
+            <div class="fluid-particle" style="animation-delay: 0s;"></div>
+            <div class="fluid-particle" style="animation-delay: 0.5s;"></div>
+            <div class="fluid-particle" style="animation-delay: 1s;"></div>
+            <div class="fluid-particle" style="animation-delay: 1.5s;"></div>
+            <div class="convection-arrow"></div>
+            <div class="convection-arrow right"></div>
+        </div>
+        <p>This condition accounts for heat transfer by convection between the surface and a surrounding fluid. It relates the surface temperature gradient to the convective heat transfer coefficient and the fluid's free-stream temperature.</p>
+        <p>Mathematically: $-k \frac{\partial T}{\partial n} \Big|_{surface} = h (T_s - T_\infty)$</p>
+        <p>Where $h$ is the convective heat transfer coefficient, $T_s$ is the surface temperature, and $T_\infty$ is the fluid free-stream temperature.</p>
+    </div>
+
+    <div class="fact">
+        DID YOU KNOW? The Robin boundary condition is also known as a "convection boundary condition" or a "mixed boundary condition" because it combines elements of both Dirichlet (temperature) and Neumann (flux) conditions!
+    </div>
+
+    <div class="subtopics">Industrial Applications of Boundary Conditions</div>
+
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon">🔥</div>
+            <div class="app-title">Furnace Walls</div>
+            <p>Often modeled with Neumann (constant heat flux) or Robin (convection to ambient) conditions.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">❄️</div>
+            <div class="app-title">Refrigerated Spaces</div>
+            <p>Walls interacting with cold air typically use Robin boundary conditions.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">💻</div>
+            <div class="app-title">Electronic Devices</div>
+            <p>Component surfaces might be treated with Dirichlet (if temperature controlled) or Robin (convection to air) conditions.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🌡️</div>
+            <div class="app-title">Heat Exchangers</div>
+            <p>Fluid-solid interfaces are primarily governed by Robin boundary conditions.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🚀</div>
+            <div class="app-title">Aerospace Components</div>
+            <p>Surfaces exposed to high-speed airflows require complex convection boundary conditions.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🧪</div>
+            <div class="app-title">Chemical Reactors</div>
+            <p>Reactor walls often involve heat transfer to or from a surrounding fluid, using Robin conditions.</p>
+        </div>
+    </div>
+
+    <script>
+        // No specific JavaScript animations needed beyond the CSS ones already defined
+        // for heat flux arrows and fluid particles.
+        // The structure is primarily for visual explanation.
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // No additional JS logic required for this specific set of visualizations
+            // as animations are handled purely by CSS.
+        });
+    </script>
+
+</body>
+</html>

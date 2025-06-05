@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Heat Flux & Critical Heat Flux (CHF)</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      box-sizing: border-box;
+    }
+    
+    .header {
+      background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+      font-size: 50px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      margin: 30px auto;
+      max-width: 90%;
+    }
+    
+    p, li {
+      font-size: 22px;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+      margin: 10px 0;
+      line-height: 1.8;
+    }
+    
+    .section-title {
+      background: linear-gradient(to right, #B06AB3, #4568DC);
+      color: white;
+      font-size: 28px;
+      font-family: 'Audiowide', cursive;
+      padding: 15px 25px;
+      margin: 20px auto;
+      text-align: center;
+      border-radius: 50px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      transition: 0.4s;
+      max-width: 90%;
+    }
+    
+    .section-title:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #00ffe1, #0162bd);
+      color: black;
+    }
+    
+    .card {
+      background-color: #111;
+      padding: 30px;
+      margin: 25px auto;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      max-width: 90%;
+    }
+    
+    .highlight {
+      color: #05eeff;
+      font-size: 34px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: bold;
+    }
+    
+    .feature-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px auto;
+      background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+      font-size: 20px;
+      color: #dadada;
+      font-family: 'Audiowide', cursive;
+      font-weight: bold;
+      text-align: left;
+      border-radius: 10px;
+      max-width: 90%;
+    }
+    
+    .feature-list li {
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+    
+    /* Heat Flux Curve Visualization */
+    .curve-container {
+      width: 100%;
+      max-width: 900px;
+      height: 500px;
+      margin: 40px auto;
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      position: relative;
+    }
+    
+    .curve-axis {
+      position: absolute;
+      background: #333;
+    }
+    
+    .curve-axis.x {
+      width: 80%;
+      height: 2px;
+      bottom: 50px;
+      left: 100px;
+    }
+    
+    .curve-axis.y {
+      width: 2px;
+      height: 80%;
+      bottom: 50px;
+      left: 100px;
+    }
+    
+    .curve-label {
+      position: absolute;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+    }
+    
+    .curve-region {
+      position: absolute;
+      height: 100%;
+      opacity: 0.1;
+    }
+    
+    .curve-line {
+      position: absolute;
+      height: 2px;
+      background: #00ffd5;
+      left: 100px;
+      bottom: 50px;
+      transform-origin: left center;
+    }
+    
+    .critical-point {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff416c;
+      border-radius: 50%;
+      transform: translate(-50%, 50%);
+      z-index: 10;
+      box-shadow: 0 0 15px #ff416c;
+    }
+    
+    .leidenfrost-point {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: #B06AB3;
+      border-radius: 50%;
+      transform: translate(-50%, 50%);
+      z-index: 10;
+      box-shadow: 0 0 10px #B06AB3;
+    }
+    
+    /* CHF Danger Zone Animation */
+    .danger-zone {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255, 65, 108, 0.2);
+      transform: translate(-50%, -50%);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.3; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    }
+    
+    /* Interactive Slider */
+    .slider-container {
+      width: 80%;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #111;
+      border-radius: 15px;
+    }
+    
+    .slider {
+      width: 100%;
+      height: 15px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(to right, #00c6ff, #00ffd5, #ff416c, #B06AB3);
+      outline: none;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+    
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+    }
+    
+    /* Real-world Application Cards */
+    .application-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 40px auto;
+      max-width: 95%;
+    }
+    
+    .app-card {
+      width: 45%;
+      min-width: 300px;
+      margin: 15px;
+      background: #111;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 198, 255, 0.1);
+      transition: transform 0.3s;
+    }
+    
+    .app-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 25px rgba(0, 198, 255, 0.3);
+    }
+    
+    .app-header {
+      padding: 15px;
+      text-align: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(to right, #0072ff, #00c6ff);
+      color: black;
+    }
+    
+    .app-content {
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">Heat Flux & Critical Heat Flux (CHF)</div>
+
+  <div class="card">
+    <p>Critical Heat Flux (CHF) represents the maximum heat flux achievable in nucleate boiling before transition to film boiling occurs, leading to dramatic reduction in heat transfer efficiency.</p>
+  </div>
+
+  <div class="section-title">Heat Flux Curve & CHF Point</div>
+
+  <div class="curve-container">
+    <div class="curve-axis x"></div>
+    <div class="curve-axis y"></div>
+    
+    <div class="curve-label" style="bottom: 30px; left: 50%;">ΔT (Temperature Excess)</div>
+    <div class="curve-label" style="transform: rotate(-90deg); left: 30px; top: 50%;">Heat Flux (q")</div>
+    
+    <!-- Curve regions -->
+    <div class="curve-region" style="background: #00c6ff; left: 100px; width: 150px;">
+      <div class="curve-label" style="bottom: 50%; left: 120px;">Natural Convection</div>
+    </div>
+    
+    <div class="curve-region" style="background: #00ffd5; left: 250px; width: 250px;">
+      <div class="curve-label" style="bottom: 70%; left: 300px;">Nucleate Boiling</div>
+    </div>
+    
+    <div class="curve-region" style="background: #ff416c; left: 500px; width: 150px;">
+      <div class="curve-label" style="bottom: 40%; left: 520px;">Transition</div>
+    </div>
+    
+    <div class="curve-region" style="background: #B06AB3; left: 650px; width: 200px;">
+      <div class="curve-label" style="bottom: 30%; left: 700px;">Film Boiling</div>
+    </div>
+    
+    <!-- Curve lines -->
+    <div class="curve-line" style="transform: rotate(15deg); width: 150px;"></div>
+    <div class="curve-line" style="transform: rotate(45deg); left: 250px; width: 250px;"></div>
+    <div class="curve-line" style="transform: rotate(-30deg); left: 500px; width: 150px;"></div>
+    <div class="curve-line" style="transform: rotate(15deg); left: 650px; width: 200px;"></div>
+    
+    <!-- Critical points -->
+    <div class="critical-point" style="left: 500px; bottom: 300px;">
+      <div class="danger-zone"></div>
+    </div>
+    <div class="curve-label" style="left: 500px; bottom: 330px; color: #ff416c; font-weight: bold;">Critical Heat Flux (CHF)</div>
+    
+    <div class="leidenfrost-point" style="left: 580px; bottom: 200px;"></div>
+    <div class="curve-label" style="left: 580px; bottom: 230px; color: #B06AB3;">Leidenfrost Point</div>
+  </div>
+
+  <div class="card">
+    <h3>Key Characteristics of CHF</h3>
+    <ul class="feature-list">
+      <li><strong>Peak Performance:</strong> Maximum heat transfer capability in nucleate boiling</li>
+      <li><strong>Safety Threshold:</strong> Exceeding CHF can cause equipment damage (e.g., fuel rod cladding failure in nuclear reactors)</li>
+      <li><strong>Hysteresis Effect:</strong> Different CHF values for increasing vs decreasing heat flux</li>
+      <li><strong>Fluid Dependent:</strong> Varies with pressure, surface condition, and fluid properties</li>
+    </ul>
+  </div>
+
+  <div class="section-title">Interactive CHF Demonstration</div>
+
+  <div class="slider-container">
+    <p>Adjust heat flux to see different boiling regimes:</p>
+    <input type="range" min="0" max="100" value="30" class="slider" id="heatFluxSlider">
+    <div class="slider-labels">
+      <span>Natural Convection</span>
+      <span>Nucleate Boiling</span>
+      <span>CHF</span>
+      <span>Film Boiling</span>
+    </div>
+    <div id="regimeDisplay" style="font-family: 'Rajdhani', sans-serif; font-size: 24px; color: #00ffd5; margin-top: 20px;">Current Regime: Nucleate Boiling</div>
+  </div>
+
+  <div class="highlight">
+    DID YOU KNOW? The CHF for water at atmospheric pressure is ~1 MW/m², but can reach 10 MW/m² in high-pressure systems!
+  </div>
+
+  <div class="section-title">Real-world CHF Applications</div>
+
+  <div class="application-grid">
+    <div class="app-card">
+      <div class="app-header">NUCLEAR REACTORS</div>
+      <div class="app-content">
+        <ul class="feature-list">
+          <li>CHF determines maximum safe operating power</li>
+          <li>Departure from Nucleate Boiling (DNB) must be avoided</li>
+          <li>Special fuel rod designs enhance CHF</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="app-card">
+      <div class="app-header">ELECTRONICS COOLING</div>
+      <div class="app-content">
+        <ul class="feature-list">
+          <li>High-performance chips approach CHF limits</li>
+          <li>Microchannel boiling enhances CHF</li>
+          <li>Nanostructured surfaces increase CHF</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="app-card">
+      <div class="app-header">INDUSTRIAL BOILERS</div>
+      <div class="app-content">
+        <ul class="feature-list">
+          <li>CHF limits steam generation rates</li>
+          <li>Scale deposition reduces CHF</li>
+          <li>Water treatment maintains CHF</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="app-card">
+      <div class="app-header">CRYOGENIC SYSTEMS</div>
+      <div class="app-content">
+        <ul class="feature-list">
+          <li>Very low CHF for cryogenic fluids</li>
+          <li>Special coatings prevent film boiling</li>
+          <li>Critical for rocket engine cooling</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">CHF Enhancement Techniques</div>
+
+  <div class="card">
+    <ul class="feature-list">
+      <li><strong>Surface Modification:</strong> Micro/nano structures increase nucleation sites</li>
+      <li><strong>Fluid Additives:</strong> Nanoparticles can boost CHF by 200%</li>
+      <li><strong>Flow Enhancement:</strong> Forced convection delays CHF</li>
+      <li><strong>Surface Wettability:</strong> Hydrophilic surfaces generally have higher CHF</li>
+    </ul>
+  </div>
+
+  <script>
+    // Interactive slider functionality
+    const slider = document.getElementById('heatFluxSlider');
+    const regimeDisplay = document.getElementById('regimeDisplay');
+    
+    slider.addEventListener('input', function() {
+      const value = parseInt(this.value);
+      let regime, color;
+      
+      if (value < 25) {
+        regime = "Natural Convection";
+        color = "#00c6ff";
+      } else if (value < 60) {
+        regime = "Nucleate Boiling";
+        color = "#00ffd5";
+      } else if (value < 75) {
+        regime = "Transition Boiling (Near CHF)";
+        color = "#ff416c";
+      } else {
+        regime = "Film Boiling";
+        color = "#B06AB3";
+      }
+      
+      regimeDisplay.textContent = `Current Regime: ${regime}`;
+      regimeDisplay.style.color = color;
+      
+      // Add warning for CHF proximity
+      if (value >= 55 && value <= 65) {
+        regimeDisplay.innerHTML += " <span style='color:#ff416c;font-size:18px;'>⚠️ APPROACHING CHF!</span>";
+      } else if (value > 65 && value < 75) {
+        regimeDisplay.innerHTML += " <span style='color:#ff0000;font-size:18px;'>⚠️ CRITICAL HEAT FLUX!</span>";
+      }
+    });
+    
+    // Animate CHF point
+    const chfPoint = document.querySelector('.critical-point');
+    setInterval(() => {
+      const glowIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 500);
+      chfPoint.style.boxShadow = `0 0 ${15 * glowIntensity}px #ff416c`;
+    }, 50);
+  </script>
+
+</body>
+</html>

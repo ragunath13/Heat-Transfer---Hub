@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reynolds Number in Convective Heat Transfer</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    /* Vibrant Color Scheme */
+    :root {
+      --reynolds-red: #FF5252;
+      --flow-blue: #40C4FF;
+      --formula-dark: #111;
+      --formula-light: #f8f9fa;
+      --laminar-green: #69F0AE;
+      --turbulent-orange: #FFAB40;
+    }
+    
+    /* Formula Styling */
+    .reynolds-formula {
+      color: var(--reynolds-red);
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .flow-regime {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    
+    .laminar {
+      background-color: var(--laminar-green);
+      color: black;
+    }
+    
+    .transitional {
+      background-color: #FFD740;
+      color: black;
+    }
+    
+    .turbulent {
+      background-color: var(--turbulent-orange);
+      color: black;
+    }
+    
+    /* Main Content Styling */
+    .reynolds-container {
+      background: var(--formula-dark);
+      color: var(--formula-light);
+      padding: 30px;
+      border-radius: 15px;
+      margin: 30px auto;
+      max-width: 800px;
+      border-left: 5px solid var(--reynolds-red);
+    }
+    
+    .flow-visualization {
+      height: 200px;
+      background: var(--flow-blue);
+      border-radius: 10px;
+      margin: 25px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .flow-line {
+      position: absolute;
+      height: 3px;
+      background: white;
+      animation: flowAnimation 10s linear infinite;
+    }
+    
+    @keyframes flowAnimation {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .reynolds-scale {
+      height: 40px;
+      background: linear-gradient(to right, var(--laminar-green), #FFD740, var(--turbulent-orange));
+      border-radius: 20px;
+      margin: 30px 0;
+      position: relative;
+    }
+    
+    .scale-marker {
+      position: absolute;
+      width: 3px;
+      height: 50px;
+      background: white;
+      top: -5px;
+    }
+    
+    .scale-label {
+      position: absolute;
+      color:aqua;
+      top: -30px;
+      transform: translateX(-50%);
+      font-family: 'Audiowide', cursive;
+    }
+    
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 40px auto;
+    }
+    
+    .regime-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .regime-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+      animation: pulse 3s infinite;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Reynolds Number in Convection</div>
+
+  <div class="reynolds-container">
+    <h2>What is Reynolds Number?</h2>
+    <p>The Reynolds Number (<span class="reynolds-formula">Re</span>) is a dimensionless quantity that predicts flow patterns in fluid dynamics:</p>
+    
+    <div style="background: rgba(255,82,82,0.1); padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+      <p class="reynolds-formula" style="font-size: 24px;">Re = (ρ·v·L)/μ</p>
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <span style="margin: 0 15px;"><span class="reynolds-formula">ρ</span>: Fluid density (kg/m³)</span>
+        <span style="margin: 0 15px;"><span class="reynolds-formula">v</span>: Velocity (m/s)</span>
+        <span style="margin: 0 15px;"><span class="reynolds-formula">L</span>: Characteristic length (m)</span>
+        <span style="margin: 0 15px;"><span class="reynolds-formula">μ</span>: Dynamic viscosity (Pa·s)</span>
+      </div>
+    </div>
+    
+    <div class="flow-visualization" id="flowDemo">
+      <!-- Flow lines will be added by JavaScript -->
+    </div>
+    
+    <h3>Physical Significance:</h3>
+    <ul>
+      <li>Ratio of <span class="reynolds-formula">inertial forces</span> to <span class="reynolds-formula">viscous forces</span></li>
+      <li>Predicts transition between <span class="laminar">laminar</span> and <span class="turbulent">turbulent</span> flow</li>
+      <li>Critical for determining <span class="reynolds-formula">heat transfer coefficients</span></li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Flow Regimes
+  </div>
+
+  <div class="reynolds-scale">
+    <div class="scale-marker" style="left: 10%;">
+      <div class="scale-label">Laminar<br>Re &lt; 2300</div>
+    </div>
+    <div class="scale-marker" style="left: 40%;">
+      <div class="scale-label">Transitional<br>2300 &lt; Re &lt; 4000</div>
+    </div>
+    <div class="scale-marker" style="left: 70%;">
+      <div class="scale-label">Turbulent<br>Re &gt; 4000</div>
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="regime-card" style="border-top: 4px solid var(--laminar-green);">
+      <h3><span class="laminar">Laminar Flow</span> (Re &lt; 2300)</h3>
+      <ul>
+        <li>Smooth, orderly fluid motion</li>
+        <li>Parallel layers with minimal mixing</li>
+        <li>Lower heat transfer rates</li>
+        <li>Primary heat transfer mechanism: <span class="reynolds-formula">conduction</span></li>
+      </ul>
+    </div>
+    
+    <div class="regime-card" style="border-top: 4px solid #FFD740;">
+      <h3><span class="transitional">Transitional Flow</span> (2300 &lt; Re &lt; 4000)</h3>
+      <ul>
+        <li>Unstable flow conditions</li>
+        <li>Intermittent turbulent bursts</li>
+        <li>Difficult to predict behavior</li>
+        <li>Varying heat transfer rates</li>
+      </ul>
+    </div>
+    
+    <div class="regime-card" style="border-top: 4px solid var(--turbulent-orange);">
+      <h3><span class="turbulent">Turbulent Flow</span> (Re &gt; 4000)</h3>
+      <ul>
+        <li>Chaotic, mixing fluid motion</li>
+        <li>Enhanced heat transfer</li>
+        <li>Higher pressure drops</li>
+        <li>Primary heat transfer mechanism: <span class="reynolds-formula">eddy diffusion</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Reynolds Number in Heat Transfer
+  </div>
+
+  <div class="reynolds-container">
+    <h2>Relationship to Convective Heat Transfer</h2>
+    <p>The Reynolds Number directly influences the <span class="reynolds-formula">Nusselt Number (Nu)</span> and thus the convective heat transfer coefficient:</p>
+    
+    <div style="background: rgba(64,196,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+      <p class="reynolds-formula" style="font-size: 24px;">Nu = C·Re<sup>m</sup>·Pr<sup>n</sup></p>
+      <p>Where <span class="reynolds-formula">Pr</span> is the Prandtl number, and <span class="reynolds-formula">C, m, n</span> are constants depending on geometry and flow conditions.</p>
+    </div>
+    
+    <h3>Practical Implications:</h3>
+    <ul>
+      <li><span class="turbulent">Turbulent flow</span> typically provides 5-10x higher heat transfer than <span class="laminar">laminar flow</span></li>
+      <li>Engineers often design systems to operate in the <span class="turbulent">turbulent regime</span> for better heat transfer</li>
+      <li>Higher <span class="reynolds-formula">Re</span> requires more pumping power due to increased friction</li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Calculating Reynolds Number
+  </div>
+
+  <div style="max-width: 800px; margin: 30px auto; background: rgba(0,0,0,0.2); padding: 25px; border-radius: 15px;">
+    <h3>Example Calculation</h3>
+    <p>For water flowing through a 2cm diameter pipe at 1 m/s:</p>
+    
+    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Courier New'; margin: 15px 0;">
+      <p>ρ = 1000 kg/m³</p>
+      <p>v = 1 m/s</p>
+      <p>L = 0.02 m (pipe diameter)</p>
+      <p>μ = 0.001 Pa·s</p>
+      <p class="reynolds-formula">Re = (1000 × 1 × 0.02) / 0.001 = 20,000</p>
+    </div>
+    
+    <p>This <span class="reynolds-formula">Re = 20,000</span> indicates <span class="turbulent">turbulent flow</span>.</p>
+  </div>
+
+  <script>
+    // Create flow visualization based on Reynolds number slider
+    function createFlowVisualization(reValue) {
+      const container = document.getElementById('flowDemo');
+      container.innerHTML = '';
+      
+      if (reValue < 2300) {
+        // Laminar flow - straight parallel lines
+        for (let i = 0; i < 5; i++) {
+          const line = document.createElement('div');
+          line.className = 'flow-line';
+          line.style.width = '100%';
+          line.style.top = `${20 + i*40}px`;
+          line.style.opacity = `${0.7 + i*0.05}`;
+          line.style.animationDelay = `${i*0.5}s`;
+          container.appendChild(line);
+        }
+      } else if (reValue < 4000) {
+        // Transitional flow - some waviness
+        for (let i = 0; i < 8; i++) {
+          const line = document.createElement('div');
+          line.className = 'flow-line';
+          line.style.width = '100%';
+          line.style.top = `${15 + i*25}px`;
+          line.style.opacity = `${0.6 + i*0.05}`;
+          line.style.animationDelay = `${i*0.3}s`;
+          if (i > 2 && i < 6) {
+            line.style.height = '5px';
+            line.style.background = 'linear-gradient(to right, white, #FFD740, white)';
+          }
+          container.appendChild(line);
+        }
+      } else {
+        // Turbulent flow - chaotic motion
+        for (let i = 0; i < 15; i++) {
+          const line = document.createElement('div');
+          line.className = 'flow-line';
+          line.style.width = `${70 + Math.random()*60}%`;
+          line.style.top = `${10 + i*12}px`;
+          line.style.left = `${Math.random()*30}%`;
+          line.style.opacity = `${0.4 + Math.random()*0.3}`;
+          line.style.animationDelay = `${i*0.2}s`;
+          line.style.animationDuration = `${5 + Math.random()*10}s`;
+          line.style.height = `${2 + Math.random()*4}px`;
+          line.style.background = 'linear-gradient(to right, white, #FFAB40, white)';
+          container.appendChild(line);
+        }
+      }
+    }
+    
+    // Initialize with turbulent flow visualization
+    createFlowVisualization(5000);
+  </script>
+
+</body>
+</html>

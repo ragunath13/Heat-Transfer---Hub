@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Condensation Regimes: Filmwise and Dropwise</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+  <style>
+    /* Base styles matching boiling theme */
+    * {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      box-sizing: border-box;
+    }
+    
+    .condensation_heading {
+      background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+      font-size: 50px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      margin: 30px auto;
+      max-width: 90%;
+    }
+    
+    p, li {
+      font-size: 22px;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+      margin: 10px 0;
+      line-height: 1.8;
+    }
+    
+    .condensation_subtopics {
+      background: linear-gradient(to right, #B06AB3, #4568DC);
+      color: white;
+      font-size: 28px;
+      font-family: 'Audiowide', cursive;
+      padding: 15px 25px;
+      margin: 20px auto;
+      text-align: center;
+      border-radius: 50px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      transition: 0.4s;
+      max-width: 90%;
+    }
+    
+    .condensation_subtopics:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #00ffe1, #0162bd);
+      color: black;
+    }
+    
+    .def, .fact, .application {
+      background-color: #111;
+      padding: 30px;
+      margin: 25px auto;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      max-width: 90%;
+    }
+    
+    .fact {
+      color: #05eeff;
+      font-size: 34px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: bold;
+    }
+    
+    .tech_points {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px auto;
+      background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+      font-size: 20px;
+      color: #dadada;
+      font-family: 'Audiowide', cursive;
+      font-weight: bold;
+      text-align: left;
+      border-radius: 10px;
+      max-width: 90%;
+    }
+    
+    .tech_points li {
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .tech_points li:last-child {
+      border-bottom: none;
+    }
+    
+    /* Condensation-specific styles */
+    .condensation-regimes {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 40px auto;
+      max-width: 95%;
+    }
+    
+    .regime-card {
+      width: 45%;
+      min-width: 350px;
+      margin: 15px;
+      background: #111;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 198, 255, 0.1);
+      transition: transform 0.3s;
+    }
+    
+    .regime-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 25px rgba(0, 198, 255, 0.3);
+    }
+    
+    .regime-header {
+      padding: 20px;
+      text-align: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      color: black;
+    }
+    
+    .regime-visual {
+      height: 250px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid #333;
+    }
+    
+    .dropwise-drops, .filmwise-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .regime-content {
+      padding: 20px;
+    }
+    
+    .comparison-table {
+      width: 100%;
+      max-width: 800px;
+      margin: 40px auto;
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+      font-family: 'Audiowide', cursive;
+    }
+    
+    th {
+      background: linear-gradient(to right, #0072ff, #00c6ff);
+      color: black;
+      font-size: 20px;
+    }
+    
+    tr:hover {
+      background-color: rgba(255,255,255,0.05);
+    }
+    
+    /* Animation styles */
+    @keyframes drop-form {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes drop-fall {
+      0% { transform: translateY(-10px); }
+      100% { transform: translateY(200px); }
+    }
+    
+    .drop {
+      position: absolute;
+      background: rgba(0, 198, 255, 0.7);
+      border-radius: 50%;
+      animation: drop-form 1s ease-out forwards, drop-fall 3s 1s linear forwards;
+    }
+    
+    .film-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0, 198, 255, 0.1), rgba(0, 198, 255, 0.3));
+    }
+    
+    .film-ripple {
+      position: absolute;
+      width: 100%;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      animation: ripple 4s linear infinite;
+    }
+    
+    @keyframes ripple {
+      0% { top: 0; height: 20px; opacity: 0.5; }
+      100% { top: 100%; height: 5px; opacity: 0; }
+    }
+    
+    /* Heat transfer coefficient chart */
+    .coefficient-chart {
+      width: 100%;
+      height: 300px;
+      position: relative;
+      margin: 30px 0;
+      background: #111;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .chart-bar {
+      position: absolute;
+      bottom: 0;
+      width: 100px;
+      transition: height 1s;
+    }
+    
+    .bar-dropwise {
+      left: 30%;
+      background: linear-gradient(to top, #00ffd5, #00c6ff);
+    }
+    
+    .bar-filmwise {
+      left: 60%;
+      background: linear-gradient(to top, #ff416c, #ff8a8a);
+    }
+    
+    .chart-label {
+      position: absolute;
+      bottom: -30px;
+      width: 100px;
+      text-align: center;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="condensation_heading">Condensation Regimes: Filmwise and Dropwise</div>
+
+  <div class="def">
+    <p>Condensation occurs when vapor loses heat energy and transitions to liquid, forming either continuous films or discrete droplets based on surface conditions.</p>
+  </div>
+
+  <div class="condensation_subtopics">Two Primary Condensation Regimes</div>
+
+  <div class="condensation-regimes">
+    <!-- Dropwise Condensation Card -->
+    <div class="regime-card">
+      <div class="regime-header" style="background: linear-gradient(to right, #00ffd5, #00c6ff);">DROPVISE CONDENSATION</div>
+      <div class="regime-visual">
+        <div class="dropwise-drops" id="dropwiseDrops"></div>
+      </div>
+      <div class="regime-content">
+        <ul class="tech_points">
+          <li>Discrete droplets form on the surface</li>
+          <li>10-20x higher heat transfer than filmwise</li>
+          <li>Requires non-wettable surfaces or coatings</li>
+          <li>Droplets grow and merge until falling/rolling</li>
+          <li>Common in steam power plants with promoted surfaces</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Filmwise Condensation Card -->
+    <div class="regime-card">
+      <div class="regime-header" style="background: linear-gradient(to right, #ff416c, #ff8a8a);">FILMWISE CONDENSATION</div>
+      <div class="regime-visual">
+        <div class="filmwise-layer">
+          <div class="film-layer"></div>
+          <div class="film-ripple" style="animation-delay: 0s;"></div>
+          <div class="film-ripple" style="animation-delay: 1s;"></div>
+          <div class="film-ripple" style="animation-delay: 2s;"></div>
+        </div>
+      </div>
+      <div class="regime-content">
+        <ul class="tech_points">
+          <li>Continuous liquid film covers the surface</li>
+          <li>Lower heat transfer due to thermal resistance</li>
+          <li>Occurs on clean, wettable surfaces</li>
+          <li>Gravity-driven film flow</li>
+          <li>More stable and predictable than dropwise</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="condensation_subtopics">Key Differences</div>
+
+  <div class="comparison-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Characteristic</th>
+          <th>Dropwise Condensation</th>
+          <th>Filmwise Condensation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Heat Transfer Coefficient</td>
+          <td>Very High (20-100 kW/m²K)</td>
+          <td>Moderate (1-10 kW/m²K)</td>
+        </tr>
+        <tr>
+          <td>Surface Requirement</td>
+          <td>Non-wettable (low surface energy)</td>
+          <td>Wettable (high surface energy)</td>
+        </tr>
+        <tr>
+          <td>Stability</td>
+          <td>Difficult to maintain long-term</td>
+          <td>Very stable</td>
+        </tr>
+        <tr>
+          <td>Industrial Applications</td>
+          <td>Power plants, enhanced condensers</td>
+          <td>Most conventional systems</td>
+        </tr>
+        <tr>
+          <td>Maintenance</td>
+          <td>Requires surface treatments</td>
+          <td>Low maintenance</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="condensation_subtopics">Heat Transfer Performance</div>
+
+  <div class="coefficient-chart" id="htcChart">
+    <div class="chart-bar bar-dropwise" id="dropwiseBar"></div>
+    <div class="chart-label" style="left: 30%;">Dropwise</div>
+    <div class="chart-bar bar-filmwise" id="filmwiseBar"></div>
+    <div class="chart-label" style="left: 60%;">Filmwise</div>
+  </div>
+
+  <div class="fact">
+    DID YOU KNOW? Dropwise condensation can achieve heat transfer coefficients up to 100 kW/m²K - 20x higher than filmwise!
+  </div>
+
+  <div class="condensation_subtopics">Industrial Applications</div>
+
+  <div class="application">
+    <ul class="tech_points">
+      <li><strong>Power Generation:</strong> Dropwise condensation improves steam turbine efficiency by 5-10%</li>
+      <li><strong>HVAC Systems:</strong> Filmwise condensation dominates in air conditioning condensers</li>
+      <li><strong>Desalination:</strong> Hybrid surfaces promote dropwise condensation in multi-effect distillation</li>
+      <li><strong>Electronics Cooling:</strong> Micro/nano-engineered surfaces enhance dropwise condensation</li>
+      <li><strong>Aerospace:</strong> Special coatings prevent ice formation through controlled condensation</li>
+    </ul>
+  </div>
+
+  <script>
+    // Create drops for dropwise condensation visualization
+    function createDrops(container, count) {
+      for (let i = 0; i < count; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'drop';
+        drop.style.left = `${10 + Math.random() * 80}%`;
+        drop.style.width = `${5 + Math.random() * 15}px`;
+        drop.style.height = drop.style.width;
+        drop.style.animationDelay = `${Math.random() * 5}s`;
+        container.appendChild(drop);
+        
+        // Remove drop after animation completes
+        setTimeout(() => {
+          drop.remove();
+        }, 4000);
+      }
+    }
+    
+    // Animate heat transfer coefficient bars
+    function animateBars() {
+      const dropwiseBar = document.getElementById('dropwiseBar');
+      const filmwiseBar = document.getElementById('filmwiseBar');
+      
+      // Set heights proportional to typical HTC values
+      dropwiseBar.style.height = '90%';
+      dropwiseBar.style.left = '30%';
+      dropwiseBar.style.width = '100px';
+      
+      filmwiseBar.style.height = '30%';
+      filmwiseBar.style.left = '60%';
+      filmwiseBar.style.width = '100px';
+    }
+    
+    // Initialize visualizations
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropwiseContainer = document.getElementById('dropwiseDrops');
+      
+      // Create initial drops
+      createDrops(dropwiseContainer, 15);
+      
+      // Continue creating drops periodically
+      setInterval(() => {
+        createDrops(dropwiseContainer, 5);
+      }, 1000);
+      
+      // Animate the HTC comparison chart
+      animateBars();
+    });
+  </script>
+
+</body>
+</html>
