@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Convective Superheater</title>
+    <style>
+        /* Basic styling for the body and canvas */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000; /* Black background */
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        /* Styling for the information panel */
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease; /* Smooth transitions */
+            z-index: 100;
+            border: 1px solid #ffeb3b; /* Yellow border */
+            box-shadow: 0 4px 15px rgba(255, 235, 59, 0.2); /* Yellow shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #ffeb3b; /* Yellow title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        /* Styling for the main title */
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        /* Styling for the control buttons container */
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Space between buttons */
+        }
+        /* Styling for all buttons */
+        button {
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+            color: white;
+            border: 1px solid #ffeb3b; /* Yellow border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth hover effects */
+            box-shadow: 0 2px 5px rgba(255, 235, 59, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(255, 235, 59, 0.2); /* Lighter yellow on hover */
+            border-color: #fff9c4; /* Lighter border on hover */
+        }
+        /* Styling for component buttons with color indicators */
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%; /* Circular indicator */
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Convective Superheater - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-convection-pass"><span class="color-indicator" style="background-color: #607d8b;"></span>Toggle Convection Pass</button>
+        <button id="toggle-steam-flow"><span class="color-indicator" style="background-color: #add8e6;"></span>Toggle Steam Flow</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-superheater-tubes"><span class="color-indicator" style="background-color: #cccccc;"></span>View Superheater Tubes</button>
+        <button id="view-headers"><span class="color-indicator" style="background-color: #888888;"></span>View Headers</button>
+        <button id="view-convection-pass"><span class="color-indicator" style="background-color: #607d8b;"></span>View Convection Pass</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // --- Main Three.js Setup ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background for the scene
+
+        // Camera setup: Perspective camera with a field of view, aspect ratio, and near/far clipping planes
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 10, 50); // Initial camera position
+
+        // Renderer setup: WebGL renderer with antialiasing for smoother edges
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight); // Set renderer size to full window
+        renderer.setPixelRatio(window.devicePixelRatio); // Adjust for high-DPI screens
+        renderer.shadowMap.enabled = true; // Enable shadows
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement); // Add renderer's canvas to the DOM
+
+        // OrbitControls for camera interaction (rotate, pan, zoom)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+
+        // --- Lighting Setup ---
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(10, 20, 15); // Position the light
+        directionalLight.castShadow = true; // Enable light to cast shadows
+        directionalLight.shadow.mapSize.width = 1024; // Shadow map resolution
+        directionalLight.shadow.mapSize.height = 1024;
+        // Adjust shadow camera to cover the scene
+        directionalLight.shadow.camera.left = -50;
+        directionalLight.shadow.camera.right = 50;
+        directionalLight.shadow.camera.top = 50;
+        directionalLight.shadow.camera.bottom = -50;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 100;
+        scene.add(directionalLight);
+
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-10, -10, -10);
+        scene.add(backLight);
+
+        // --- Interaction Tools ---
+        const raycaster = new THREE.Raycaster(); // Used for detecting clicks on 3D objects
+        const mouse = new THREE.Vector2(); // Stores mouse coordinates
+
+        // --- Animation Variables ---
+        let animationId = null; // Stores the requestAnimationFrame ID
+        let targetPosition = null; // Target camera position for animation
+        let targetLookAt = null; // Target camera look-at point for animation
+        let isAnimating = false; // Flag to indicate if camera animation is in progress
+
+        // --- Component Storage ---
+        const components = {
+            convectionPass: null,
+            superheaterTubes: null,
+            headers: null,
+            steamFlow: null,
+            fullAssembly: null
+        };
+
+        // --- Component Information (Descriptions, Colors) ---
+        const componentInfo = {
+            'convectionPass': {
+                title: 'Convection Pass',
+                description: 'The section of the boiler where hot flue gases transfer heat to the superheater tubes primarily through convection as they flow across the tube bundles.',
+                color: 0x607d8b // Grey-blue for a cooler pass
+            },
+            'superheaterTubes': {
+                title: 'Convective Superheater Tubes',
+                description: 'High-alloy steel tubes typically arranged in serpentine coils or banks. They absorb heat from flue gases by convection, further raising the steam temperature.',
+                color: 0xcccccc // Light Grey (steel)
+            },
+            'headers': {
+                title: 'Superheater Headers',
+                description: 'Large diameter pipes that distribute saturated steam to the superheater tubes (inlet header) and collect the superheated steam (outlet header) before it goes to the turbine.',
+                color: 0x888888 // Medium Grey
+            },
+            'steamFlow': {
+                title: 'Steam Flow',
+                description: 'Visual representation of steam entering the superheater, flowing through the serpentine tubes, and exiting as superheated steam.',
+                color: 0xadd8e6 // Light Blue
+            }
+        };
+
+        // --- Create All Components of the Convective Superheater ---
+        function createComponents() {
+            const passWidth = 40;
+            const passHeight = 30;
+            const passDepth = 20; // Convection pass is deeper
+
+            const tubeRadius = 0.5;
+            const horizontalTubeLength = 15;
+            const verticalBendLength = 5; // Length of the connecting vertical part
+            const numHorizontalSegmentsPerCoil = 3; // e.g., 3 horizontal segments per coil
+            const numCoilsPerBank = 5; // Number of parallel coils in a bank
+            const numBanks = 3; // Number of banks stacked vertically
+            const coilSpacingZ = 2; // Spacing between parallel coils in a bank (depth)
+            const bankSpacingY = 8; // Vertical spacing between banks
+
+            const headerRadius = 1.5;
+            // headerSpan is calculated based on geometry, not directly used for header size here, but good for context.
+
+            // --- Convection Pass (simplified bounding box) ---
+            components.convectionPass = new THREE.Mesh(
+                new THREE.BoxGeometry(passWidth, passHeight, passDepth),
+                new THREE.MeshPhysicalMaterial({
+                    color: componentInfo.convectionPass.color,
+                    roughness: 0.7,
+                    metalness: 0.1,
+                    transparent: true, // Make it semi-transparent
+                    opacity: 0.2,
+                    side: THREE.DoubleSide // Render both sides
+                })
+            );
+            components.convectionPass.position.set(0, 0, 0); // Center it
+            components.convectionPass.receiveShadow = true;
+            components.convectionPass.userData = { type: 'convectionPass' };
+            scene.add(components.convectionPass);
+
+            // --- Convective Superheater Tubes (Serpentine Coils) ---
+            components.superheaterTubes = new THREE.Group();
+            const tubeMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.superheaterTubes.color,
+                metalness: 0.8,
+                roughness: 0.3,
+                clearcoat: 0.1
+            });
+
+            for (let b = 0; b < numBanks; b++) { // Iterate through banks
+                const bankGroup = new THREE.Group();
+                for (let c = 0; c < numCoilsPerBank; c++) { // Iterate through coils in a bank
+                    const coilGroup = new THREE.Group();
+
+                    let currentX = -horizontalTubeLength / 2;
+                    let currentY = 0;
+                    let currentZ = c * coilSpacingZ - (numCoilsPerBank - 1) * coilSpacingZ / 2;
+                    let directionX = 1; // 1 for positive X, -1 for negative X
+
+                    for (let s = 0; s < numHorizontalSegmentsPerCoil; s++) {
+                        // Horizontal segment
+                        const horizontalTube = new THREE.Mesh(
+                            new THREE.CylinderGeometry(tubeRadius, tubeRadius, horizontalTubeLength, 16),
+                            tubeMaterial
+                        );
+                        horizontalTube.rotation.z = Math.PI / 2; // Make it horizontal
+                        horizontalTube.position.set(currentX + (horizontalTubeLength / 2 * directionX), currentY, currentZ);
+                        horizontalTube.castShadow = true;
+                        horizontalTube.userData = { type: 'superheaterTubes' };
+                        coilGroup.add(horizontalTube);
+
+                        currentX += horizontalTubeLength * directionX; // Move to end of segment
+
+                        if (s < numHorizontalSegmentsPerCoil - 1) {
+                            // Vertical connecting bend
+                            const verticalTube = new THREE.Mesh(
+                                new THREE.CylinderGeometry(tubeRadius, tubeRadius, verticalBendLength, 16),
+                                tubeMaterial
+                            );
+                            verticalTube.position.set(currentX, currentY + verticalBendLength / 2, currentZ);
+                            verticalTube.castShadow = true;
+                            verticalTube.userData = { type: 'superheaterTubes' };
+                            coilGroup.add(verticalTube);
+
+                            currentY += verticalBendLength; // Move Y for next horizontal segment
+                            directionX *= -1; // Reverse X direction for next horizontal segment
+                        }
+                    }
+                    bankGroup.add(coilGroup);
+                }
+                bankGroup.position.y = b * bankSpacingY - (numBanks - 1) * bankSpacingY / 2; // Stack banks vertically
+                components.superheaterTubes.add(bankGroup);
+            }
+            components.superheaterTubes.position.set(0, 0, 0); // Center the tubes within the pass
+
+            // --- Headers ---
+            components.headers = new THREE.Group();
+            const headerMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.headers.color,
+                metalness: 0.7,
+                roughness: 0.5
+            });
+
+            // Inlet Header (left side, vertical)
+            const inletHeader = new THREE.Mesh(
+                new THREE.CylinderGeometry(headerRadius, headerRadius, passHeight + 5, 32),
+                headerMaterial
+            );
+            inletHeader.position.set(-passWidth / 2 + headerRadius * 2, 0, 0);
+            inletHeader.castShadow = true;
+            inletHeader.userData = { type: 'headers' };
+            components.headers.add(inletHeader);
+
+            // Outlet Header (right side, vertical)
+            const outletHeader = new THREE.Mesh(
+                new THREE.CylinderGeometry(headerRadius, headerRadius, passHeight + 5, 32),
+                headerMaterial
+            );
+            outletHeader.position.set(passWidth / 2 - headerRadius * 2, 0, 0);
+            outletHeader.castShadow = true;
+            outletHeader.userData = { type: 'headers' };
+            components.headers.add(outletHeader);
+
+            // --- Steam Flow Animation (through a representative serpentine coil) ---
+            components.steamFlow = new THREE.Group();
+            const numSteamParticles = 200;
+            const particleSize = 0.3;
+            const steamColor = componentInfo.steamFlow.color;
+
+            function createFluidParticles(color, curve, numParticles) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: particleSize,
+                    blending: THREE.AdditiveBlending, // For a glowing effect
+                    transparent: true,
+                    opacity: 0.8,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.curve = curve;
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random());
+                return points;
+            }
+
+            // Define a serpentine path for steam flow through one coil
+            // This will be a simplified path for visual effect.
+            // Using the position of the first coil in the first bank as a reference
+            const firstCoilGroup = components.superheaterTubes.children[0].children[0];
+            const coilBaseY = firstCoilGroup.position.y + components.superheaterTubes.position.y;
+            const coilBaseZ = firstCoilGroup.position.z + components.superheaterTubes.position.z;
+
+            const steamPathPoints = [
+                new THREE.Vector3(inletHeader.position.x, coilBaseY - verticalBendLength / 2, coilBaseZ), // Start from inlet header (aligned with first coil)
+                new THREE.Vector3(-horizontalTubeLength / 2, coilBaseY, coilBaseZ), // Into first horizontal segment
+                new THREE.Vector3(horizontalTubeLength / 2, coilBaseY, coilBaseZ), // Through first horizontal segment
+                new THREE.Vector3(horizontalTubeLength / 2, coilBaseY + verticalBendLength, coilBaseZ), // First vertical bend
+                new THREE.Vector3(-horizontalTubeLength / 2, coilBaseY + verticalBendLength, coilBaseZ), // Second horizontal segment
+                new THREE.Vector3(-horizontalTubeLength / 2, coilBaseY + 2 * verticalBendLength, coilBaseZ), // Second vertical bend
+                new THREE.Vector3(horizontalTubeLength / 2, coilBaseY + 2 * verticalBendLength, coilBaseZ), // Third horizontal segment
+                new THREE.Vector3(outletHeader.position.x, coilBaseY + 2 * verticalBendLength + verticalBendLength / 2, coilBaseZ) // Exit to outlet header (aligned with last segment)
+            ];
+            const steamCurve = new THREE.CatmullRomCurve3(steamPathPoints);
+
+            const steamParticles = createFluidParticles(steamColor, steamCurve, numSteamParticles);
+            components.steamFlow.add(steamParticles);
+            components.steamFlow.visible = false;
+
+            // --- Full Assembly ---
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.superheaterTubes);
+            components.fullAssembly.add(components.headers);
+            // components.convectionPass is added directly to the scene for background context
+            scene.add(components.fullAssembly);
+            scene.add(components.steamFlow);
+        }
+
+        // --- Initialize Components ---
+        createComponents();
+
+        // --- Show Only Specific Component(s) ---
+        function showOnly(componentType) {
+            // Hide all main components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp !== components.steamFlow && comp !== components.convectionPass) {
+                    comp.visible = false;
+                }
+            });
+
+            // Hide steam animation by default when changing views
+            components.steamFlow.visible = false;
+
+            // Show the convection pass by default when viewing specific components for context
+            components.convectionPass.visible = true;
+
+            // Show the requested component(s)
+            if (componentType === 'superheaterTubes') {
+                components.superheaterTubes.visible = true;
+                components.headers.visible = true; // Show headers for context
+                components.steamFlow.visible = true; // Show steam flow with tubes
+            } else if (componentType === 'headers') {
+                components.headers.visible = true;
+                components.superheaterTubes.visible = true; // Show tubes for context
+            } else if (componentType === 'convectionPass') {
+                components.convectionPass.visible = true;
+                components.superheaterTubes.visible = false; // Hide tubes to view pass clearly
+                components.headers.visible = false; // Hide headers
+            } else if (componentType === 'full') {
+                // Show all components for full assembly view
+                components.convectionPass.visible = true;
+                components.superheaterTubes.visible = true;
+                components.headers.visible = true;
+                components.steamFlow.visible = false; // Hide steam flow in full view by default
+            }
+
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'superheaterTubes') targetObject = components.superheaterTubes;
+            else if (componentType === 'headers') targetObject = components.headers;
+            else if (componentType === 'convectionPass') targetObject = components.convectionPass;
+            else targetObject = components.fullAssembly;
+
+            animateCameraToComponent(targetObject);
+        }
+
+        // --- Camera Animation to Focus on Object ---
+        function animateCameraToComponent(object) {
+            if (isAnimating) return; // Prevent new animation if one is already running
+
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+
+            camera.position.lerp(targetPosition, moveSpeed); // Linearly interpolate camera position
+            controls.target.lerp(targetLookAt, lookSpeed); // Linearly interpolate controls target
+
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+
+            animationId = requestAnimationFrame(animateCamera); // Continue animation
+        }
+
+        // --- Toggle Component Visibility Functions ---
+        function toggleConvectionPassVisibility() {
+            components.convectionPass.visible = !components.convectionPass.visible;
+            document.getElementById('toggle-convection-pass').innerHTML =
+                `<span class="color-indicator" style="background-color: #${new THREE.Color(componentInfo.convectionPass.color).getHexString()};"></span>` +
+                (components.convectionPass.visible ? 'Hide Convection Pass' : 'Show Convection Pass');
+        }
+
+        function toggleSteamFlowVisibility() {
+            components.steamFlow.visible = !components.steamFlow.visible;
+            document.getElementById('toggle-steam-flow').innerHTML =
+                `<span class="color-indicator" style="background-color: #${new THREE.Color(componentInfo.steamFlow.color).getHexString()};"></span>` +
+                (components.steamFlow.visible ? 'Hide Steam Flow' : 'Show Steam Flow');
+        }
+
+        // --- Handle Mouse Clicks for Component Selection ---
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // --- Set up UI Controls Event Listeners ---
+        document.getElementById('toggle-convection-pass').addEventListener('click', toggleConvectionPassVisibility);
+        document.getElementById('toggle-steam-flow').addEventListener('click', toggleSteamFlowVisibility);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-superheater-tubes').addEventListener('click', () => showOnly('superheaterTubes'));
+        document.getElementById('view-headers').addEventListener('click', () => showOnly('headers'));
+        document.getElementById('view-convection-pass').addEventListener('click', () => showOnly('convectionPass'));
+
+        window.addEventListener('click', onMouseClick, false);
+
+        // --- Handle Window Resize ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- Main Animation Loop ---
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls (for damping)
+
+            // Animate steam particles if visible
+            if (components.steamFlow.visible) {
+                const steamParticles = components.steamFlow.children[0];
+                const steamPositions = steamParticles.geometry.attributes.position.array;
+                const steamCurve = steamParticles.userData.curve;
+
+                for (let i = 0; i < steamParticles.userData.progress.length; i++) {
+                    // Update particle progress, looping from 0 to 1
+                    steamParticles.userData.progress[i] = (steamParticles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                    // Get the point on the curve at the current progress
+                    const p = steamCurve.getPointAt(steamParticles.userData.progress[i]);
+                    // Update particle position in the buffer attribute
+                    steamPositions[i * 3] = p.x;
+                    steamPositions[i * 3 + 1] = p.y;
+                    steamPositions[i * 3 + 2] = p.z;
+                }
+                steamParticles.geometry.attributes.position.needsUpdate = true; // Tell Three.js to update vertex buffer
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+
+        // Start the animation loop when the window loads
+        window.onload = function () {
+            animate();
+        }
+    </script>
+</body>
+</html>

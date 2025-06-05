@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEAT HUB | Glossary</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Import Google Fonts - Inter and Oswald */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
+
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary: #FF4D00;
+            --primary-light: #FF6A00;
+            --secondary: #00B4D8;
+            --secondary-light: #00E0FF;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #2E2E2E;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 126, 61, 0.605);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --primary-color: var(--primary);
+            --glow-color: #ff6b00;
+        }
+
+        /* Universal Box-Sizing */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and Base Styles */
+        body {
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            background: radial-gradient(ellipse at bottom, #0a0a0a 0%, #000000 100%); /* Deep black with subtle glow for background */
+            min-height: 100vh; /* Use min-height for content to extend page */
+            display: flex;
+            flex-direction: column; /* Arrange content vertically */
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Heading Styles */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        p {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* ========== LAYOUT & CONTAINERS ========== */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* ========== SIDEBAR STYLES ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            height: 100vh;
+            background: var(--dark-gray);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-header .logo {
+            font-size: 1.5rem;
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--text-shadow);
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu li a i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+            padding-left: 2rem;
+        }
+
+        .sidebar-menu li a.active {
+            background: rgba(255, 77, 0, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--medium-gray);
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 0 1rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        /* ========== MAIN CONTENT & MENU BUTTON ========== */
+        .main-content {
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            padding-top: 20px;
+        }
+
+        .main-content.sidebar-active {
+            margin-left: 350px;
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            background: var(--dark-gray);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--glass-border);
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-link a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        /* Adjusted delays for more terms */
+        .delay-1 { animation-delay: 0.05s; }
+        .delay-2 { animation-delay: 0.10s; }
+        .delay-3 { animation-delay: 0.15s; }
+        .delay-4 { animation-delay: 0.20s; }
+        .delay-5 { animation-delay: 0.25s; }
+        .delay-6 { animation-delay: 0.30s; }
+        .delay-7 { animation-delay: 0.35s; }
+        .delay-8 { animation-delay: 0.40s; }
+        .delay-9 { animation-delay: 0.45s; }
+        .delay-10 { animation-delay: 0.50s; }
+        .delay-11 { animation-delay: 0.55s; }
+        .delay-12 { animation-delay: 0.60s; }
+        .delay-13 { animation-delay: 0.65s; }
+        .delay-14 { animation-delay: 0.70s; }
+        .delay-15 { animation-delay: 0.75s; }
+        .delay-16 { animation-delay: 0.80s; }
+        .delay-17 { animation-delay: 0.85s; }
+        .delay-18 { animation-delay: 0.90s; }
+        .delay-19 { animation-delay: 0.95s; }
+        .delay-20 { animation-delay: 1.00s; }
+        .delay-21 { animation-delay: 1.05s; }
+        .delay-22 { animation-delay: 1.10s; }
+        .delay-23 { animation-delay: 1.15s; }
+        .delay-24 { animation-delay: 1.20s; }
+        .delay-25 { animation-delay: 1.25s; }
+        .delay-26 { animation-delay: 1.30s; }
+        .delay-27 { animation-delay: 1.35s; }
+        .delay-28 { animation-delay: 1.40s; }
+        .delay-29 { animation-delay: 1.45s; }
+        .delay-30 { animation-delay: 1.50s; }
+        .delay-31 { animation-delay: 1.55s; }
+        .delay-32 { animation-delay: 1.60s; }
+        .delay-33 { animation-delay: 1.65s; }
+        .delay-34 { animation-delay: 1.70s; }
+        .delay-35 { animation-delay: 1.75s; }
+        .delay-36 { animation-delay: 1.80s; }
+        .delay-37 { animation-delay: 1.85s; }
+        .delay-38 { animation-delay: 1.90s; }
+        .delay-39 { animation-delay: 1.95s; }
+        .delay-40 { animation-delay: 2.00s; }
+
+
+        /* ========== GLOSSARY SPECIFIC STYLES ========== */
+        .glossary-search-container {
+            margin-bottom: 3rem;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 0.2s; /* Delay for search bar itself */
+        }
+
+        .glossary-search-input {
+            flex-grow: 1;
+            padding: 0.8rem 1.2rem;
+            border-radius: 50px; /* Rounded corners */
+            border: 1px solid var(--glass-border);
+            background: var(--dark-gray);
+            color: var(--white);
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .glossary-search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.3), inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .glossary-card {
+            background: var(--dark-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align content to top */
+        }
+
+        .glossary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+            z-index: -1;
+        }
+
+        .glossary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 77, 0, 0.3);
+        }
+
+        .glossary-card h3 {
+            color: var(--primary); /* Highlight term */
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+            font-size: 1.6rem; /* Slightly larger for terms */
+        }
+
+        .glossary-card p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0; /* No extra margin at bottom of paragraph */
+        }
+        
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+                left: -280px;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: 280px;
+            }
+            
+            .menu-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .section {
+                padding: 4rem 0;
+            }
+            
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .glossary-search-container {
+                flex-direction: column;
+                gap: 0.8rem;
+                padding: 0 1rem;
+            }
+            .glossary-search-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">HEAT HUB</h1>
+            <button class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="HT.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="register.html"><i class="fas fa-user-plus"></i> Register</a></li>
+            <li><a href="AR/front.html"><i class="fas fa-cube"></i> AR Models</a></li>
+            <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="tutorials.html"><i class="fas fa-book"></i> Tutorials</a></li>
+            <li><a href="research_papers.html"><i class="fas fa-flask"></i> Research Papers</a></li>
+            <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculators</a></li>
+            <li><a href="case_studies.html"><i class="fas fa-chart-pie"></i> Case Studies</a></li>
+            <li><a href="#" class="active"><i class="fas fa-book-open"></i> Glossary</a></li> <!-- Marked as active, new icon -->
+            <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="search-box">
+                <input type="text" placeholder="Search..." class="search-input">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Menu Button -->
+        <button class="menu-btn"><i class="fas fa-bars"></i></button>
+
+        <!-- Page Header -->
+        <section class="section">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Heat Transfer Glossary</h2>
+                    <p class="delay-1">Key terms and definitions in the field of heat transfer</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Glossary Search and Grid -->
+        <section class="section" style="background: rgba(10, 10, 10, 0.5); padding-top: 0; padding-bottom: 0;">
+            <div class="container">
+                <div class="glossary-search-container">
+                    <input type="text" id="glossarySearchInput" class="glossary-search-input" placeholder="Search glossary terms...">
+                </div>
+
+                <div class="glossary-grid" id="glossaryGrid">
+                    <!-- Term 1: Conduction -->
+                    <div class="glossary-card fade-in delay-1">
+                        <h3>Conduction</h3>
+                        <p>Heat transfer through direct physical contact, where thermal energy is transferred from more energetic particles to less energetic ones.</p>
+                    </div>
+
+                    <!-- Term 2: Convection -->
+                    <div class="glossary-card fade-in delay-2">
+                        <h3>Convection</h3>
+                        <p>Heat transfer through the movement of fluids (liquids or gases). It can be natural (due to density differences) or forced (due to external means like a fan).</p>
+                    </div>
+
+                    <!-- Term 3: Radiation -->
+                    <div class="glossary-card fade-in delay-3">
+                        <h3>Radiation</h3>
+                        <p>Heat transfer through electromagnetic waves, which does not require a medium. All objects with temperature above absolute zero emit thermal radiation.</p>
+                    </div>
+
+                    <!-- Term 4: Thermal Conductivity (k) -->
+                    <div class="glossary-card fade-in delay-4">
+                        <h3>Thermal Conductivity (k)</h3>
+                        <p>A material's ability to conduct heat. It quantifies how readily heat flows through a material under a temperature gradient.</p>
+                    </div>
+
+                    <!-- Term 5: Convection Coefficient (h) -->
+                    <div class="glossary-card fade-in delay-5">
+                        <h3>Convection Coefficient (h)</h3>
+                        <p>A proportionality constant that relates the heat flux to the temperature difference between a surface and a fluid. Also known as film coefficient.</p>
+                    </div>
+
+                    <!-- Term 6: Emissivity (ε) -->
+                    <div class="glossary-card fade-in delay-6">
+                        <h3>Emissivity (ε)</h3>
+                        <p>A measure of a material's ability to emit thermal radiation, relative to that of a perfect blackbody. Ranges from 0 to 1.</p>
+                    </div>
+
+                    <!-- Term 7: Blackbody -->
+                    <div class="glossary-card fade-in delay-7">
+                        <h3>Blackbody</h3>
+                        <p>An idealized physical body that absorbs all incident electromagnetic radiation, regardless of frequency or angle of incidence. It is also a perfect emitter of thermal radiation.</p>
+                    </div>
+
+                    <!-- Term 8: Stefan-Boltzmann Law -->
+                    <div class="glossary-card fade-in delay-8">
+                        <h3>Stefan-Boltzmann Law</h3>
+                        <p>Describes the power radiated from a blackbody in terms of its temperature. The total energy radiated per unit surface area of a black body across all wavelengths per unit time is directly proportional to the fourth power of the black body's absolute temperature.</p>
+                    </div>
+
+                    <!-- Term 9: Thermal Resistance (R) -->
+                    <div class="glossary-card fade-in delay-9">
+                        <h3>Thermal Resistance (R)</h3>
+                        <p>A measure of a material's or object's opposition to the flow of heat. It is the reciprocal of thermal conductance.</p>
+                    </div>
+
+                    <!-- Term 10: Heat Flux (q) -->
+                    <div class="glossary-card fade-in delay-10">
+                        <h3>Heat Flux (q)</h3>
+                        <p>The rate of heat energy transfer per unit area. It is a vector quantity, indicating both the magnitude and direction of heat flow.</p>
+                    </div>
+
+                    <!-- Term 11: Overall Heat Transfer Coefficient (U) -->
+                    <div class="glossary-card fade-in delay-11">
+                        <h3>Overall Heat Transfer Coefficient (U)</h3>
+                        <p>A measure of the overall rate of heat transfer through a system, accounting for all modes of heat transfer and resistances between two fluids or a fluid and a solid.</p>
+                    </div>
+
+                    <!-- Term 12: Fourier's Law -->
+                    <div class="glossary-card fade-in delay-12">
+                        <h3>Fourier's Law</h3>
+                        <p>States that the rate of heat conduction through a material is proportional to the negative gradient in the temperature and to the area perpendicular to that gradient.</p>
+                    </div>
+
+                    <!-- Term 13: Nusselt Number (Nu) -->
+                    <div class="glossary-card fade-in delay-13">
+                        <h3>Nusselt Number (Nu)</h3>
+                        <p>A dimensionless number that measures the ratio of convective to conductive heat transfer across a boundary. It indicates the enhancement of heat transfer due to convection.</p>
+                    </div>
+
+                    <!-- Term 14: Prandtl Number (Pr) -->
+                    <div class="glossary-card fade-in delay-14">
+                        <h3>Prandtl Number (Pr)</h3>
+                        <p>A dimensionless number that relates the momentum diffusivity to the thermal diffusivity. It is used to characterize the relative thickness of the velocity and thermal boundary layers.</p>
+                    </div>
+
+                    <!-- Term 15: Reynolds Number (Re) -->
+                    <div class="glossary-card fade-in delay-15">
+                        <h3>Reynolds Number (Re)</h3>
+                        <p>A dimensionless number that predicts flow patterns in different fluid flow situations. It is the ratio of inertial forces to viscous forces.</p>
+                    </div>
+
+                    <!-- Term 16: Thermal Diffusivity (α) -->
+                    <div class="glossary-card fade-in delay-16">
+                        <h3>Thermal Diffusivity (α)</h3>
+                        <p>A measure of how quickly temperature changes propagate through a material. It is the ratio of thermal conductivity to the product of density and specific heat capacity.</p>
+                    </div>
+
+                    <!-- Term 17: Latent Heat -->
+                    <div class="glossary-card fade-in delay-17">
+                        <h3>Latent Heat</h3>
+                        <p>The heat absorbed or released during a phase change (e.g., melting, boiling) at constant temperature and pressure, without a change in temperature.</p>
+                    </div>
+
+                    <!-- Term 18: Specific Heat Capacity (c_p) -->
+                    <div class="glossary-card fade-in delay-18">
+                        <h3>Specific Heat Capacity (c_p)</h3>
+                        <p>The amount of heat energy required to raise the temperature of a unit mass of a substance by one degree Celsius (or Kelvin) at constant pressure.</p>
+                    </div>
+
+                    <!-- Term 19: Heat Exchanger -->
+                    <div class="glossary-card fade-in delay-19">
+                        <h3>Heat Exchanger</h3>
+                        <p>A device built for efficient heat transfer from one fluid to another, whether the fluids are separated by a solid wall or in direct contact.</p>
+                    </div>
+
+                    <!-- Term 20: Fin Efficiency -->
+                    <div class="glossary-card fade-in delay-20">
+                        <h3>Fin Efficiency</h3>
+                        <p>A measure of how effectively a fin transfers heat compared to an ideal fin of infinite thermal conductivity. It indicates the performance of extended surfaces.</p>
+                    </div>
+
+                    <!-- Term 21: Biot Number (Bi) -->
+                    <div class="glossary-card fade-in delay-21">
+                        <h3>Biot Number (Bi)</h3>
+                        <p>A dimensionless number used in transient heat conduction that relates the heat transfer resistance at the surface of a body to the heat conduction resistance within the body.</p>
+                    </div>
+
+                    <!-- Term 22: Lumped Capacitance Method -->
+                    <div class="glossary-card fade-in delay-22">
+                        <h3>Lumped Capacitance Method</h3>
+                        <p>A simplification in transient heat conduction analysis where the temperature within an object is assumed to be spatially uniform at any instant in time.</p>
+                    </div>
+
+                    <!-- Term 23: Log Mean Temperature Difference (LMTD) -->
+                    <div class="glossary-card fade-in delay-23">
+                        <h3>Log Mean Temperature Difference (LMTD)</h3>
+                        <p>A method used to calculate the average temperature difference between two fluids in a heat exchanger, especially when temperatures vary along the flow path.</p>
+                    </div>
+
+                    <!-- Term 24: Effectiveness-NTU Method -->
+                    <div class="glossary-card fade-in delay-24">
+                        <h3>Effectiveness-NTU Method</h3>
+                        <p>An alternative method to LMTD for heat exchanger analysis, particularly useful when inlet or outlet temperatures are unknown.</p>
+                    </div>
+
+                    <!-- Term 25: Fouling Factor (R_f) -->
+                    <div class="glossary-card fade-in delay-25">
+                        <h3>Fouling Factor (R_f)</h3>
+                        <p>A measure of the thermal resistance caused by the accumulation of deposits (fouling) on the heat transfer surfaces of heat exchangers, reducing efficiency.</p>
+                    </div>
+
+                    <!-- Term 26: Critical Thickness of Insulation -->
+                    <div class="glossary-card fade-in delay-26">
+                        <h3>Critical Thickness of Insulation</h3>
+                        <p>The thickness of insulation at which the heat transfer rate from a pipe or sphere is maximized. Beyond this thickness, adding more insulation actually reduces heat transfer.</p>
+                    </div>
+
+                    <!-- Term 27: Thermal Boundary Layer -->
+                    <div class="glossary-card fade-in delay-27">
+                        <h3>Thermal Boundary Layer</h3>
+                        <p>The region of a fluid flow over a surface where the temperature gradients are significant and the fluid temperature changes from the surface temperature to the free stream temperature.</p>
+                    </div>
+
+                    <!-- Term 28: View Factor (F_ij) -->
+                    <div class="glossary-card fade-in delay-28">
+                        <h3>View Factor (F_ij)</h3>
+                        <p>A geometric parameter that describes the fraction of radiation leaving surface 'i' that is intercepted by surface 'j'. Also known as shape factor or configuration factor.</p>
+                    </div>
+
+                    <!-- Term 29: Absorptivity (α) -->
+                    <div class="glossary-card fade-in delay-29">
+                        <h3>Absorptivity (α)</h3>
+                        <p>The fraction of incident thermal radiation that is absorbed by a surface. For a blackbody, absorptivity is 1.</p>
+                    </div>
+
+                    <!-- Term 30: Reflectivity (ρ) -->
+                    <div class="glossary-card fade-in delay-30">
+                        <h3>Reflectivity (ρ)</h3>
+                        <p>The fraction of incident thermal radiation that is reflected by a surface. For an opaque surface, $\alpha + \rho = 1$.</p>
+                    </div>
+
+                    <!-- New Term 31: Transmissivity (τ) -->
+                    <div class="glossary-card fade-in delay-31">
+                        <h3>Transmissivity (τ)</h3>
+                        <p>The fraction of incident thermal radiation that passes through a material. For a semi-transparent medium, $\alpha + \rho + \tau = 1$.</p>
+                    </div>
+
+                    <!-- New Term 32: Gray Body -->
+                    <div class="glossary-card fade-in delay-32">
+                        <h3>Gray Body</h3>
+                        <p>A body whose emissivity (and thus absorptivity) is independent of wavelength. It's a simplification used in radiation heat transfer.</p>
+                    </div>
+
+                    <!-- New Term 33: Shape Factor (S) -->
+                    <div class="glossary-card fade-in delay-33">
+                        <h3>Shape Factor (S)</h3>
+                        <p>A geometric parameter used in conduction heat transfer for complex geometries, relating the heat transfer rate to thermal conductivity and temperature difference.</p>
+                    </div>
+
+                    <!-- New Term 34: Thermal Contact Resistance -->
+                    <div class="glossary-card fade-in delay-34">
+                        <h3>Thermal Contact Resistance</h3>
+                        <p>The resistance to heat flow across the interface between two solid materials due to imperfect contact (e.g., surface roughness, air gaps).</p>
+                    </div>
+
+                    <!-- New Term 35: Heat Generation -->
+                    <div class="glossary-card fade-in delay-35">
+                        <h3>Heat Generation</h3>
+                        <p>The production of thermal energy within a medium, such as from electrical resistance, chemical reactions, or nuclear fission.</p>
+                    </div>
+
+                    <!-- New Term 36: Steady-State Heat Transfer -->
+                    <div class="glossary-card fade-in delay-36">
+                        <h3>Steady-State Heat Transfer</h3>
+                        <p>A condition where the temperature distribution within a system does not change with time. Heat input equals heat output.</p>
+                    </div>
+
+                    <!-- New Term 37: Transient Heat Transfer -->
+                    <div class="glossary-card fade-in delay-37">
+                        <h3>Transient Heat Transfer</h3>
+                        <p>A condition where the temperature distribution within a system changes with time. Heat input does not equal heat output.</p>
+                    </div>
+
+                    <!-- New Term 38: Convective Heat Transfer Coefficient (h) -->
+                    <div class="glossary-card fade-in delay-38">
+                        <h3>Convective Heat Transfer Coefficient (h)</h3>
+                        <p>The proportionality constant between the heat flux and the thermodynamic driving force for the flow of heat (i.e., the temperature difference).</p>
+                    </div>
+
+                    <!-- New Term 39: Forced Convection -->
+                    <div class="glossary-card fade-in delay-39">
+                        <h3>Forced Convection</h3>
+                        <p>Heat transfer that occurs when fluid motion is induced by external means, such as a pump, fan, or stirrer.</p>
+                    </div>
+
+                    <!-- New Term 40: Natural (Free) Convection -->
+                    <div class="glossary-card fade-in delay-40">
+                        <h3>Natural (Free) Convection</h3>
+                        <p>Heat transfer that occurs due to buoyancy forces arising from density differences caused by temperature variations in the fluid.</p>
+                    </div>
+
+                    <!-- New Term 41: Boiling -->
+                    <div class="glossary-card fade-in delay-1">
+                        <h3>Boiling</h3>
+                        <p>A phase change process where a liquid rapidly vaporizes, typically occurring when the liquid's temperature reaches its saturation temperature at a given pressure.</p>
+                    </div>
+
+                    <!-- New Term 42: Condensation -->
+                    <div class="glossary-card fade-in delay-2">
+                        <h3>Condensation</h3>
+                        <p>A phase change process where a vapor changes into a liquid, typically occurring when the vapor's temperature drops below its saturation temperature.</p>
+                    </div>
+
+                    <!-- New Term 43: Film Condensation -->
+                    <div class="glossary-card fade-in delay-3">
+                        <h3>Film Condensation</h3>
+                        <p>A type of condensation where the condensate forms a continuous liquid film that covers the entire condensing surface.</p>
+                    </div>
+
+                    <!-- New Term 44: Dropwise Condensation -->
+                    <div class="glossary-card fade-in delay-4">
+                        <h3>Dropwise Condensation</h3>
+                        <p>A type of condensation where the condensate forms discrete droplets on the condensing surface, leading to much higher heat transfer coefficients than film condensation.</p>
+                    </div>
+
+                    <!-- New Term 45: Nucleate Boiling -->
+                    <div class="glossary-card fade-in delay-5">
+                        <h3>Nucleate Boiling</h3>
+                        <p>A regime of boiling characterized by the formation of vapor bubbles at discrete nucleation sites on the heated surface.</p>
+                    </div>
+
+                    <!-- New Term 46: Film Boiling -->
+                    <div class="glossary-card fade-in delay-6">
+                        <h3>Film Boiling</h3>
+                        <p>A regime of boiling where the heated surface is completely covered by a continuous vapor film, leading to a significant reduction in heat transfer due to the insulating effect of the vapor.</p>
+                    </div>
+
+                    <!-- New Term 47: Heat Pipe -->
+                    <div class="glossary-card fade-in delay-7">
+                        <h3>Heat Pipe</h3>
+                        <p>A heat transfer device that uses phase transitions (evaporation and condensation) of a working fluid to transfer large amounts of heat with a very small temperature difference.</p>
+                    </div>
+
+                    <!-- New Term 48: Heat Pump -->
+                    <div class="glossary-card fade-in delay-8">
+                        <h3>Heat Pump</h3>
+                        <p>A device that transfers thermal energy from a source of heat to a "sink" of heat against a temperature gradient, often used for heating or cooling buildings.</p>
+                    </div>
+
+                    <!-- New Term 49: Regenerator -->
+                    <div class="glossary-card fade-in delay-9">
+                        <h3>Regenerator</h3>
+                        <p>A type of heat exchanger where heat is alternately stored and released by a solid matrix, typically used to recover heat from exhaust gases.</p>
+                    </div>
+
+                    <!-- New Term 50: Recuperator -->
+                    <div class="glossary-card fade-in delay-10">
+                        <h3>Recuperator</h3>
+                        <p>A type of heat exchanger where heat is continuously transferred between two fluid streams separated by a solid wall, without intermediate heat storage.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="fade-in">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column">
+                        <h3>Explore</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="flowchart.html">Flow Chart</a></li>
+                            <li class="footer-link"><a href="problemsolving.html">Problem Solving</a></li>
+                            <li class="footer-link"><a href="AR/front.html">AR Models</a></li>
+                            <li class="footer-link"><a href="research_papers.html">Research Papers</a></li>
+                            <li class="footer-link"><a href="case_studies.html">Case Studies</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Resources</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="tutorials.html">Tutorials</a></li>
+                            <li class="footer-link"><a href="calculator.html">Calculators</a></li>
+                            <li class="footer-link"><a href="case_studies.html">Case Studies</a></li>
+                            <li class="footer-link"><a href="#">Glossary</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Connect</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="#">Contact Us</a></li>
+                            <li class="footer-link"><a href="#">Contribute</a></li>
+                            <li class="footer-link"><a href="#">Feedback</a></li>
+                            <li class="footer-link"><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="copyright">
+                    <p>&copy; 2025 HEAT HUB | All Rights Reserved</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        const menuBtn = document.querySelector('.menu-btn');
+        const closeBtn = document.querySelector('.close-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            mainContent.classList.add('sidebar-active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            mainContent.classList.remove('sidebar-active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mainContent.classList.remove('sidebar-active');
+            }
+        });
+
+        // Add loaded class for animations
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 300);
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.glossary-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-10px)';
+                    card.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.3)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                    card.style.boxShadow = '';
+                });
+            });
+        });
+
+        // ========== GLOSSARY SEARCH LOGIC ==========
+        const glossarySearchInput = document.getElementById('glossarySearchInput');
+        const glossaryCards = document.querySelectorAll('.glossary-card'); // Get all cards
+
+        glossarySearchInput.addEventListener('input', () => {
+            const searchTerm = glossarySearchInput.value.toLowerCase().trim();
+
+            glossaryCards.forEach(card => {
+                const termText = card.querySelector('h3').textContent.toLowerCase();
+                const definitionText = card.querySelector('p').textContent.toLowerCase();
+
+                if (termText.includes(searchTerm) || definitionText.includes(searchTerm)) {
+                    card.style.display = 'flex'; // Show the card
+                } else {
+                    card.style.display = 'none'; // Hide the card
+                }
+            });
+        });
+    </script>
+</body>
+</html>

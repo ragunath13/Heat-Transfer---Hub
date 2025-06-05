@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Jet Condenser</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #7cb342; /* Light Green border */
+            box-shadow: 0 4px 15px rgba(124, 179, 66, 0.2); /* Light Green shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #7cb342; /* Light Green title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #7cb342; /* Light Green border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(124, 179, 66, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(124, 179, 66, 0.2); /* Lighter green on hover */
+            border-color: #dcedc8; /* Lighter border on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Jet Condenser - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-casing"><span class="color-indicator" style="background-color: #9e9e9e;"></span>Toggle Casing Transparency</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-casing"><span class="color-indicator" style="background-color: #9e9e9e;"></span>View Casing</button>
+        <button id="view-steam-inlet"><span class="color-indicator" style="background-color: #ffeb3b;"></span>View Steam Inlet</button>
+        <button id="view-cooling-water-inlet"><span class="color-indicator" style="background-color: #2196f3;"></span>View Cooling Water Inlet</button>
+        <button id="view-spray-nozzles"><span class="color-indicator" style="background-color: #4dd0e1;"></span>View Spray Nozzles</button>
+        <button id="view-hotwell-outlet"><span class="color-indicator" style="background-color: #5d4037;"></span>View Hotwell & Outlet</button>
+        <button id="view-barometric-leg"><span class="color-indicator" style="background-color: #8d6e63;"></span>View Barometric Leg</button>
+        <button id="view-vacuum-connection"><span class="color-indicator" style="background-color: #ff5722;"></span>View Vacuum Connection</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 15, 40); // Initial camera position, elevated
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 0, 0); // Point camera towards the center
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(10, 30, 20);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024; // default
+        directionalLight.shadow.mapSize.height = 1024; // default
+        directionalLight.shadow.camera.near = 0.5; // default
+        directionalLight.shadow.camera.far = 100; // default
+        directionalLight.shadow.camera.left = -50;
+        directionalLight.shadow.camera.right = 50;
+        directionalLight.shadow.camera.top = 50;
+        directionalLight.shadow.camera.bottom = -50;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-10, -30, -20);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along XZ plane)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            casing: null,
+            steamInlet: null,
+            coolingWaterInlet: null,
+            sprayNozzles: null,
+            hotwell: null,
+            barometricLeg: null,
+            vacuumConnection: null,
+            fluidFlowSteam: null,
+            fluidFlowCoolingWater: null,
+            fluidFlowMixedWater: null,
+            fluidFlowNonCondensables: null,
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'casing': {
+                title: 'Condenser Casing',
+                description: 'The main cylindrical or conical chamber where exhaust steam directly mixes with and is condensed by cooling water.',
+                color: 0x9e9e9e, // Grey
+                internal: true
+            },
+            'steamInlet': {
+                title: 'Steam Inlet',
+                description: 'The large connection at the top or side where low-pressure exhaust steam from a turbine enters the condenser.',
+                color: 0xffeb3b, // Yellow
+                internal: false
+            },
+            'coolingWaterInlet': {
+                title: 'Cooling Water Inlet',
+                description: 'The pipe through which cooling water enters the condenser, often leading to spray nozzles or distribution trays.',
+                color: 0x2196f3, // Blue
+                internal: false
+            },
+            'sprayNozzles': {
+                title: 'Spray Nozzles / Trays',
+                description: 'Devices that break up the cooling water into a fine spray or thin sheets, maximizing surface area for efficient mixing and condensation of steam.',
+                color: 0x4dd0e1, // Cyan light
+                internal: true
+            },
+            'hotwell': {
+                title: 'Hotwell / Condensate Outlet',
+                description: 'The bottom section of the condenser where the mixture of condensed steam and cooling water collects before being discharged.',
+                color: 0x5d4037, // Brown dark
+                internal: false
+            },
+            'barometricLeg': {
+                title: 'Barometric Leg',
+                description: 'A long vertical pipe (typically over 10.3 meters or 34 feet) used in barometric jet condensers to drain the condensed mixture by gravity against atmospheric pressure, eliminating the need for a hotwell pump.',
+                color: 0x8d6e63, // Brown light
+                internal: false
+            },
+            'vacuumConnection': {
+                title: 'Vacuum Connection',
+                description: 'A port at the top of the condenser connected to a vacuum pump or ejector system, used to remove non-condensable gases and maintain the desired vacuum level.',
+                color: 0xff5722, // Deep Orange
+                internal: false
+            }
+        };
+
+        // Global constants for condenser dimensions
+        const casingRadiusTop = 8;
+        const casingRadiusBottom = 12; // Wider at bottom for collection
+        const casingHeight = 20;
+        const casingThickness = 0.5;
+
+        const steamInletRadius = 4;
+        const steamInletLength = 5;
+
+        const coolingWaterInletRadius = 2;
+        const coolingWaterInletLength = 4;
+
+        const nozzleRadius = 0.8;
+        const nozzleHeight = 1.5;
+        const numNozzles = 6; // Around the top interior
+
+        const hotwellHeight = 5;
+        const hotwellRadius = casingRadiusBottom + 1; // Slightly wider than casing bottom
+
+        const barometricLegRadius = 2;
+        const barometricLegLength = 30; // Significant length for barometric effect
+
+        const vacuumConnectionRadius = 1;
+        const vacuumConnectionLength = 3;
+
+        // Global constants for fluid particles
+        const particleSizeSteam = 0.4;
+        const particleSizeCoolingWater = 0.3;
+        const particleSizeMixedWater = 0.35;
+        const particleSizeNonCondensables = 0.2;
+
+
+        // Create all components of the jet condenser
+        function createComponents() {
+            // Casing
+            const casingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.casing.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.2, // Very transparent to see inside
+                clearcoat: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.casing = new THREE.Mesh(
+                new THREE.CylinderGeometry(casingRadiusTop, casingRadiusBottom, casingHeight, 32, 1),
+                casingMaterial
+            );
+            components.casing.position.y = hotwellHeight / 2; // Position above hotwell
+            components.casing.userData = { type: 'casing' };
+
+            // Steam Inlet
+            const steamInletMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.steamInlet.color,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            components.steamInlet = new THREE.Mesh(
+                new THREE.CylinderGeometry(steamInletRadius, steamInletRadius, steamInletLength, 32),
+                steamInletMaterial
+            );
+            components.steamInlet.position.set(0, casingHeight / 2 + steamInletLength / 2 + hotwellHeight / 2, 0); // Top center
+            components.steamInlet.userData = { type: 'steamInlet' };
+
+            // Cooling Water Inlet
+            const coolingWaterInletMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.coolingWaterInlet.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            components.coolingWaterInlet = new THREE.Mesh(
+                new THREE.CylinderGeometry(coolingWaterInletRadius, coolingWaterInletRadius, coolingWaterInletLength, 32),
+                coolingWaterInletMaterial
+            );
+            components.coolingWaterInlet.rotation.z = Math.PI / 2; // Horizontal
+            components.coolingWaterInlet.position.set(casingRadiusTop + coolingWaterInletLength / 2, casingHeight / 2 + hotwellHeight / 2 - 2, 0); // Side-top
+            components.coolingWaterInlet.userData = { type: 'coolingWaterInlet' };
+
+            // Spray Nozzles
+            components.sprayNozzles = new THREE.Group();
+            const nozzleMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.sprayNozzles.color,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            const nozzleBaseY = casingHeight / 2 + hotwellHeight / 2 - 3;
+            for (let i = 0; i < numNozzles; i++) {
+                const angle = (i / numNozzles) * Math.PI * 2;
+                const x = Math.cos(angle) * (casingRadiusTop - nozzleRadius * 2);
+                const z = Math.sin(angle) * (casingRadiusTop - nozzleRadius * 2);
+                
+                const nozzle = new THREE.Mesh(
+                    new THREE.ConeGeometry(nozzleRadius, nozzleHeight, 16),
+                    nozzleMaterial
+                );
+                nozzle.position.set(x, nozzleBaseY, z);
+                nozzle.userData = { type: 'sprayNozzles' };
+                components.sprayNozzles.add(nozzle);
+            }
+
+            // Hotwell / Condensate Outlet
+            const hotwellMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.hotwell.color,
+                metalness: 0.4,
+                roughness: 0.6
+            });
+            components.hotwell = new THREE.Mesh(
+                new THREE.CylinderGeometry(hotwellRadius, hotwellRadius, hotwellHeight, 32),
+                hotwellMaterial
+            );
+            components.hotwell.position.y = -casingHeight / 2 - hotwellHeight / 2; // Below casing
+            components.hotwell.userData = { type: 'hotwell' };
+
+            // Barometric Leg
+            const barometricLegMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.barometricLeg.color,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            components.barometricLeg = new THREE.Mesh(
+                new THREE.CylinderGeometry(barometricLegRadius, barometricLegRadius, barometricLegLength, 32),
+                barometricLegMaterial
+            );
+            components.barometricLeg.position.y = -casingHeight / 2 - hotwellHeight - barometricLegLength / 2; // Extends downwards from hotwell
+            components.barometricLeg.userData = { type: 'barometricLeg' };
+
+            // Vacuum Connection
+            const vacuumMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.vacuumConnection.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            components.vacuumConnection = new THREE.Mesh(
+                new THREE.CylinderGeometry(vacuumConnectionRadius, vacuumConnectionRadius, vacuumConnectionLength, 16),
+                vacuumMaterial
+            );
+            components.vacuumConnection.rotation.x = Math.PI / 2; // Horizontal
+            components.vacuumConnection.position.set(0, casingHeight / 2 + hotwellHeight / 2 + 3, casingRadiusTop + vacuumConnectionLength / 2); // Top side of condenser
+            components.vacuumConnection.userData = { type: 'vacuumConnection' };
+
+
+            // Fluid Flow Animation
+            components.fluidFlowSteam = new THREE.Group();
+            components.fluidFlowCoolingWater = new THREE.Group();
+            components.fluidFlowMixedWater = new THREE.Group();
+            components.fluidFlowNonCondensables = new THREE.Group();
+
+            const steamColor = 0xffffff; // White for steam
+            const coolingWaterColor = 0x2196f3; // Blue for cooling water
+            const mixedWaterColor = 0x4caf50; // Green for mixed water
+            const nonCondensablesColor = 0xffa500; // Orange for non-condensables
+
+            function createFluidParticles(color, numParticles, size) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: size,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.7,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Steam Flow (from inlet, spreading downwards)
+            const steamParticles = createFluidParticles(steamColor, 300, particleSizeSteam);
+            steamParticles.userData.paths = [];
+            const steamPathPoints = [
+                components.steamInlet.position.clone().add(new THREE.Vector3(0, -steamInletLength / 2, 0)),
+                new THREE.Vector3(0, components.casing.position.y + casingHeight / 2 - 2, 0),
+                new THREE.Vector3(0, components.casing.position.y - casingHeight / 2 + 2, 0),
+                components.hotwell.position.clone().add(new THREE.Vector3(0, hotwellHeight / 2, 0))
+            ];
+            steamParticles.userData.paths.push(new THREE.CatmullRomCurve3(steamPathPoints));
+            components.fluidFlowSteam.add(steamParticles);
+
+            // Cooling Water Flow (from inlet, through nozzles as sprays)
+            const coolingWaterParticles = createFluidParticles(coolingWaterColor, 200, particleSizeCoolingWater);
+            coolingWaterParticles.userData.paths = [];
+            components.sprayNozzles.children.forEach(nozzle => {
+                const startPoint = nozzle.position.clone().add(new THREE.Vector3(0, -nozzleHeight / 2, 0));
+                const endPoint = startPoint.clone().add(new THREE.Vector3(Math.random() - 0.5, -casingHeight * 0.7, Math.random() - 0.5).normalize().multiplyScalar(casingHeight * 0.7));
+                coolingWaterParticles.userData.paths.push(new THREE.CatmullRomCurve3([startPoint, endPoint]));
+            });
+            components.fluidFlowCoolingWater.add(coolingWaterParticles);
+
+            // Mixed Water Flow (collecting in hotwell, flowing down barometric leg)
+            const mixedWaterParticles = createFluidParticles(mixedWaterColor, 400, particleSizeMixedWater);
+            mixedWaterParticles.userData.paths = [];
+            const mixedWaterPathPoints = [
+                components.hotwell.position.clone().add(new THREE.Vector3(0, hotwellHeight / 2 - 1, 0)),
+                components.hotwell.position.clone().add(new THREE.Vector3(0, -hotwellHeight / 2, 0)),
+                components.barometricLeg.position.clone().add(new THREE.Vector3(0, barometricLegLength / 2, 0)),
+                components.barometricLeg.position.clone().add(new THREE.Vector3(0, -barometricLegLength / 2, 0))
+            ];
+            mixedWaterParticles.userData.paths.push(new THREE.CatmullRomCurve3(mixedWaterPathPoints));
+            components.fluidFlowMixedWater.add(mixedWaterParticles);
+
+            // Non-condensable Gases (from condenser top to vacuum connection)
+            const nonCondensablesParticles = createFluidParticles(nonCondensablesColor, 80, particleSizeNonCondensables);
+            nonCondensablesParticles.userData.paths = [];
+            const nonCondensablesPathPoints = [
+                components.casing.position.clone().add(new THREE.Vector3(0, casingHeight / 2 - 1, 0)),
+                components.vacuumConnection.position.clone().add(new THREE.Vector3(0, 0, vacuumConnectionLength / 2))
+            ];
+            nonCondensablesParticles.userData.paths.push(new THREE.CatmullRomCurve3(nonCondensablesPathPoints));
+            components.fluidFlowNonCondensables.add(nonCondensablesParticles);
+
+
+            components.fluidFlowSteam.visible = false;
+            components.fluidFlowCoolingWater.visible = false;
+            components.fluidFlowMixedWater.visible = false;
+            components.fluidFlowNonCondensables.visible = false;
+            scene.add(components.fluidFlowSteam);
+            scene.add(components.fluidFlowCoolingWater);
+            scene.add(components.fluidFlowMixedWater);
+            scene.add(components.fluidFlowNonCondensables);
+
+
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.casing);
+            components.fullAssembly.add(components.steamInlet);
+            components.fullAssembly.add(components.coolingWaterInlet);
+            components.fullAssembly.add(components.sprayNozzles);
+            components.fullAssembly.add(components.hotwell);
+            components.fullAssembly.add(components.barometricLeg);
+            components.fullAssembly.add(components.vacuumConnection);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp.isObject3D && comp.isMesh === undefined) { // Check if it's a Three.js object, not just a property
+                     // Only hide direct scene children or groups, not individual meshes within groups if it's a specific view
+                } else if (comp && comp !== components.fullAssembly && comp.isMesh) {
+                    comp.visible = false;
+                } else if (comp && comp.type === 'Group') { // If it's a group, iterate its children
+                    comp.children.forEach(child => child.visible = false);
+                }
+            });
+            
+            // Hide fluid animations by default when changing views
+            components.fluidFlowSteam.visible = false;
+            components.fluidFlowCoolingWater.visible = false;
+            components.fluidFlowMixedWater.visible = false;
+            components.fluidFlowNonCondensables.visible = false;
+
+            // Make casing transparent for internal views
+            if (components.casing) {
+                components.casing.material.opacity = 0.2;
+                components.casing.material.needsUpdate = true;
+                document.getElementById('toggle-casing').textContent = 'Make Casing Opaque';
+            }
+
+            // Show the requested component(s) and relevant context
+            if (componentType === 'casing') {
+                components.casing.visible = true;
+                components.casing.material.opacity = 0.7; // Make casing more visible for its own view
+                document.getElementById('toggle-casing').textContent = 'Make Casing Transparent';
+            } else if (componentType === 'steamInlet') {
+                components.steamInlet.visible = true;
+                components.casing.visible = true;
+                components.fluidFlowSteam.visible = true;
+            } else if (componentType === 'coolingWaterInlet') {
+                components.coolingWaterInlet.visible = true;
+                components.casing.visible = true;
+                components.sprayNozzles.children.forEach(child => child.visible = true); // Show nozzles
+                components.fluidFlowCoolingWater.visible = true;
+            } else if (componentType === 'sprayNozzles') {
+                components.sprayNozzles.children.forEach(child => child.visible = true);
+                components.casing.visible = true;
+                components.coolingWaterInlet.visible = true;
+                components.fluidFlowCoolingWater.visible = true;
+                components.fluidFlowSteam.visible = true; // For mixing context
+                components.fluidFlowMixedWater.visible = true; // For result
+            } else if (componentType === 'hotwell') {
+                components.hotwell.visible = true;
+                components.casing.visible = true;
+                components.barometricLeg.visible = true; // Context
+                components.fluidFlowMixedWater.visible = true;
+            } else if (componentType === 'barometricLeg') {
+                components.barometricLeg.visible = true;
+                components.hotwell.visible = true; // Context
+                components.fluidFlowMixedWater.visible = true;
+            } else if (componentType === 'vacuumConnection') {
+                components.vacuumConnection.visible = true;
+                components.casing.visible = true;
+                components.fluidFlowNonCondensables.visible = true;
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fullAssembly && comp.isObject3D && comp.isMesh === undefined) { 
+                         // If it's a group, iterate its children
+                        comp.children.forEach(child => child.visible = true);
+                    } else if (comp && comp.isMesh) {
+                        comp.visible = true;
+                    }
+                });
+                components.casing.material.opacity = 0.2; // Keep casing transparent in full view
+                document.getElementById('toggle-casing').textContent = 'Make Casing Opaque';
+
+                // Show all fluid animations in full view by default
+                components.fluidFlowSteam.visible = true;
+                components.fluidFlowCoolingWater.visible = true;
+                components.fluidFlowMixedWater.visible = true;
+                components.fluidFlowNonCondensables.visible = true;
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'casing') targetObject = components.casing;
+            else if (componentType === 'steamInlet') targetObject = components.steamInlet;
+            else if (componentType === 'coolingWaterInlet') targetObject = components.coolingWaterInlet;
+            else if (componentType === 'sprayNozzles') targetObject = components.sprayNozzles;
+            else if (componentType === 'hotwell') targetObject = components.hotwell;
+            else if (componentType === 'barometricLeg') targetObject = components.barometricLeg;
+            else if (componentType === 'vacuumConnection') targetObject = components.vacuumConnection;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle casing transparency
+        function toggleCasingVisibility() {
+            if (components.casing.material.opacity < 1) {
+                components.casing.material.opacity = 0.7; // Make opaque
+                document.getElementById('toggle-casing').textContent = 'Make Casing Transparent';
+            } else {
+                components.casing.material.opacity = 0.2; // Make transparent
+                document.getElementById('toggle-casing').textContent = 'Make Casing Opaque';
+            }
+            components.casing.material.needsUpdate = true;
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowSteam.visible = isSectionView;
+            components.fluidFlowCoolingWater.visible = isSectionView;
+            components.fluidFlowMixedWater.visible = isSectionView;
+            components.fluidFlowNonCondensables.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    if (child.parent && child.parent.userData.type === 'fullAssembly' || child.userData.type) { // Apply to all defined components
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-casing').addEventListener('click', toggleCasingVisibility);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-casing').addEventListener('click', () => showOnly('casing'));
+        document.getElementById('view-steam-inlet').addEventListener('click', () => showOnly('steamInlet'));
+        document.getElementById('view-cooling-water-inlet').addEventListener('click', () => showOnly('coolingWaterInlet'));
+        document.getElementById('view-spray-nozzles').addEventListener('click', () => showOnly('sprayNozzles'));
+        document.getElementById('view-hotwell-outlet').addEventListener('click', () => showOnly('hotwell'));
+        document.getElementById('view-barometric-leg').addEventListener('click', () => showOnly('barometricLeg'));
+        document.getElementById('view-vacuum-connection').addEventListener('click', () => showOnly('vacuumConnection'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate steam particles
+            if (components.fluidFlowSteam.visible) {
+                const steamParticles = components.fluidFlowSteam.children[0];
+                const steamPositions = steamParticles.geometry.attributes.position.array;
+                const steamPath = steamParticles.userData.paths[0]; 
+
+                for (let i = 0; i < steamParticles.userData.progress.length; i++) {
+                    steamParticles.userData.progress[i] = (steamParticles.userData.progress[i] + 0.005) % 1; 
+                    const p = steamPath.getPointAt(steamParticles.userData.progress[i]);
+                    // Add slight random drift for more natural particle movement
+                    steamPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.8; 
+                    steamPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.8;
+                    steamPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.8;
+                }
+                steamParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate cooling water particles (spray)
+            if (components.fluidFlowCoolingWater.visible) {
+                const coolingWaterParticles = components.fluidFlowCoolingWater.children[0];
+                const coolingWaterPositions = coolingWaterParticles.geometry.attributes.position.array;
+                const coolingWaterPaths = coolingWaterParticles.userData.paths;
+                const particlesPerPath = Math.floor(coolingWaterParticles.userData.progress.length / coolingWaterPaths.length);
+
+                for (let i = 0; i < coolingWaterParticles.userData.progress.length; i++) {
+                    const pathIndex = Math.floor(i / particlesPerPath);
+                    const currentPath = coolingWaterPaths[pathIndex];
+                    if (!currentPath) continue;
+
+                    coolingWaterParticles.userData.progress[i] = (coolingWaterParticles.userData.progress[i] + 0.006) % 1; 
+                    const p = currentPath.getPointAt(coolingWaterParticles.userData.progress[i]);
+                    coolingWaterPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.3; // Slight spray spread
+                    coolingWaterPositions[i * 3 + 1] = p.y;
+                    coolingWaterPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.3;
+                }
+                coolingWaterParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate mixed water particles
+            if (components.fluidFlowMixedWater.visible) {
+                const mixedWaterParticles = components.fluidFlowMixedWater.children[0];
+                const mixedWaterPositions = mixedWaterParticles.geometry.attributes.position.array;
+                const mixedWaterPath = mixedWaterParticles.userData.paths[0]; 
+
+                for (let i = 0; i < mixedWaterParticles.userData.progress.length; i++) {
+                    mixedWaterParticles.userData.progress[i] = (mixedWaterParticles.userData.progress[i] + 0.003) % 1; 
+                    const p = mixedWaterPath.getPointAt(mixedWaterParticles.userData.progress[i]);
+                    mixedWaterPositions[i * 3] = p.x;
+                    mixedWaterPositions[i * 3 + 1] = p.y;
+                    mixedWaterPositions[i * 3 + 2] = p.z;
+                }
+                mixedWaterParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate non-condensable gas particles
+            if (components.fluidFlowNonCondensables.visible) {
+                const nonCondensablesParticles = components.fluidFlowNonCondensables.children[0];
+                const nonCondensablesPositions = nonCondensablesParticles.geometry.attributes.position.array;
+                const nonCondensablesPath = nonCondensablesParticles.userData.paths[0]; 
+
+                for (let i = 0; i < nonCondensablesParticles.userData.progress.length; i++) {
+                    nonCondensablesParticles.userData.progress[i] = (nonCondensablesParticles.userData.progress[i] + 0.007) % 1; 
+                    const p = nonCondensablesPath.getPointAt(nonCondensablesParticles.userData.progress[i]);
+                    nonCondensablesPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.2; 
+                    nonCondensablesPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.2;
+                    nonCondensablesPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.2;
+                }
+                nonCondensablesParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

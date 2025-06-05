@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Blast Furnace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            color: #ffffff; /* Pure white for better visibility */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff; /* Ensure info panel text is pure white */
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #FF5722; /* Deep Orange border for furnace theme */
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.2); /* Deep Orange shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #FFAB91; /* Lighter Deep Orange for info panel title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #ffffff; /* Ensure main title is pure white */
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.9); /* Increased opacity */
+            color: #ffffff; /* Ensure button text is pure white */
+            border: 2px solid #FF5722; /* Thicker Deep Orange border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255, 87, 34, 0.3); /* More prominent shadow */
+        }
+        button:hover {
+            background-color: rgba(255, 87, 34, 0.3); /* Lighter Deep Orange on hover */
+            border-color: #FFAB91; /* Lighter border on hover */
+            box-shadow: 0 6px 15px rgba(255, 87, 34, 0.4); /* Enhanced shadow on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Blast Furnace - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: #ffffff; font-size: 14px;">Component Quick View:</div>
+        <button id="view-outer-shell"><span class="color-indicator" style="background-color: #607D8B;"></span>View Outer Shell</button>
+        <button id="view-hearth"><span class="color-indicator" style="background-color: #FFC107;"></span>View Hearth</button>
+        <button id="view-bosh"><span class="color-indicator" style="background-color: #FF7043;"></span>View Bosh</button>
+        <button id="view-stack"><span class="color-indicator" style="background-color: #90A4AE;"></span>View Stack</button>
+        <button id="view-throat"><span class="color-indicator" style="background-color: #78909C;"></span>View Throat</button>
+        <button id="view-tuyeres"><span class="color-indicator" style="background-color: #FFD54F;"></span>View Tuyeres</button>
+        <button id="view-tap-holes"><span class="color-indicator" style="background-color: #D84315;"></span>View Tap Holes</button>
+        <button id="view-gas-offtake"><span class="color-indicator" style="background-color: #4CAF50;"></span>View Gas Offtake</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main Three.js variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(40, 40, 50); // Initial camera position, adjusted for furnace size
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 20, 0); // Point camera towards the center of the furnace
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(20, 80, 30); // Positioned above and to the side
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 200;
+        directionalLight.shadow.camera.left = -80;
+        directionalLight.shadow.camera.right = 80;
+        directionalLight.shadow.camera.top = 80;
+        directionalLight.shadow.camera.bottom = -80;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-20, -80, -30);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along Z axis)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            outerShell: null,
+            hearth: null,
+            bosh: null,
+            stack: null,
+            throat: null,
+            tuyeres: null,
+            tapHoles: null,
+            gasOfftake: null,
+            hotAirParticles: null,
+            materialParticles: null,
+            moltenMetalParticles: null,
+            gasParticles: null,
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'outerShell': {
+                title: 'Outer Shell',
+                description: 'The robust steel casing that forms the structural integrity of the blast furnace, enclosing the refractory lining and internal components.',
+                color: 0x607D8B, // Blue Grey 500
+                internal: false
+            },
+            'hearth': {
+                title: 'Hearth',
+                description: 'The bottom section of the furnace where molten iron and slag collect after the smelting process. It is lined with highly refractory materials.',
+                color: 0xFFC107, // Amber 500
+                internal: true
+            },
+            'bosh': {
+                title: 'Bosh',
+                description: 'The tapering section above the hearth, where the molten iron and slag begin to separate and descend. This area is subjected to intense heat.',
+                color: 0xFF7043, // Deep Orange 300
+                internal: true
+            },
+            'stack': {
+                title: 'Stack',
+                description: 'The main, cylindrical body of the furnace, extending upwards from the bosh. This is where the primary reduction of iron ore occurs.',
+                color: 0x90A4AE, // Blue Grey 300
+                internal: true
+            },
+            'throat': {
+                title: 'Throat / Charging Area',
+                description: 'The uppermost section of the furnace where raw materials (iron ore, coke, and flux) are fed into the furnace.',
+                color: 0x78909C, // Blue Grey 400
+                internal: true
+            },
+            'tuyeres': {
+                title: 'Tuyeres',
+                description: 'Nozzles located around the circumference of the bosh, through which hot, pressurized air (hot blast) is injected into the furnace.',
+                color: 0xFFD54F, // Amber 200
+                internal: false
+            },
+            'tapHoles': {
+                title: 'Tap Holes',
+                description: 'Openings at the bottom of the hearth for periodically draining molten iron (iron notch) and slag (slag notch) from the furnace.',
+                color: 0xD84315, // Deep Orange 800
+                internal: false
+            },
+            'gasOfftake': {
+                title: 'Gas Offtake',
+                description: 'Pipes at the top of the furnace that collect the hot, combustible blast furnace gas for cleaning and use as fuel elsewhere.',
+                color: 0x4CAF50, // Green 500
+                internal: false
+            }
+        };
+
+        // Global constants for furnace dimensions (relative to each other)
+        const casingThickness = 1.0; // Define casingThickness here
+        const hearthRadius = 10;
+        const hearthHeight = 8;
+
+        const boshBottomRadius = hearthRadius;
+        const boshTopRadius = hearthRadius * 1.5;
+        const boshHeight = 10;
+
+        const stackBottomRadius = boshTopRadius;
+        const stackTopRadius = hearthRadius * 1.2; // Slightly tapering inwards
+        const stackHeight = 30;
+
+        const throatRadius = stackTopRadius;
+        const throatHeight = 7;
+
+        const totalHeight = hearthHeight + boshHeight + stackHeight + throatHeight;
+
+        const tuyereRadius = 0.8;
+        const tuyereLength = 3;
+        const numTuyeres = 12;
+
+        const tapHoleRadius = 0.6;
+        const tapHoleLength = 2;
+        const numTapHoles = 2; // One for iron, one for slag
+
+        const gasOfftakeRadius = 2.0;
+        const gasOfftakeHeight = 5;
+        const numGasOfftakes = 2;
+
+        // Global constants for fluid particles
+        const particleSizeHotAir = 0.4;
+        const particleSizeMaterial = 0.6;
+        const particleSizeMoltenMetal = 0.5;
+        const particleSizeGas = 0.4;
+
+
+        // Create all components of the blast furnace
+        function createComponents() {
+            // Overall Furnace Group (for positioning)
+            const furnaceGroup = new THREE.Group();
+            // Position the entire furnace so its base is at Y=0
+            furnaceGroup.position.y = totalHeight / 2; 
+
+            // Hearth
+            const hearthMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.hearth.color,
+                metalness: 0.4,
+                roughness: 0.6,
+                side: THREE.DoubleSide
+            });
+            components.hearth = new THREE.Mesh(
+                new THREE.CylinderGeometry(hearthRadius, hearthRadius, hearthHeight, 32),
+                hearthMaterial
+            );
+            components.hearth.position.y = -totalHeight / 2 + hearthHeight / 2;
+            components.hearth.userData = { type: 'hearth' };
+            furnaceGroup.add(components.hearth);
+
+            // Bosh
+            const boshMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.bosh.color,
+                emissive: 0xFF5722, // Deep Orange emissive for heat
+                emissiveIntensity: 0.7,
+                roughness: 0.4,
+                metalness: 0.2,
+                side: THREE.DoubleSide
+            });
+            components.bosh = new THREE.Mesh(
+                new THREE.CylinderGeometry(boshTopRadius, boshBottomRadius, boshHeight, 32),
+                boshMaterial
+            );
+            components.bosh.position.y = components.hearth.position.y + hearthHeight / 2 + boshHeight / 2;
+            components.bosh.userData = { type: 'bosh' };
+            furnaceGroup.add(components.bosh);
+
+            // Stack
+            const stackMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.stack.color,
+                metalness: 0.6,
+                roughness: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.stack = new THREE.Mesh(
+                new THREE.CylinderGeometry(stackTopRadius, stackBottomRadius, stackHeight, 32),
+                stackMaterial
+            );
+            components.stack.position.y = components.bosh.position.y + boshHeight / 2 + stackHeight / 2;
+            components.stack.userData = { type: 'stack' };
+            furnaceGroup.add(components.stack);
+
+            // Throat
+            const throatMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.throat.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                side: THREE.DoubleSide
+            });
+            components.throat = new THREE.Mesh(
+                new THREE.CylinderGeometry(throatRadius, throatRadius, throatHeight, 32),
+                throatMaterial
+            );
+            components.throat.position.y = components.stack.position.y + stackHeight / 2 + throatHeight / 2;
+            components.throat.userData = { type: 'throat' };
+            furnaceGroup.add(components.throat);
+
+            // Outer Shell (as a transparent casing around the whole structure)
+            const outerShellMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.outerShell.color,
+                metalness: 0.9,
+                roughness: 0.1,
+                clearcoat: 0.8,
+                transparent: true,
+                opacity: 0.8, // Increased opacity for better visibility
+                side: THREE.DoubleSide
+            });
+            // Create a compound shape for the outer shell to match the internal structure
+            const outerShellGeometry = new THREE.BufferGeometry();
+            const points = [];
+            points.push(new THREE.Vector2(hearthRadius + casingThickness, 0));
+            points.push(new THREE.Vector2(hearthRadius + casingThickness, hearthHeight));
+            points.push(new THREE.Vector2(boshTopRadius + casingThickness, hearthHeight + boshHeight));
+            points.push(new THREE.Vector2(stackTopRadius + casingThickness, hearthHeight + boshHeight + stackHeight));
+            points.push(new THREE.Vector2(throatRadius + casingThickness, hearthHeight + boshHeight + stackHeight + throatHeight));
+            
+            const outerShellLatheGeometry = new THREE.LatheGeometry(points, 32);
+            components.outerShell = new THREE.Mesh(outerShellLatheGeometry, outerShellMaterial);
+            components.outerShell.position.y = -totalHeight / 2; // Align base with furnace group base
+            components.outerShell.userData = { type: 'outerShell' };
+            furnaceGroup.add(components.outerShell);
+
+
+            // Tuyeres (around the bosh)
+            components.tuyeres = new THREE.Group();
+            const tuyereMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.tuyeres.color,
+                emissive: 0xFFD54F, // Amber emissive for hot air
+                emissiveIntensity: 0.8,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const tuyereY = components.bosh.position.y - boshHeight / 2 + tuyereRadius; // Slightly above bosh bottom
+            const tuyereRadialPosition = boshBottomRadius + 0.5; // Just outside the bosh
+
+            for (let i = 0; i < numTuyeres; i++) {
+                const angle = (Math.PI * 2 / numTuyeres) * i;
+                const x = tuyereRadialPosition * Math.sin(angle);
+                const z = tuyereRadialPosition * Math.cos(angle);
+
+                const tuyere = new THREE.Mesh(new THREE.CylinderGeometry(tuyereRadius, tuyereRadius, tuyereLength, 8), tuyereMaterial);
+                tuyere.rotation.y = -angle; // Point towards center
+                tuyere.rotation.x = Math.PI / 2; // Horizontal
+                tuyere.position.set(x, tuyereY, z);
+                tuyere.userData = { type: 'tuyeres' };
+                components.tuyeres.add(tuyere);
+            }
+            furnaceGroup.add(components.tuyeres);
+
+            // Tap Holes (at the hearth level)
+            components.tapHoles = new THREE.Group();
+            const tapHoleMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.tapHoles.color,
+                emissive: 0xD84315, // Deep Orange emissive for molten metal
+                emissiveIntensity: 0.9,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+            const tapHoleY = components.hearth.position.y - hearthHeight / 2 + tapHoleRadius; // Bottom of hearth
+            const tapHoleRadialPosition = hearthRadius + 0.5; // Just outside hearth
+
+            // Iron Tap Hole
+            const ironTapHole = new THREE.Mesh(new THREE.CylinderGeometry(tapHoleRadius, tapHoleRadius, tapHoleLength, 8), tapHoleMaterial);
+            ironTapHole.rotation.z = Math.PI / 2; // Horizontal
+            ironTapHole.position.set(tapHoleRadialPosition, tapHoleY, 0);
+            ironTapHole.userData = { type: 'tapHoles' };
+            components.tapHoles.add(ironTapHole);
+
+            // Slag Tap Hole (offset)
+            const slagTapHole = ironTapHole.clone();
+            slagTapHole.position.set(tapHoleRadialPosition * Math.cos(Math.PI / 2), tapHoleY, tapHoleRadialPosition * Math.sin(Math.PI / 2));
+            slagTapHole.userData = { type: 'tapHoles' };
+            components.tapHoles.add(slagTapHole);
+
+            furnaceGroup.add(components.tapHoles);
+
+            // Gas Offtake (at the throat)
+            components.gasOfftake = new THREE.Group();
+            const gasOfftakeMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.gasOfftake.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            const gasOfftakeY = components.throat.position.y + throatHeight / 2 + gasOfftakeHeight / 2;
+            const gasOfftakeRadialPosition = throatRadius + gasOfftakeRadius * 0.5;
+
+            for (let i = 0; i < numGasOfftakes; i++) {
+                const angle = (Math.PI * 2 / numGasOfftakes) * i + Math.PI / 4; // Offset to be visible
+                const x = gasOfftakeRadialPosition * Math.sin(angle);
+                const z = gasOfftakeRadialPosition * Math.cos(angle);
+
+                const offtake = new THREE.Mesh(new THREE.CylinderGeometry(gasOfftakeRadius, gasOfftakeRadius, gasOfftakeHeight, 16), gasOfftakeMaterial);
+                offtake.position.set(x, gasOfftakeY, z);
+                offtake.userData = { type: 'gasOfftake' };
+                components.gasOfftake.add(offtake);
+            }
+            furnaceGroup.add(components.gasOfftake);
+
+
+            // --- Fluid Flow Animations ---
+            function createFluidParticles(color, numParticles, size, blending = THREE.AdditiveBlending, opacity = 0.7) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: size,
+                    blending: blending,
+                    transparent: true,
+                    opacity: opacity,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Hot Air Particles (from tuyeres into bosh)
+            components.hotAirParticles = createFluidParticles(0xFFD54F, 200, particleSizeHotAir);
+            components.hotAirParticles.userData.paths = [];
+            for (let i = 0; i < 10; i++) {
+                const tuyereIndex = Math.floor(Math.random() * numTuyeres);
+                const tuyere = components.tuyeres.children[tuyereIndex];
+                if (!tuyere) continue;
+
+                const pathPoints = [
+                    tuyere.position.clone().add(new THREE.Vector3(0, 0, tuyereLength / 2 * Math.cos(tuyere.rotation.y))), // Start at tuyere exit
+                    new THREE.Vector3(0, components.bosh.position.y, 0).add(new THREE.Vector3((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2)), // Into bosh center
+                    new THREE.Vector3(0, components.bosh.position.y + boshHeight / 2 + 2, 0).add(new THREE.Vector3((Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3)) // Rising into stack
+                ];
+                components.hotAirParticles.userData.paths.push(new THREE.CatmullRomCurve3(pathPoints));
+            }
+            furnaceGroup.add(components.hotAirParticles);
+
+
+            // Material Descent Particles (from throat downwards)
+            components.materialParticles = createFluidParticles(0xAAAAAA, 150, particleSizeMaterial, THREE.NormalBlending, 0.8);
+            components.materialParticles.userData.paths = [];
+            for (let i = 0; i < 5; i++) {
+                const startRadius = throatRadius * (0.5 + Math.random() * 0.4);
+                const startAngle = Math.random() * Math.PI * 2;
+                const xStart = startRadius * Math.sin(startAngle);
+                const zStart = startRadius * Math.cos(startAngle);
+
+                const pathPoints = [
+                    new THREE.Vector3(xStart, components.throat.position.y + throatHeight / 2 - 0.5, zStart), // Start at throat
+                    new THREE.Vector3(xStart * 0.8, components.stack.position.y - stackHeight / 2, zStart * 0.8), // Descending through stack
+                    new THREE.Vector3(xStart * 0.4, components.bosh.position.y - boshHeight / 2, zStart * 0.4) // Into bosh
+                ];
+                components.materialParticles.userData.paths.push(new THREE.CatmullRomCurve3(pathPoints));
+            }
+            furnaceGroup.add(components.materialParticles);
+
+            // Molten Metal Particles (collecting in hearth, exiting tap holes)
+            components.moltenMetalParticles = createFluidParticles(0xFF4500, 100, particleSizeMoltenMetal);
+            components.moltenMetalParticles.userData.paths = [];
+            // Path for molten metal collecting
+            const moltenPathPoints = [
+                new THREE.Vector3(0, components.hearth.position.y - hearthHeight / 2 + 0.5, 0), // Bottom of hearth
+                new THREE.Vector3(0, components.hearth.position.y - hearthHeight / 2 + 1.5, 0), // Slightly rising
+                new THREE.Vector3(0, components.hearth.position.y - hearthHeight / 2 + 0.5, 0) // Settling
+            ];
+            components.moltenMetalParticles.userData.paths.push(new THREE.CatmullRomCurve3(moltenPathPoints));
+            
+            // Path for exiting tap hole
+            if (components.tapHoles.children.length > 0) {
+                const tapHole = components.tapHoles.children[0]; // Iron tap hole
+                const exitPathPoints = [
+                    new THREE.Vector3(0, components.hearth.position.y - hearthHeight / 2 + 0.5, 0),
+                    tapHole.position.clone().add(new THREE.Vector3(tapHoleLength / 2, 0, 0)), // Exiting tap hole
+                    tapHole.position.clone().add(new THREE.Vector3(tapHoleLength / 2 + 5, -2, 0)) // Flowing away
+                ];
+                components.moltenMetalParticles.userData.paths.push(new THREE.CatmullRomCurve3(exitPathPoints));
+            }
+            furnaceGroup.add(components.moltenMetalParticles);
+
+
+            // Gas Particles (rising through furnace, exiting gas offtake)
+            components.gasParticles = createFluidParticles(0x00FFFF, 250, particleSizeGas); // Cyan for gas
+            components.gasParticles.userData.paths = [];
+            for (let i = 0; i < 10; i++) {
+                const startRadius = hearthRadius * (0.2 + Math.random() * 0.6);
+                const startAngle = Math.random() * Math.PI * 2;
+                const xStart = startRadius * Math.sin(startAngle);
+                const zStart = startRadius * Math.cos(startAngle);
+
+                const pathPoints = [
+                    new THREE.Vector3(xStart, components.hearth.position.y - hearthHeight / 2 + 2, zStart), // Start in hearth
+                    new THREE.Vector3(xStart * 0.8, components.bosh.position.y + boshHeight / 2, zStart * 0.8), // Through bosh
+                    new THREE.Vector3(xStart * 0.6, components.stack.position.y + stackHeight / 2, zStart * 0.6), // Through stack
+                    new THREE.Vector3(xStart * 0.4, components.throat.position.y + throatHeight / 2, zStart * 0.4), // Through throat
+                    new THREE.Vector3(components.gasOfftake.children[0].position.x + (Math.random() - 0.5) * 1, components.gasOfftake.children[0].position.y + gasOfftakeHeight / 2 + 2, components.gasOfftake.children[0].position.z + (Math.random() - 0.5) * 1) // Exiting offtake
+                ];
+                components.gasParticles.userData.paths.push(new THREE.CatmullRomCurve3(pathPoints));
+            }
+            furnaceGroup.add(components.gasParticles);
+
+
+            // Initially hide fluid/particle animations
+            components.hotAirParticles.visible = false;
+            components.materialParticles.visible = false;
+            components.moltenMetalParticles.visible = false;
+            components.gasParticles.visible = false;
+
+            // Full assembly
+            components.fullAssembly = furnaceGroup; // The main group is the full assembly
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        // Moved this call to window.onload to ensure all constants are defined.
+        // createComponents(); 
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                // Exclude fluid flows and the main fullAssembly group from being hidden individually
+                if (comp && comp !== components.fullAssembly && 
+                    !comp.userData.isFluidFlow && comp !== components.hotAirParticles &&
+                    comp !== components.materialParticles && comp !== components.moltenMetalParticles &&
+                    comp !== components.gasParticles) { 
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid/particle animations by default when changing views, unless explicitly shown
+            components.hotAirParticles.visible = false;
+            components.materialParticles.visible = false;
+            components.moltenMetalParticles.visible = false;
+            components.gasParticles.visible = false;
+
+            // Show the requested component(s) and relevant context
+            if (componentType === 'outerShell') {
+                components.outerShell.visible = true;
+            } else if (componentType === 'hearth') {
+                components.hearth.visible = true;
+                components.outerShell.visible = true; // Context
+                components.bosh.visible = true; // Context
+                components.tuyeres.visible = true; // Context
+                components.tapHoles.visible = true; // Context
+                components.moltenMetalParticles.visible = true;
+                components.gasParticles.visible = true;
+            } else if (componentType === 'bosh') {
+                components.bosh.visible = true;
+                components.outerShell.visible = true; // Context
+                components.hearth.visible = true; // Context
+                components.stack.visible = true; // Context
+                components.tuyeres.visible = true; // Context
+                components.hotAirParticles.visible = true;
+                components.materialParticles.visible = true;
+                components.gasParticles.visible = true;
+            } else if (componentType === 'stack') {
+                components.stack.visible = true;
+                components.outerShell.visible = true; // Context
+                components.bosh.visible = true; // Context
+                components.throat.visible = true; // Context
+                components.materialParticles.visible = true;
+                components.gasParticles.visible = true;
+            } else if (componentType === 'throat') {
+                components.throat.visible = true;
+                components.outerShell.visible = true; // Context
+                components.stack.visible = true; // Context
+                components.gasOfftake.visible = true; // Context
+                components.materialParticles.visible = true;
+                components.gasParticles.visible = true;
+            } else if (componentType === 'tuyeres') {
+                components.tuyeres.visible = true;
+                components.outerShell.visible = true; // Context
+                components.bosh.visible = true; // Context
+                components.hotAirParticles.visible = true;
+            } else if (componentType === 'tapHoles') {
+                components.tapHoles.visible = true;
+                components.outerShell.visible = true; // Context
+                components.hearth.visible = true; // Context
+                components.moltenMetalParticles.visible = true;
+            } else if (componentType === 'gasOfftake') {
+                components.gasOfftake.visible = true;
+                components.outerShell.visible = true; // Context
+                components.throat.visible = true; // Context
+                components.gasParticles.visible = true;
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fullAssembly) comp.visible = true;
+                });
+                // Show all fluid/particle animations in full view by default
+                components.hotAirParticles.visible = true;
+                components.materialParticles.visible = true;
+                components.moltenMetalParticles.visible = true;
+                components.gasParticles.visible = true;
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'outerShell') targetObject = components.outerShell;
+            else if (componentType === 'hearth') targetObject = components.hearth;
+            else if (componentType === 'bosh') targetObject = components.bosh;
+            else if (componentType === 'stack') targetObject = components.stack;
+            else if (componentType === 'throat') targetObject = components.throat;
+            else if (componentType === 'tuyeres') targetObject = components.tuyeres;
+            else if (componentType === 'tapHoles') targetObject = components.tapHoles;
+            else if (componentType === 'gasOfftake') targetObject = components.gasOfftake;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 2.5; // Adjusted multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid/particle visibility based on section view
+            components.hotAirParticles.visible = isSectionView;
+            components.materialParticles.visible = isSectionView;
+            components.moltenMetalParticles.visible = isSectionView;
+            components.gasParticles.visible = isSectionView;
+
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    const componentType = child.userData.type;
+                    if (componentType === 'outerShell' || componentType === 'hearth' || 
+                        componentType === 'bosh' || componentType === 'stack' || 
+                        componentType === 'throat' || componentType === 'tuyeres' || 
+                        componentType === 'tapHoles' || componentType === 'gasOfftake') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-outer-shell').addEventListener('click', () => showOnly('outerShell'));
+        document.getElementById('view-hearth').addEventListener('click', () => showOnly('hearth'));
+        document.getElementById('view-bosh').addEventListener('click', () => showOnly('bosh'));
+        document.getElementById('view-stack').addEventListener('click', () => showOnly('stack'));
+        document.getElementById('view-throat').addEventListener('click', () => showOnly('throat'));
+        document.getElementById('view-tuyeres').addEventListener('click', () => showOnly('tuyeres'));
+        document.getElementById('view-tap-holes').addEventListener('click', () => showOnly('tapHoles'));
+        document.getElementById('view-gas-offtake').addEventListener('click', () => showOnly('gasOfftake'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate hot air particles
+            if (components.hotAirParticles && components.hotAirParticles.visible) {
+                const particles = components.hotAirParticles; // Direct reference to the Points object
+                if (particles && particles.geometry && particles.geometry.attributes && particles.geometry.attributes.position) {
+                    const positions = particles.geometry.attributes.position.array;
+                    const paths = particles.userData.paths;
+                    const particlesPerPath = Math.floor(particles.userData.progress.length / paths.length);
+
+                    for (let i = 0; i < particles.userData.progress.length; i++) {
+                        const pathIndex = Math.floor(i / particlesPerPath);
+                        const currentPath = paths[pathIndex];
+                        if (!currentPath) continue;
+
+                        particles.userData.progress[i] = (particles.userData.progress[i] + 0.008) % 1; // Adjust speed
+                        const p = currentPath.getPointAt(particles.userData.progress[i]);
+                        positions[i * 3] = p.x + (Math.random() - 0.5) * 0.2; // Slight drift
+                        positions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.2;
+                        positions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.2;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                }
+            }
+
+            // Animate material particles
+            if (components.materialParticles && components.materialParticles.visible) {
+                const particles = components.materialParticles; // Direct reference to the Points object
+                if (particles && particles.geometry && particles.geometry.attributes && particles.geometry.attributes.position) {
+                    const positions = particles.geometry.attributes.position.array;
+                    const paths = particles.userData.paths;
+                    const particlesPerPath = Math.floor(particles.userData.progress.length / paths.length);
+
+                    for (let i = 0; i < particles.userData.progress.length; i++) {
+                        const pathIndex = Math.floor(i / particlesPerPath);
+                        const currentPath = paths[pathIndex];
+                        if (!currentPath) continue;
+
+                        particles.userData.progress[i] = (particles.userData.progress[i] + 0.003) % 1; // Adjust speed
+                        const p = currentPath.getPointAt(particles.userData.progress[i]);
+                        positions[i * 3] = p.x + (Math.random() - 0.5) * 0.1; // Slight drift
+                        positions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.1;
+                        positions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.1;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                }
+            }
+
+            // Animate molten metal particles
+            if (components.moltenMetalParticles && components.moltenMetalParticles.visible) {
+                const particles = components.moltenMetalParticles; // Direct reference to the Points object
+                if (particles && particles.geometry && particles.geometry.attributes && particles.geometry.attributes.position) {
+                    const positions = particles.geometry.attributes.position.array;
+                    const paths = particles.userData.paths;
+                    const particlesPerPath = Math.floor(particles.userData.progress.length / paths.length);
+
+                    for (let i = 0; i < particles.userData.progress.length; i++) {
+                        const pathIndex = Math.floor(i / particlesPerPath);
+                        const currentPath = paths[pathIndex];
+                        if (!currentPath) continue;
+
+                        particles.userData.progress[i] = (particles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                        const p = currentPath.getPointAt(particles.userData.progress[i]);
+                        positions[i * 3] = p.x + (Math.random() - 0.5) * 0.2; // Slight drift
+                        positions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.2;
+                        positions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.2;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                }
+            }
+
+            // Animate gas particles
+            if (components.gasParticles && components.gasParticles.visible) {
+                const particles = components.gasParticles; // Direct reference to the Points object
+                if (particles && particles.geometry && particles.geometry.attributes && particles.geometry.attributes.position) {
+                    const positions = particles.geometry.attributes.position.array;
+                    const paths = particles.userData.paths;
+                    const particlesPerPath = Math.floor(particles.userData.progress.length / paths.length);
+
+                    for (let i = 0; i < particles.userData.progress.length; i++) {
+                        const pathIndex = Math.floor(i / particlesPerPath);
+                        const currentPath = paths[pathIndex];
+                        if (!currentPath) continue;
+
+                        particles.userData.progress[i] = (particles.userData.progress[i] + 0.006) % 1; // Adjust speed
+                        const p = currentPath.getPointAt(particles.userData.progress[i]);
+                        positions[i * 3] = p.x + (Math.random() - 0.5) * 0.3; // Slight drift
+                        positions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.3;
+                        positions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.3;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                }
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            createComponents(); // Initialize components after window loads
+            showOnly('full'); // Ensure all components are visible initially
+            animate(); 
+        }
+    </script>
+</body>
+</html>

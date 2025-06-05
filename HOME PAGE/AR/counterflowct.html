@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Counterflow Cooling Tower</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            color: #ffffff; /* Pure white for better visibility */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff; /* Ensure info panel text is pure white */
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #7cb342; /* Light green border for counterflow theme */
+            box-shadow: 0 4px 15px rgba(124, 179, 66, 0.2); /* Light green shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #aed581; /* Lighter green for info panel title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #ffffff; /* Ensure main title is pure white */
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.9); /* Increased opacity */
+            color: #ffffff; /* Ensure button text is pure white */
+            border: 2px solid #7cb342; /* Thicker light green border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(124, 179, 66, 0.3); /* More prominent shadow */
+        }
+        button:hover {
+            background-color: rgba(124, 179, 66, 0.3); /* Lighter green on hover */
+            border-color: #aed581; /* Lighter border on hover */
+            box-shadow: 0 6px 15px rgba(124, 179, 66, 0.4); /* Enhanced shadow on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Counterflow Cooling Tower - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: #ffffff; font-size: 14px;">Component Quick View:</div>
+        <button id="view-structure"><span class="color-indicator" style="background-color: #7cb342;"></span>View Structure</button>
+        <button id="view-fan-stack"><span class="color-indicator" style="background-color: #558b2f;"></span>View Fan Stack</button>
+        <button id="view-fans-motor"><span class="color-indicator" style="background-color: #ff5722;"></span>View Fans & Motor</button>
+        <button id="view-fill-media"><span class="color-indicator" style="background-color: #c5e1a5;"></span>View Fill Media</button>
+        <button id="view-drift-eliminators"><span class="color-indicator" style="background-color: #e0e0e0;"></span>View Drift Eliminators</button>
+        <button id="view-cold-water-basin"><span class="color-indicator" style="background-color: #33691e;"></span>View Cold Water Basin</button>
+        <button id="view-water-distribution"><span class="color-indicator" style="background-color: #aed581;"></span>View Water Distribution System</button>
+        <button id="view-air-inlet"><span class="color-indicator" style="background-color: #cfd8dc;"></span>View Air Inlet</button>
+        <button id="view-hot-water-inlet"><span class="color-indicator" style="background-color: #ef5350;"></span>View Hot Water Inlet</button>
+        <button id="view-cooled-water-outlet"><span class="color-indicator" style="background-color: #8bc34a;"></span>View Cooled Water Outlet</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main Three.js variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(30, 40, 50); // Initial camera position, adjusted for tower height
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 20, 0); // Point camera towards the middle of the tower
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(20, 80, 30); // Positioned above and to the side
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 150;
+        directionalLight.shadow.camera.left = -80;
+        directionalLight.shadow.camera.right = 80;
+        directionalLight.shadow.camera.top = 80;
+        directionalLight.shadow.camera.bottom = -80;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-20, -80, -30);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along Z axis)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            structure: null,
+            fanStack: null,
+            fans: null,
+            motor: null,
+            fillMedia: null,
+            driftEliminators: null,
+            coldWaterBasin: null,
+            waterDistributionSystem: null, // Now a pipe grid
+            airInlet: null,
+            hotWaterInletPipe: null,
+            cooledWaterOutletPipe: null,
+            fluidFlowHotWater: null,
+            fluidFlowFallingWater: null,
+            fluidFlowAir: null,
+            fluidFlowVaporPlume: null,
+            fullAssembly: null,
+            fanDeck: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'structure': {
+                title: 'Tower Structure',
+                description: 'The main framework, typically rectangular or square, supporting the internal components and outer casing of the cooling tower.',
+                color: 0x7cb342, // Light Green
+                internal: false
+            },
+            'fanStack': {
+                title: 'Fan Stack',
+                description: 'The cylindrical or conical structure at the top of the tower that directs the exhaust air and houses the fan assembly.',
+                color: 0x558b2f, // Darker Green
+                internal: false
+            },
+            'fans': {
+                title: 'Fans',
+                description: 'Large axial or centrifugal fans that mechanically draw air upwards through the tower, creating a counterflow effect.',
+                color: 0xff5722, // Bright Orange
+                internal: true
+            },
+            'motor': {
+                title: 'Fan Motor',
+                description: 'The electric motor that drives the cooling tower fan, located on top of the fan deck.',
+                color: 0xd84315, // Darker Orange
+                internal: true
+            },
+            'fillMedia': {
+                title: 'Fill Media',
+                description: 'Material (e.g., PVC or wood) that increases the surface area for water-air contact. Water falls vertically downwards while air moves vertically upwards through it.',
+                color: 0xc5e1a5, // Very Light Green
+                internal: true
+            },
+            'driftEliminators': {
+                title: 'Drift Eliminators',
+                description: 'Devices located above the fill media that capture large water droplets entrained in the upward airflow, preventing their escape and minimizing water loss.',
+                color: 0xe0e0e0, // Light Grey
+                internal: true
+            },
+            'coldWaterBasin': {
+                title: 'Cold Water Basin',
+                description: 'The basin at the bottom of the tower where the cooled water collects before being pumped back to the process.',
+                color: 0x33691e, // Even Darker Green
+                internal: false
+            },
+            'waterDistributionSystem': {
+                title: 'Water Distribution System',
+                description: 'Pipes and nozzles at the top of the tower that evenly spray hot water downwards over the fill media.',
+                color: 0xaed581, // Medium Green
+                internal: true
+            },
+            'airInlet': {
+                title: 'Air Inlet Louvers',
+                description: 'Openings with louvers at the bottom sides of the tower through which ambient air enters and moves upwards through the fill.',
+                color: 0xcfd8dc, // Very Light Grey
+                internal: false
+            },
+            'hotWaterInlet': {
+                title: 'Hot Water Inlet',
+                description: 'The pipe bringing hot water from the industrial process to the water distribution system at the top of the tower.',
+                color: 0xef5350, // Bright Red
+                internal: false
+            },
+            'cooledWaterOutlet': {
+                title: 'Cooled Water Outlet',
+                description: 'The pipe carrying the cooled water from the cold water basin back to the industrial process.',
+                color: 0x8bc34a, // Medium Green
+                internal: false
+            }
+        };
+
+        // Global constants for tower dimensions
+        const towerWidth = 20;
+        const towerDepth = 20;
+        const towerHeight = 40;
+
+        const basinHeight = 4;
+        const fillHeight = 18; // Taller fill section for counterflow
+        const eliminatorHeight = 2;
+        const distributionSystemHeight = 1; // For pipe grid
+        const fanDeckHeight = 2;
+        const fanStackHeight = 8;
+        const fanRadius = 6;
+        const fanBladeCount = 4;
+
+        const pipeRadius = 0.8;
+        const nozzleLength = 4;
+
+        // Global constants for fluid particles
+        const particleSizeWater = 0.2;
+        const particleSizeAir = 0.3;
+        const particleSizeVapor = 0.4;
+
+
+        // Create all components of the counterflow cooling tower
+        function createComponents() {
+            // Overall Tower Group (for positioning)
+            const towerGroup = new THREE.Group();
+            // Position the entire tower so its base is at Y=0
+            towerGroup.position.y = basinHeight / 2; 
+
+            // Cold Water Basin
+            const basinMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.coldWaterBasin.color,
+                metalness: 0.6,
+                roughness: 0.4,
+                transparent: true,
+                opacity: 0.8,
+                clearcoat: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.coldWaterBasin = new THREE.Mesh(
+                new THREE.BoxGeometry(towerWidth, basinHeight, towerDepth),
+                basinMaterial
+            );
+            components.coldWaterBasin.position.y = 0;
+            components.coldWaterBasin.userData = { type: 'coldWaterBasin' };
+            towerGroup.add(components.coldWaterBasin);
+
+            // Main Structure (simplified as a rectangular box)
+            const structureMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.structure.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.7,
+                clearcoat: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.structure = new THREE.Mesh(
+                new THREE.BoxGeometry(towerWidth, towerHeight - basinHeight, towerDepth),
+                structureMaterial
+            );
+            components.structure.position.y = basinHeight + (towerHeight - basinHeight) / 2;
+            components.structure.userData = { type: 'structure' };
+            towerGroup.add(components.structure);
+
+            // Fill Media (inside the structure)
+            const fillMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fillMedia.color,
+                transparent: true,
+                opacity: 0.6,
+                roughness: 0.5,
+                metalness: 0.1
+            });
+            components.fillMedia = new THREE.Mesh(
+                new THREE.BoxGeometry(towerWidth * 0.9, fillHeight, towerDepth * 0.9),
+                fillMaterial
+            );
+            components.fillMedia.position.y = basinHeight + fillHeight / 2;
+            components.fillMedia.userData = { type: 'fillMedia' };
+            towerGroup.add(components.fillMedia);
+
+            // Drift Eliminators (above fill)
+            const eliminatorMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.driftEliminators.color,
+                transparent: true,
+                opacity: 0.7,
+                roughness: 0.5,
+                metalness: 0.1
+            });
+            components.driftEliminators = new THREE.Mesh(
+                new THREE.BoxGeometry(towerWidth * 0.8, eliminatorHeight, towerDepth * 0.8),
+                eliminatorMaterial
+            );
+            components.driftEliminators.position.y = basinHeight + fillHeight + eliminatorHeight / 2;
+            components.driftEliminators.userData = { type: 'driftEliminators' };
+            towerGroup.add(components.driftEliminators);
+
+            // Water Distribution System (pipe grid at the very top)
+            components.waterDistributionSystem = new THREE.Group();
+            const distributionMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.waterDistributionSystem.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            const mainDistPipe = new THREE.Mesh(
+                new THREE.CylinderGeometry(pipeRadius * 0.8, pipeRadius * 0.8, towerWidth * 0.8, 16),
+                distributionMaterial
+            );
+            mainDistPipe.rotation.z = Math.PI / 2;
+            mainDistPipe.position.y = basinHeight + fillHeight + eliminatorHeight + distributionSystemHeight / 2;
+            components.waterDistributionSystem.add(mainDistPipe);
+            
+            const crossDistPipe = new THREE.Mesh(
+                new THREE.CylinderGeometry(pipeRadius * 0.8, pipeRadius * 0.8, towerDepth * 0.8, 16),
+                distributionMaterial
+            );
+            crossDistPipe.rotation.x = Math.PI / 2;
+            crossDistPipe.position.y = basinHeight + fillHeight + eliminatorHeight + distributionSystemHeight / 2;
+            components.waterDistributionSystem.add(crossDistPipe);
+            
+            components.waterDistributionSystem.userData = { type: 'waterDistributionSystem' };
+            towerGroup.add(components.waterDistributionSystem);
+
+            // Fan Deck (top of the main structure, below fan stack)
+            const fanDeckMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.structure.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                clearcoat: 0.5
+            });
+            components.fanDeck = new THREE.Mesh(
+                new THREE.BoxGeometry(towerWidth, fanDeckHeight, towerDepth),
+                fanDeckMaterial
+            );
+            components.fanDeck.position.y = components.waterDistributionSystem.position.y + distributionSystemHeight / 2 + fanDeckHeight / 2;
+            components.fanDeck.userData = { type: 'structure' }; // Part of structure
+            towerGroup.add(components.fanDeck);
+
+            // Fan Stack
+            const fanStackMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fanStack.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.7,
+                clearcoat: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.fanStack = new THREE.Mesh(
+                new THREE.CylinderGeometry(fanRadius * 0.8, fanRadius, fanStackHeight, 32, 1, false),
+                fanStackMaterial
+            );
+            components.fanStack.position.y = components.fanDeck.position.y + fanDeckHeight / 2 + fanStackHeight / 2;
+            components.fanStack.userData = { type: 'fanStack' };
+            towerGroup.add(components.fanStack);
+
+            // Fans and Motor
+            components.fans = new THREE.Group();
+            const fanBladeMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fans.color,
+                metalness: 0.9,
+                roughness: 0.1
+            });
+            const fanHub = new THREE.Mesh(
+                new THREE.CylinderGeometry(fanRadius * 0.2, fanRadius * 0.2, 0.5, 16),
+                fanBladeMaterial
+            );
+            fanHub.rotation.x = Math.PI / 2;
+            components.fans.add(fanHub);
+
+            for (let i = 0; i < fanBladeCount; i++) {
+                const blade = new THREE.Mesh(
+                    new THREE.BoxGeometry(fanRadius * 0.7, 0.2, fanRadius * 0.3),
+                    fanBladeMaterial
+                );
+                blade.position.set(fanRadius * 0.4, 0, 0);
+                blade.rotation.y = (Math.PI * 2 / fanBladeCount) * i;
+                components.fans.add(blade);
+            }
+            components.fans.position.y = components.fanDeck.position.y + fanDeckHeight / 2 + 1; // Just above fan deck
+            components.fans.userData = { type: 'fans' };
+            towerGroup.add(components.fans);
+
+            const motorMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.motor.color,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+            components.motor = new THREE.Mesh(
+                new THREE.BoxGeometry(2, 2, 2),
+                motorMaterial
+            );
+            components.motor.position.y = components.fans.position.y + 1; // Above fans
+            components.motor.userData = { type: 'motor' };
+            towerGroup.add(components.motor);
+
+            // Air Inlet Louvers (on the bottom sides of the structure)
+            const louverMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.airInlet.color,
+                metalness: 0.1,
+                roughness: 0.8,
+                transparent: true,
+                opacity: 0.7
+            });
+            components.airInlet = new THREE.Group(); 
+
+            const louverHeightVal = basinHeight + fillHeight * 0.8; // Air enters below fill
+            const louverY = basinHeight + louverHeightVal / 2;
+
+            // Louvers on all four sides for counterflow
+            let louverFront = new THREE.Mesh(
+                new THREE.BoxGeometry(towerWidth * 0.9, louverHeightVal, towerDepth * 0.05),
+                louverMaterial
+            );
+            louverFront.position.set(0, louverY, -(towerDepth / 2 + 0.1));
+            louverFront.userData = { type: 'airInlet' };
+            components.airInlet.add(louverFront);
+
+            let louverBack = louverFront.clone();
+            louverBack.position.z = (towerDepth / 2 + 0.1);
+            components.airInlet.add(louverBack);
+
+            let louverLeft = new THREE.Mesh(
+                new THREE.BoxGeometry(towerWidth * 0.05, louverHeightVal, towerDepth * 0.9),
+                louverMaterial
+            );
+            louverLeft.position.set(-(towerWidth / 2 + 0.1), louverY, 0);
+            louverLeft.userData = { type: 'airInlet' };
+            components.airInlet.add(louverLeft);
+
+            let louverRight = louverLeft.clone();
+            louverRight.position.x = (towerWidth / 2 + 0.1);
+            components.airInlet.add(louverRight);
+            
+            towerGroup.add(components.airInlet);
+
+
+            // Hot Water Inlet Pipe
+            const hotWaterInletMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.hotWaterInlet.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            components.hotWaterInletPipe = new THREE.Mesh(
+                new THREE.CylinderGeometry(pipeRadius, pipeRadius, nozzleLength * 2, 16),
+                hotWaterInletMaterial
+            );
+            components.hotWaterInletPipe.rotation.x = Math.PI / 2;
+            components.hotWaterInletPipe.position.set(
+                -towerWidth / 2 - nozzleLength, 
+                components.waterDistributionSystem.position.y, 
+                0
+            );
+            components.hotWaterInletPipe.userData = { type: 'hotWaterInlet' };
+            towerGroup.add(components.hotWaterInletPipe);
+
+            // Cooled Water Outlet Pipe
+            const cooledWaterOutletMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.cooledWaterOutlet.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            components.cooledWaterOutletPipe = new THREE.Mesh(
+                new THREE.CylinderGeometry(pipeRadius, pipeRadius, nozzleLength * 2, 16),
+                cooledWaterOutletMaterial
+            );
+            components.cooledWaterOutletPipe.rotation.x = Math.PI / 2;
+            components.cooledWaterOutletPipe.position.set(
+                towerWidth / 2 + nozzleLength, 
+                0, 
+                0
+            );
+            components.cooledWaterOutletPipe.userData = { type: 'cooledWaterOutlet' };
+            towerGroup.add(components.cooledWaterOutletPipe);
+
+            // Fluid Flow Animations
+            components.fluidFlowHotWater = new THREE.Group();
+            components.fluidFlowFallingWater = new THREE.Group();
+            components.fluidFlowAir = new THREE.Group();
+            components.fluidFlowVaporPlume = new THREE.Group();
+
+            const hotWaterColor = 0xef5350; // Bright Red for hot water
+            const fallingWaterColor = 0xaed581; // Medium Green for falling water
+            const airColor = 0xcfd8dc; // Very Light Grey for air
+            const vaporPlumeColor = 0xe1f5fe; // Very Light Blue for vapor
+
+            function createFluidParticles(color, numParticles, size) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: size,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.7,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Hot Water Flow (into distribution system and falling down)
+            const hotWaterParticles = createFluidParticles(hotWaterColor, 100, particleSizeWater);
+            hotWaterParticles.userData.paths = [];
+            const hotWaterPathPoints = [
+                components.hotWaterInletPipe.position.clone().add(new THREE.Vector3(nozzleLength, 0, 0)),
+                components.waterDistributionSystem.position.clone().add(new THREE.Vector3(0, 0, 0)),
+                components.waterDistributionSystem.position.clone().add(new THREE.Vector3(0, -distributionSystemHeight / 2 - 1, 0)) // Start of fall
+            ];
+            hotWaterParticles.userData.paths.push(new THREE.CatmullRomCurve3(hotWaterPathPoints));
+            components.fluidFlowHotWater.add(hotWaterParticles);
+            towerGroup.add(components.fluidFlowHotWater);
+
+            // Falling Water Flow (through fill media)
+            const fallingWaterParticles = createFluidParticles(fallingWaterColor, 300, particleSizeWater);
+            fallingWaterParticles.userData.paths = [];
+            for (let i = 0; i < 10; i++) {
+                const xOffset = (Math.random() - 0.5) * towerWidth * 0.7;
+                const zOffset = (Math.random() - 0.5) * towerDepth * 0.7;
+                const pathPoints = [
+                    new THREE.Vector3(xOffset, components.waterDistributionSystem.position.y - distributionSystemHeight / 2 - 1, zOffset), // From distribution system
+                    new THREE.Vector3(xOffset * 0.8, components.fillMedia.position.y - fillHeight / 2 + 1, zOffset * 0.8), // Through fill
+                    new THREE.Vector3(xOffset * 0.5, basinHeight + 0.5, zOffset * 0.5) // To basin
+                ];
+                fallingWaterParticles.userData.paths.push(new THREE.CatmullRomCurve3(pathPoints));
+            }
+            components.fluidFlowFallingWater.add(fallingWaterParticles);
+            towerGroup.add(components.fluidFlowFallingWater);
+
+            // Air Flow (entering sides, moving vertically upwards through fill)
+            const airParticles = createFluidParticles(airColor, 200, particleSizeAir);
+            airParticles.userData.paths = [];
+            for (let i = 0; i < 5; i++) {
+                const xOffset = (Math.random() - 0.5) * towerWidth * 0.8;
+                const zOffset = (Math.random() - 0.5) * towerDepth * 0.8;
+                const pathPoints = [
+                    new THREE.Vector3(xOffset, basinHeight - 1, zOffset), // From air inlet (bottom)
+                    new THREE.Vector3(xOffset * 0.8, components.fillMedia.position.y + fillHeight / 2 + 1, zOffset * 0.8), // Through fill
+                    new THREE.Vector3(xOffset * 0.6, components.driftEliminators.position.y + eliminatorHeight / 2 + 1, zOffset * 0.6), // Through eliminators
+                    new THREE.Vector3(xOffset * 0.4, components.fans.position.y - 2, zOffset * 0.4) // Towards fans
+                ];
+                airParticles.userData.paths.push(new THREE.CatmullRomCurve3(pathPoints));
+            }
+            components.fluidFlowAir.add(airParticles);
+            towerGroup.add(components.fluidFlowAir);
+
+            // Vapor Plume (exiting top of fan stack)
+            const vaporPlumeParticles = createFluidParticles(vaporPlumeColor, 100, particleSizeVapor);
+            vaporPlumeParticles.userData.paths = [];
+            const vaporPlumePathPoints = [
+                new THREE.Vector3(0, components.fanStack.position.y + fanStackHeight / 2 - 1, 0), // From top of fan stack
+                new THREE.Vector3((Math.random() - 0.5) * 8, components.fanStack.position.y + fanStackHeight / 2 + 10, (Math.random() - 0.5) * 8),
+                new THREE.Vector3((Math.random() - 0.5) * 15, components.fanStack.position.y + fanStackHeight / 2 + 20, (Math.random() - 0.5) * 15)
+            ];
+            vaporPlumeParticles.userData.paths.push(new THREE.CatmullRomCurve3(vaporPlumePathPoints));
+            components.fluidFlowVaporPlume.add(vaporPlumeParticles);
+            towerGroup.add(components.fluidFlowVaporPlume);
+
+
+            // Add all fluid flows to the scene, initially hidden
+            components.fluidFlowHotWater.visible = false;
+            components.fluidFlowFallingWater.visible = false;
+            components.fluidFlowAir.visible = false;
+            components.fluidFlowVaporPlume.visible = false;
+
+            // Full assembly
+            components.fullAssembly = towerGroup; // The main group is the full assembly
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                // Exclude fluid flows and the main fullAssembly group from being hidden individually
+                if (comp && comp !== components.fullAssembly && 
+                    !comp.userData.isFluidFlow) { // Assuming fluid flows will have this userData
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views, unless explicitly shown
+            components.fluidFlowHotWater.visible = false;
+            components.fluidFlowFallingWater.visible = false;
+            components.fluidFlowAir.visible = false;
+            components.fluidFlowVaporPlume.visible = false;
+
+            // Show the requested component(s) and relevant context
+            if (componentType === 'structure') {
+                components.structure.visible = true;
+                components.coldWaterBasin.visible = true; // Context
+                components.waterDistributionSystem.visible = true; // Context
+                components.airInlet.visible = true; // Explicitly show the louvers
+                components.fanDeck.visible = true; // Context
+                components.fluidFlowAir.visible = true;
+            } else if (componentType === 'fanStack') {
+                components.fanStack.visible = true;
+                components.fans.visible = true; // Context
+                components.motor.visible = true; // Context
+                components.structure.visible = true; // Context
+                components.fluidFlowAir.visible = true;
+                components.fluidFlowVaporPlume.visible = true;
+            } else if (componentType === 'fans' || componentType === 'motor') {
+                components.fans.visible = true;
+                components.motor.visible = true;
+                components.fanStack.visible = true; // Context
+                components.structure.visible = true; // Context
+                components.fluidFlowAir.visible = true;
+                components.fluidFlowVaporPlume.visible = true;
+            } else if (componentType === 'fillMedia') {
+                components.fillMedia.visible = true;
+                components.structure.visible = true; // Context
+                components.coldWaterBasin.visible = true; // Context
+                components.waterDistributionSystem.visible = true; // Context
+                components.driftEliminators.visible = true; // Context
+                components.fluidFlowFallingWater.visible = true;
+                components.fluidFlowAir.visible = true;
+            } else if (componentType === 'driftEliminators') {
+                components.driftEliminators.visible = true;
+                components.structure.visible = true; // Context
+                components.fillMedia.visible = true; // Context
+                components.waterDistributionSystem.visible = true; // Context
+                components.fluidFlowFallingWater.visible = true;
+                components.fluidFlowAir.visible = true;
+            } else if (componentType === 'coldWaterBasin') {
+                components.coldWaterBasin.visible = true;
+                components.structure.visible = true; // Context
+                components.cooledWaterOutletPipe.visible = true; // Context
+                components.fluidFlowFallingWater.visible = true;
+            } else if (componentType === 'waterDistributionSystem') {
+                components.waterDistributionSystem.visible = true;
+                components.structure.visible = true; // Context
+                components.hotWaterInletPipe.visible = true; // Context
+                components.fillMedia.visible = true; // Context
+                components.fluidFlowHotWater.visible = true;
+                components.fluidFlowFallingWater.visible = true;
+            } else if (componentType === 'airInlet') {
+                components.structure.visible = true; // Context (it's the openings on the structure)
+                components.coldWaterBasin.visible = true; // Context
+                components.fillMedia.visible = true; // Context
+                components.airInlet.visible = true; // Explicitly show the louvers
+                components.fluidFlowAir.visible = true;
+            } else if (componentType === 'hotWaterInlet') {
+                components.hotWaterInletPipe.visible = true;
+                components.waterDistributionSystem.visible = true; // Context
+                components.fluidFlowHotWater.visible = true;
+            } else if (componentType === 'cooledWaterOutlet') {
+                components.cooledWaterOutletPipe.visible = true;
+                components.coldWaterBasin.visible = true; // Context
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fullAssembly) comp.visible = true;
+                });
+                // Show all fluid animations in full view by default
+                components.fluidFlowHotWater.visible = true;
+                components.fluidFlowFallingWater.visible = true;
+                components.fluidFlowAir.visible = true;
+                components.fluidFlowVaporPlume.visible = true;
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'structure') targetObject = components.structure;
+            else if (componentType === 'fanStack') targetObject = components.fanStack;
+            else if (componentType === 'fans' || componentType === 'motor') targetObject = components.fans; // Group fans and motor
+            else if (componentType === 'fillMedia') targetObject = components.fillMedia;
+            else if (componentType === 'driftEliminators') targetObject = components.driftEliminators;
+            else if (componentType === 'coldWaterBasin') targetObject = components.coldWaterBasin;
+            else if (componentType === 'waterDistributionSystem') targetObject = components.waterDistributionSystem;
+            else if (componentType === 'airInlet') targetObject = components.structure; // Focus on structure for air inlet
+            else if (componentType === 'hotWaterInlet') targetObject = components.hotWaterInletPipe;
+            else if (componentType === 'cooledWaterOutlet') targetObject = components.cooledWaterOutletPipe;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 2.5; // Adjusted multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowHotWater.visible = isSectionView;
+            components.fluidFlowFallingWater.visible = isSectionView;
+            components.fluidFlowAir.visible = isSectionView;
+            components.fluidFlowVaporPlume.visible = isSectionView;
+
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    const componentType = child.userData.type;
+                    if (componentType === 'structure' || componentType === 'fanStack' || 
+                        componentType === 'fans' || componentType === 'motor' ||
+                        componentType === 'fillMedia' || componentType === 'driftEliminators' || 
+                        componentType === 'coldWaterBasin' || componentType === 'waterDistributionSystem' ||
+                        componentType === 'fanDeck') { 
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-structure').addEventListener('click', () => showOnly('structure'));
+        document.getElementById('view-fan-stack').addEventListener('click', () => showOnly('fanStack'));
+        document.getElementById('view-fans-motor').addEventListener('click', () => showOnly('fans')); // Target fans to show both
+        document.getElementById('view-fill-media').addEventListener('click', () => showOnly('fillMedia'));
+        document.getElementById('view-drift-eliminators').addEventListener('click', () => showOnly('driftEliminators'));
+        document.getElementById('view-cold-water-basin').addEventListener('click', () => showOnly('coldWaterBasin'));
+        document.getElementById('view-water-distribution').addEventListener('click', () => showOnly('waterDistributionSystem'));
+        document.getElementById('view-air-inlet').addEventListener('click', () => showOnly('airInlet'));
+        document.getElementById('view-hot-water-inlet').addEventListener('click', () => showOnly('hotWaterInlet'));
+        document.getElementById('view-cooled-water-outlet').addEventListener('click', () => showOnly('cooledWaterOutlet'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate hot water particles
+            if (components.fluidFlowHotWater.visible) {
+                const hotWaterParticles = components.fluidFlowHotWater.children[0];
+                const hotWaterPositions = hotWaterParticles.geometry.attributes.position.array;
+                const hotWaterPath = hotWaterParticles.userData.paths[0]; 
+
+                for (let i = 0; i < hotWaterParticles.userData.progress.length; i++) {
+                    hotWaterParticles.userData.progress[i] = (hotWaterParticles.userData.progress[i] + 0.007) % 1; // Adjust speed
+                    const p = hotWaterPath.getPointAt(hotWaterParticles.userData.progress[i]);
+                    hotWaterPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.5; // Slight spray
+                    hotWaterPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.5;
+                    hotWaterPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.5;
+                }
+                hotWaterParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate falling water particles
+            if (components.fluidFlowFallingWater.visible) {
+                const fallingWaterParticles = components.fluidFlowFallingWater.children[0];
+                const fallingWaterPositions = fallingWaterParticles.geometry.attributes.position.array;
+                const fallingWaterPaths = fallingWaterParticles.userData.paths;
+                const particlesPerPath = Math.floor(fallingWaterParticles.userData.progress.length / fallingWaterPaths.length);
+
+                for (let i = 0; i < fallingWaterParticles.userData.progress.length; i++) {
+                    const pathIndex = Math.floor(i / particlesPerPath);
+                    const currentPath = fallingWaterPaths[pathIndex];
+                    if (!currentPath) continue;
+
+                    fallingWaterParticles.userData.progress[i] = (fallingWaterParticles.userData.progress[i] + 0.005) % 1; // Faster for falling water
+                    const p = currentPath.getPointAt(fallingWaterParticles.userData.progress[i]);
+                    fallingWaterPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.2; // Slight drift
+                    fallingWaterPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.2;
+                    fallingWaterPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.2;
+                }
+                fallingWaterParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate air particles
+            if (components.fluidFlowAir.visible) {
+                const airParticles = components.fluidFlowAir.children[0];
+                const airPositions = airParticles.geometry.attributes.position.array;
+                const airPaths = airParticles.userData.paths;
+                const particlesPerPath = Math.floor(airParticles.userData.progress.length / airPaths.length);
+
+                for (let i = 0; i < airParticles.userData.progress.length; i++) {
+                    const pathIndex = Math.floor(i / particlesPerPath);
+                    const currentPath = airPaths[pathIndex];
+                    if (!currentPath) continue;
+
+                    airParticles.userData.progress[i] = (airParticles.userData.progress[i] + 0.003) % 1; // Adjust speed
+                    const p = currentPath.getPointAt(airParticles.userData.progress[i]);
+                    airPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.5; // More drift for air
+                    airPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.5;
+                    airPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.5;
+                }
+                airParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate vapor plume particles
+            if (components.fluidFlowVaporPlume.visible) {
+                const vaporPlumeParticles = components.fluidFlowVaporPlume.children[0];
+                const vaporPlumePositions = vaporPlumeParticles.geometry.attributes.position.array;
+                const vaporPlumePath = vaporPlumeParticles.userData.paths[0]; 
+
+                for (let i = 0; i < vaporPlumeParticles.userData.progress.length; i++) {
+                    vaporPlumeParticles.userData.progress[i] = (vaporPlumeParticles.userData.progress[i] + 0.002) % 1; // Slower for plume
+                    const p = vaporPlumePath.getPointAt(vaporPlumeParticles.userData.progress[i]);
+                    vaporPlumePositions[i * 3] = p.x + (Math.random() - 0.5) * 1.0; // Significant drift for plume
+                    vaporPlumePositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 1.0;
+                    vaporPlumePositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 1.0;
+                }
+                vaporPlumeParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

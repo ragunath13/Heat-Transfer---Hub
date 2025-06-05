@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Ceramic Recuperator</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #ff5722; /* Deep Orange border for ceramic */
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.2); /* Deep Orange shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #ff5722; /* Deep Orange title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #ff5722; /* Deep Orange border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(255, 87, 34, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(255, 87, 34, 0.2); /* Lighter deep orange on hover */
+            border-color: #ff8a65; /* Lighter border on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Ceramic Recuperator - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-insulation"><span class="color-indicator" style="background-color: #795548;"></span>Toggle Insulation</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-casing"><span class="color-indicator" style="background-color: #9e9e9e;"></span>View Casing</button>
+        <button id="view-ceramic-core"><span class="color-indicator" style="background-color: #ff5722;"></span>View Ceramic Core</button>
+        <button id="view-hot-gas-manifolds"><span class="color-indicator" style="background-color: #e57373;"></span>View Hot Gas Manifolds</button>
+        <button id="view-cold-gas-manifolds"><span class="color-indicator" style="background-color: #64b5f6;"></span>View Cold Gas Manifolds</button>
+        <button id="view-insulation-only"><span class="color-indicator" style="background-color: #795548;"></span>View Insulation</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(25, 25, 25); // Initial camera position
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(10, 10, 10);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-10, -10, -10);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along XZ plane)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            casing: null,
+            ceramicCore: null,
+            hotGasManifolds: null,
+            coldGasManifolds: null,
+            insulation: null,
+            fluidFlowHot: null,
+            fluidFlowCold: null,
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'casing': {
+                title: 'Outer Casing',
+                description: 'The external shell of the ceramic recuperator, often made of metal or refractory material, enclosing the ceramic heat exchange core and manifolds. It provides structural support.',
+                color: 0x9e9e9e, // Grey
+                internal: true
+            },
+            'ceramicCore': {
+                title: 'Ceramic Heat Exchange Core',
+                description: 'The primary heat transfer section, composed of high-temperature ceramic materials (e.g., silicon carbide, cordierite) arranged in plates, tubes, or a matrix. It facilitates heat exchange between hot and cold gases at extreme temperatures.',
+                color: 0xff5722, // Deep Orange for ceramic
+                internal: true
+            },
+            'hotGasManifolds': {
+                title: 'Hot Gas Manifolds',
+                description: 'Ducts or chambers that guide the hot exhaust gas into and out of the ceramic heat exchange core. Designed to withstand high temperatures.',
+                color: 0xe57373, // Light Red
+                internal: false
+            },
+            'coldGasManifolds': {
+                title: 'Cold Gas Manifolds',
+                description: 'Ducts or chambers that direct the cold incoming air/gas into and out of the ceramic core, where it gets preheated by the hot gas.',
+                color: 0x64b5f6, // Light Blue
+                internal: false
+            },
+            'insulation': {
+                title: 'Insulation',
+                description: 'A thick layer of high-temperature thermal insulation (e.g., ceramic fiber blankets, refractory bricks) applied around the casing to minimize heat loss and protect external surfaces from extreme temperatures.',
+                color: 0x795548, // Brown
+                internal: false
+            }
+        };
+
+        // Global constants for recuperator dimensions
+        const casingWidth = 18;
+        const casingHeight = 12;
+        const casingDepth = 22; // Length along flow direction
+
+        const ceramicPlateThickness = 0.5; // Thicker ceramic elements
+        const ceramicChannelGap = 0.8; // Wider channels for ceramic
+        const numCeramicPlates = 15; // Fewer, thicker plates
+
+        const manifoldWidth = 4; // Width of the manifold
+        const manifoldHeight = casingHeight;
+        const manifoldDepth = casingDepth;
+
+        const insulationThickness = 1.5; // Thicker insulation
+
+        // Global constants for fluid particles
+        const particleSizeGas = 0.4;
+        const numHotGasParticles = 200;
+        const numColdGasParticles = 200;
+
+
+        // Create all components of the ceramic recuperator
+        function createComponents() {
+            // Outer Casing
+            const casingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.casing.color,
+                metalness: 0.5, // Less metallic than previous
+                roughness: 0.5,
+                transparent: true,
+                opacity: 0.7, // Semi-transparent to see inside
+                clearcoat: 0.2,
+                side: THREE.DoubleSide
+            });
+            components.casing = new THREE.Mesh(
+                new THREE.BoxGeometry(casingWidth, casingHeight, casingDepth),
+                casingMaterial
+            );
+            components.casing.userData = { type: 'casing' };
+
+            // Ceramic Heat Exchange Core (Plates)
+            components.ceramicCore = new THREE.Group();
+            const ceramicMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.ceramicCore.color,
+                metalness: 0.1, // Not metallic
+                roughness: 0.8, // Matte finish
+                clearcoat: 0.1
+            });
+
+            const totalCeramicCoreWidth = numCeramicPlates * ceramicPlateThickness + (numCeramicPlates - 1) * ceramicChannelGap;
+            const startX = -casingWidth / 2 + (casingWidth - totalCeramicCoreWidth) / 2;
+
+            for (let i = 0; i < numCeramicPlates; i++) {
+                const plate = new THREE.Mesh(
+                    new THREE.BoxGeometry(ceramicPlateThickness, casingHeight, casingDepth),
+                    ceramicMaterial
+                );
+                plate.position.x = startX + i * (ceramicPlateThickness + ceramicChannelGap) + ceramicPlateThickness / 2;
+                plate.userData = { type: 'ceramicCore' };
+                components.ceramicCore.add(plate);
+            }
+
+            // Hot Gas Manifolds (assuming cross-flow or counter-flow along Z-axis)
+            components.hotGasManifolds = new THREE.Group();
+            const hotManifoldMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.hotGasManifolds.color,
+                metalness: 0.4,
+                roughness: 0.5,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            // Inlet Manifold (front)
+            const hotInlet = new THREE.Mesh(
+                new THREE.BoxGeometry(casingWidth, manifoldHeight, manifoldWidth),
+                hotManifoldMaterial
+            );
+            hotInlet.position.z = casingDepth / 2 + manifoldWidth / 2;
+            hotInlet.userData = { type: 'hotGasManifolds' };
+            components.hotGasManifolds.add(hotInlet);
+
+            // Outlet Manifold (back)
+            const hotOutlet = new THREE.Mesh(
+                new THREE.BoxGeometry(casingWidth, manifoldHeight, manifoldWidth),
+                hotManifoldMaterial
+            );
+            hotOutlet.position.z = -casingDepth / 2 - manifoldWidth / 2;
+            hotOutlet.userData = { type: 'hotGasManifolds' };
+            components.hotGasManifolds.add(hotOutlet);
+
+            // Cold Gas Manifolds (assuming cross-flow along X-axis)
+            components.coldGasManifolds = new THREE.Group();
+            const coldManifoldMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.coldGasManifolds.color,
+                metalness: 0.4,
+                roughness: 0.5,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            // Inlet Manifold (left)
+            const coldInlet = new THREE.Mesh(
+                new THREE.BoxGeometry(manifoldWidth, casingHeight, casingDepth),
+                coldManifoldMaterial
+            );
+            coldInlet.position.x = -casingWidth / 2 - manifoldWidth / 2;
+            coldInlet.userData = { type: 'coldGasManifolds' };
+            components.coldGasManifolds.add(coldInlet);
+
+            // Outlet Manifold (right)
+            const coldOutlet = new THREE.Mesh(
+                new THREE.BoxGeometry(manifoldWidth, casingHeight, casingDepth),
+                coldManifoldMaterial
+            );
+            coldOutlet.position.x = casingWidth / 2 + manifoldWidth / 2;
+            coldOutlet.userData = { type: 'coldGasManifolds' };
+            components.coldGasManifolds.add(coldOutlet);
+
+
+            // Insulation
+            const insulationMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.insulation.color,
+                metalness: 0.1,
+                roughness: 0.8,
+                transparent: true,
+                opacity: 0.5, // Semi-transparent to see casing
+                side: THREE.BackSide // Render inside out for better effect
+            });
+            components.insulation = new THREE.Mesh(
+                new THREE.BoxGeometry(casingWidth + insulationThickness * 2, casingHeight + insulationThickness * 2, casingDepth + insulationThickness * 2),
+                insulationMaterial
+            );
+            components.insulation.userData = { type: 'insulation' };
+
+
+            // Fluid Flow Animation
+            function createFluidParticles(numParticles, size) {
+                const positions = new Float32Array(numParticles * 3);
+                const colors = new Float32Array(numParticles * 3); // For color animation
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const particleColors = new THREE.BufferAttribute(colors, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+                geometry.setAttribute('color', particleColors); // Add color attribute
+
+                const material = new THREE.PointsMaterial({
+                    size: size,
+                    vertexColors: true, // Enable vertex colors
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.8,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                points.userData.initialColors = new Array(numParticles).fill(0).map(() => new THREE.Color()); // Store initial colors
+                points.userData.targetColors = new Array(numParticles).fill(0).map(() => new THREE.Color()); // Store target colors
+                return points;
+            }
+
+            // Hot Gas Flow (Red -> Orange)
+            const hotGasParticles = createFluidParticles(numHotGasParticles, particleSizeGas);
+            hotGasParticles.userData.paths = [];
+            // Iterate through the channels for hot gas (even-indexed channels)
+            for(let i = 0; i < numCeramicPlates - 1; i += 2) {
+                const plate1X = components.ceramicCore.children[i].position.x;
+                const channelCenterX = plate1X + ceramicPlateThickness / 2 + ceramicChannelGap / 2;
+
+                hotGasParticles.userData.paths.push(new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(channelCenterX, 0, casingDepth / 2 + manifoldWidth / 2),
+                    new THREE.Vector3(channelCenterX, 0, casingDepth / 2 - 2),
+                    new THREE.Vector3(channelCenterX, 0, -casingDepth / 2 + 2),
+                    new THREE.Vector3(channelCenterX, 0, -casingDepth / 2 - manifoldWidth / 2)
+                ]));
+            }
+            components.fluidFlowHot = hotGasParticles;
+            scene.add(components.fluidFlowHot);
+
+            // Cold Gas Flow (Blue -> Green)
+            const coldGasParticles = createFluidParticles(numColdGasParticles, particleSizeGas);
+            coldGasParticles.userData.paths = [];
+            // Iterate through the plates for cold gas flow (odd-indexed plates), using random Z for path distribution
+            for(let i = 1; i < numCeramicPlates; i += 2) { // Start from 1 for odd plates
+                // For cold gas flowing along X, we need a varying Y and Z position for the paths
+                // Let's create paths that are randomly distributed in Y and Z within the core
+                const randomZ = (Math.random() - 0.5) * (casingDepth - 2); // Random Z within core, avoiding edges
+
+                coldGasParticles.userData.paths.push(new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(-casingWidth / 2 - manifoldWidth / 2, 0, randomZ), // Start at cold inlet manifold
+                    new THREE.Vector3(-casingWidth / 2 + 2, 0, randomZ), // Enter core
+                    new THREE.Vector3(casingWidth / 2 - 2, 0, randomZ), // Exit core
+                    new THREE.Vector3(casingWidth / 2 + manifoldWidth / 2, 0, randomZ) // End at cold outlet manifold
+                ]));
+            }
+            components.fluidFlowCold = coldGasParticles;
+            scene.add(components.fluidFlowCold);
+
+
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.casing);
+            components.fullAssembly.add(components.ceramicCore);
+            components.fullAssembly.add(components.hotGasManifolds);
+            components.fullAssembly.add(components.coldGasManifolds);
+            components.fullAssembly.add(components.insulation);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp !== components.fluidFlowHot && comp !== components.fluidFlowCold) {
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views
+            components.fluidFlowHot.visible = false;
+            components.fluidFlowCold.visible = false;
+
+            // Show the requested component(s)
+            if (componentType === 'casing') {
+                components.casing.visible = true;
+                components.ceramicCore.visible = true; // Context
+                components.hotGasManifolds.visible = true; // Context
+                components.coldGasManifolds.visible = true; // Context
+            } else if (componentType === 'ceramicCore') {
+                components.ceramicCore.visible = true;
+                components.casing.visible = true; // Context
+                components.fluidFlowHot.visible = true; // Show fluid flow
+                components.fluidFlowCold.visible = true; // Show fluid flow
+            } else if (componentType === 'hotGasManifolds') {
+                components.hotGasManifolds.visible = true;
+                components.casing.visible = true; // Context
+                components.fluidFlowHot.visible = true; // Show fluid flow
+            } else if (componentType === 'coldGasManifolds') {
+                components.coldGasManifolds.visible = true;
+                components.casing.visible = true; // Context
+                components.fluidFlowCold.visible = true; // Show fluid flow
+            } else if (componentType === 'insulation') {
+                components.insulation.visible = true;
+                components.casing.visible = true; // Context
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fluidFlowHot && comp !== components.fluidFlowCold) comp.visible = true;
+                });
+                // Show all fluid animations in full view by default
+                components.fluidFlowHot.visible = true;
+                components.fluidFlowCold.visible = true;
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'casing') targetObject = components.casing;
+            else if (componentType === 'ceramicCore') targetObject = components.ceramicCore;
+            else if (componentType === 'hotGasManifolds') targetObject = components.hotGasManifolds;
+            else if (componentType === 'coldGasManifolds') targetObject = components.coldGasManifolds;
+            else if (componentType === 'insulation') targetObject = components.insulation;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle insulation visibility
+        function toggleInsulationVisibility() {
+            components.insulation.visible = !components.insulation.visible;
+            document.getElementById('toggle-insulation').innerHTML = 
+                `<span class="color-indicator" style="background-color: #${new THREE.Color(componentInfo.insulation.color).getHexString()};"></span>` +
+                (components.insulation.visible ? 'Hide Insulation' : 'Show Insulation');
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowHot.visible = isSectionView;
+            components.fluidFlowCold.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    if (child.parent && child.parent.userData.type === 'fullAssembly' || child.userData.type === 'casing' || child.userData.type === 'ceramicCore') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-insulation').addEventListener('click', toggleInsulationVisibility);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-casing').addEventListener('click', () => showOnly('casing'));
+        document.getElementById('view-ceramic-core').addEventListener('click', () => showOnly('ceramicCore'));
+        document.getElementById('view-hot-gas-manifolds').addEventListener('click', () => showOnly('hotGasManifolds'));
+        document.getElementById('view-cold-gas-manifolds').addEventListener('click', () => showOnly('coldGasManifolds'));
+        document.getElementById('view-insulation-only').addEventListener('click', () => showOnly('insulation'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate hot gas particles if visible
+            if (components.fluidFlowHot.visible) {
+                const hotParticles = components.fluidFlowHot;
+                const hotPositions = hotParticles.geometry.attributes.position.array;
+                const hotColors = hotParticles.geometry.attributes.color.array;
+                const numHotParticles = hotParticles.userData.progress.length;
+
+                const hotStartColor = new THREE.Color(0xff0000); // Red
+                const hotEndColor = new THREE.Color(0xffa500); // Orange
+
+                for (let i = 0; i < numHotParticles; i++) {
+                    hotParticles.userData.progress[i] = (hotParticles.userData.progress[i] + 0.005) % 1; // Slower for gas flow
+
+                    const pathIndex = Math.floor(Math.random() * hotParticles.userData.paths.length); // Randomly pick a path
+                    const hotPath = hotParticles.userData.paths[pathIndex];
+
+                    if (hotParticles.userData.progress[i] > 1) {
+                        hotParticles.userData.progress[i] = 0;
+                        const p = hotPath.getPointAt(0); // Reset to start of a random path
+                        hotPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.5;
+                        hotPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.5;
+                        hotPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.5;
+                    } else {
+                        const p = hotPath.getPointAt(hotParticles.userData.progress[i]);
+                        hotPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.2; // Add slight drift
+                        hotPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.2;
+                        hotPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.2; // Add slight drift
+                    }
+
+                    // Animate color from hotStartColor to hotEndColor
+                    const interpolatedColor = new THREE.Color().lerpColors(hotStartColor, hotEndColor, hotParticles.userData.progress[i]);
+                    hotColors[i * 3] = interpolatedColor.r;
+                    hotColors[i * 3 + 1] = interpolatedColor.g;
+                    hotColors[i * 3 + 2] = interpolatedColor.b;
+                }
+                hotParticles.geometry.attributes.position.needsUpdate = true;
+                hotParticles.geometry.attributes.color.needsUpdate = true;
+            }
+
+            // Animate cold gas particles if visible
+            if (components.fluidFlowCold.visible) {
+                const coldParticles = components.fluidFlowCold;
+                const coldPositions = coldParticles.geometry.attributes.position.array;
+                const coldColors = coldParticles.geometry.attributes.color.array;
+                const numColdParticles = coldParticles.userData.progress.length;
+
+                const coldStartColor = new THREE.Color(0x0000ff); // Blue
+                const coldEndColor = new THREE.Color(0x00ff00); // Green
+
+                for (let i = 0; i < numColdParticles; i++) {
+                    coldParticles.userData.progress[i] = (coldParticles.userData.progress[i] + 0.005) % 1; // Slower for gas flow
+
+                    const pathIndex = Math.floor(Math.random() * coldParticles.userData.paths.length); // Randomly pick a path
+                    const coldPath = coldParticles.userData.paths[pathIndex];
+
+                    if (coldParticles.userData.progress[i] > 1) {
+                        coldParticles.userData.progress[i] = 0;
+                        const p = coldPath.getPointAt(0); // Reset to start of a random path
+                        coldPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.5;
+                        coldPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.5;
+                        coldPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.5;
+                    } else {
+                        const p = coldPath.getPointAt(coldParticles.userData.progress[i]);
+                        coldPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.2; // Add slight drift
+                        coldPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.2;
+                        coldPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.2; // Add slight drift
+                    }
+
+                    // Animate color from coldStartColor to coldEndColor
+                    const interpolatedColor = new THREE.Color().lerpColors(coldStartColor, coldEndColor, coldParticles.userData.progress[i]);
+                    coldColors[i * 3] = interpolatedColor.r;
+                    coldColors[i * 3 + 1] = interpolatedColor.g;
+                    coldColors[i * 3 + 2] = interpolatedColor.b;
+                }
+                coldParticles.geometry.attributes.position.needsUpdate = true;
+                coldParticles.geometry.attributes.color.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

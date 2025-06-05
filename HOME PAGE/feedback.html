@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEAT HUB | Feedback</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Import Google Fonts - Inter and Oswald */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
+
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary: #FF4D00;
+            --primary-light: #FF6A00;
+            --secondary: #00B4D8;
+            --secondary-light: #00E0FF;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #2E2E2E;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 126, 61, 0.605);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --primary-color: var(--primary);
+            --glow-color: #ff6b00;
+        }
+
+        /* Universal Box-Sizing */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and Base Styles */
+        body {
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            background: radial-gradient(ellipse at bottom, #0a0a0a 0%, #000000 100%); /* Deep black with subtle glow for background */
+            min-height: 100vh; /* Use min-height for content to extend page */
+            display: flex;
+            flex-direction: column; /* Arrange content vertically */
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Heading Styles */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        p {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* ========== LAYOUT & CONTAINERS ========== */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* ========== SIDEBAR STYLES ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            height: 100vh;
+            background: var(--dark-gray);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-header .logo {
+            font-size: 1.5rem;
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--text-shadow);
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu li a i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+            padding-left: 2rem;
+        }
+
+        .sidebar-menu li a.active {
+            background: rgba(255, 77, 0, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--medium-gray);
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 0 1rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        /* ========== MAIN CONTENT & MENU BUTTON ========== */
+        .main-content {
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            padding-top: 20px;
+        }
+
+        .main-content.sidebar-active {
+            margin-left: 350px;
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            background: var(--dark-gray);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--glass-border);
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-link a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+        .delay-5 { animation-delay: 1.0s; }
+        .delay-6 { animation-delay: 1.2s; }
+
+        /* ========== FEEDBACK SPECIFIC STYLES ========== */
+        .feedback-card {
+            background: var(--dark-gray);
+            border-radius: 12px;
+            padding: 3rem;
+            margin: 3rem auto;
+            max-width: 800px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .feedback-card h3 {
+            margin-bottom: 2rem;
+            color: var(--primary);
+            font-size: 2.2rem;
+        }
+
+        .feedback-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1; /* Spans full width */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+            color: var(--light-gray);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group textarea,
+        .form-group select { /* Added select for feedback type */
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--medium-gray);
+            background: var(--dark);
+            color: var(--white);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical; /* Allow vertical resizing for textarea */
+            min-height: 40px; /* Minimum height for inputs */
+            appearance: none; /* Remove default dropdown arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23E0E0E0%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-3.2-3.2-8.3-3.2-11.5%2C0L5.4%2C197.3c-3.2%2C3.2-3.2%2C8.3%2C0%2C11.5l11.5%2C11.5c3.2%2C3.2%2C8.3%2C3.2%2C11.5%2C0l124.6-124.6c3.2-3.2%2C8.3-3.2%2C11.5%2C0l124.6%2C124.6c3.2%2C3.2%2C8.3%2C3.2%2C11.5%2C0l11.5-11.5C290.2%2C205.6%2C290.2%2C200.5%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 0.8rem top 50%;
+            background-size: 0.6em auto;
+            cursor: pointer;
+        }
+
+        .form-group textarea {
+            min-height: 120px; /* Larger minimum height for textarea */
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 77, 0, 0.3);
+        }
+
+        .submit-feedback-btn {
+            background: var(--primary);
+            color: var(--white);
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 77, 0, 0.3);
+            margin-top: 1rem;
+        }
+
+        .submit-feedback-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 77, 0, 0.4);
+        }
+
+        .feedback-message {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: rgba(0, 179, 0, 0.1); /* Greenish background for success */
+            border: 1px solid #00B300; /* Green border */
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #00B300;
+            display: none; /* Hidden by default */
+        }
+
+        .feedback-message.error {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+                left: -280px;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: 280px;
+            }
+            
+            .menu-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .section {
+                padding: 4rem 0;
+            }
+            
+            .feedback-card {
+                padding: 2rem;
+                margin: 2rem auto;
+            }
+
+            .feedback-form {
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">HEAT HUB</h1>
+            <button class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="HT.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="register.html"><i class="fas fa-user-plus"></i> Register</a></li>
+            <li><a href="AR/front.html"><i class="fas fa-cube"></i> AR Models</a></li>
+            <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="tutorials.html"><i class="fas fa-book"></i> Tutorials</a></li>
+            <li><a href="research_papers.html"><i class="fas fa-flask"></i> Research Papers</a></li>
+            <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculators</a></li>
+            <li><a href="case_studies.html"><i class="fas fa-chart-pie"></i> Case Studies</a></li>
+            <li><a href="glossary.html"><i class="fas fa-book-open"></i> Glossary</a></li>
+            <li><a href="contact_us.html"><i class="fas fa-envelope"></i> Contact</a></li>
+            <li><a href="contribute.html"><i class="fas fa-handshake"></i> Contribute</a></li>
+            <li><a href="#" class="active"><i class="fas fa-comment-alt"></i> Feedback</a></li> <!-- Marked as active, new icon -->
+        </ul>
+        <div class="sidebar-footer">
+            <div class="search-box">
+                <input type="text" placeholder="Search..." class="search-input">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Menu Button -->
+        <button class="menu-btn"><i class="fas fa-bars"></i></button>
+
+        <!-- Page Header -->
+        <section class="section">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Your Feedback Matters</h2>
+                    <p class="delay-1">Help us improve HEAT HUB by sharing your thoughts and suggestions.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback Card -->
+        <section class="section" style="background: rgba(10, 10, 10, 0.5); padding-top: 0; padding-bottom: 0;">
+            <div class="container">
+                <div class="feedback-card fade-in delay-1">
+                    <h3>Share Your Experience</h3>
+                    <form class="feedback-form" id="feedbackForm">
+                        <div class="form-group">
+                            <label for="feedbackName">Your Name:</label>
+                            <input type="text" id="feedbackName" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="feedbackEmail">Your Email:</label>
+                            <input type="email" id="feedbackEmail" placeholder="john.doe@example.com" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="feedbackType">Type of Feedback:</label>
+                            <select id="feedbackType" required>
+                                <option value="">-- Select --</option>
+                                <option value="suggestion">Suggestion</option>
+                                <option value="bug_report">Bug Report</option>
+                                <option value="compliment">Compliment</option>
+                                <option value="general_inquiry">General Inquiry</option>
+                                <option value="content_feedback">Content Feedback</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="feedbackMessage">Your Feedback:</label>
+                            <textarea id="feedbackMessage" placeholder="Tell us what you think..." required></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <button type="submit" class="submit-feedback-btn">Submit Feedback</button>
+                        </div>
+                    </form>
+
+                    <div id="feedbackStatusMessage" class="feedback-message">
+                        <!-- Message will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="fade-in">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column">
+                        <h3>Explore</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="flowchart.html">Flow Chart</a></li>
+                            <li class="footer-link"><a href="problemsolving.html">Problem Solving</a></li>
+                            <li class="footer-link"><a href="AR/front.html">AR Models</a></li>
+                            <li class="footer-link"><a href="research_papers.html">Research Papers</a></li>
+                            <li class="footer-link"><a href="case_studies.html">Case Studies</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Resources</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="tutorials.html">Tutorials</a></li>
+                            <li class="footer-link"><a href="calculator.html">Calculators</a></li>
+                            <li class="footer-link"><a href="case_studies.html">Case Studies</a></li>
+                            <li class="footer-link"><a href="glossary.html">Glossary</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h3>Connect</h3>
+                        <ul class="footer-links">
+                            <li class="footer-link"><a href="contact_us.html">Contact Us</a></li>
+                            <li class="footer-link"><a href="contribute.html">Contribute</a></li>
+                            <li class="footer-link"><a href="#">Feedback</a></li> <!-- Updated link -->
+                            <li class="footer-link"><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="copyright">
+                    <p>&copy; 2025 HEAT HUB | All Rights Reserved</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        const menuBtn = document.querySelector('.menu-btn');
+        const closeBtn = document.querySelector('.close-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            mainContent.classList.add('sidebar-active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            mainContent.classList.remove('sidebar-active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mainContent.classList.remove('sidebar-active');
+            }
+        });
+
+        // Add loaded class for animations
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 300);
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        // Feedback form submission logic
+        const feedbackForm = document.getElementById('feedbackForm');
+        const feedbackStatusMessage = document.getElementById('feedbackStatusMessage');
+
+        feedbackForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            // In a real application, you would send this data to a server
+            // For now, we'll just log it and show a simple message
+            const name = document.getElementById('feedbackName').value;
+            const email = document.getElementById('feedbackEmail').value;
+            const type = document.getElementById('feedbackType').value;
+            const message = document.getElementById('feedbackMessage').value;
+
+            console.log('Feedback Form Submission:');
+            console.log('Name:', name);
+            console.log('Email:', email);
+            console.log('Type:', type);
+            console.log('Message:', message);
+
+            // Simulate a successful submission
+            feedbackStatusMessage.classList.remove('error');
+            feedbackStatusMessage.textContent = 'Thank you for your feedback! We appreciate your input.';
+            feedbackStatusMessage.style.display = 'block';
+
+            feedbackForm.reset(); // Clear the form
+
+            // Optionally hide the message after a few seconds
+            setTimeout(() => {
+                feedbackStatusMessage.style.display = 'none';
+            }, 5000); // Hide after 5 seconds
+        });
+    </script>
+</body>
+</html>

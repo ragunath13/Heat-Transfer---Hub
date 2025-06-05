@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Gasketed Plate Heat Exchanger</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #8e24aa; /* Dark Purple border */
+            box-shadow: 0 4px 15px rgba(142, 36, 170, 0.2); /* Dark Purple shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #8e24aa; /* Dark Purple title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #8e24aa; /* Dark Purple border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(142, 36, 170, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(142, 36, 170, 0.2); /* Lighter purple on hover */
+            border-color: #ce93d8; /* Lighter border on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Gasketed Plate Heat Exchanger - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-frame"><span class="color-indicator" style="background-color: #6a1b9a;"></span>Toggle Frame</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-fixed-end-plate"><span class="color-indicator" style="background-color: #757575;"></span>View Fixed End Plate</button>
+        <button id="view-movable-end-plate"><span class="color-indicator" style="background-color: #757575;"></span>View Movable End Plate</button>
+        <button id="view-plates"><span class="color-indicator" style="background-color: #BDBDBD;"></span>View Plates</button>
+        <button id="view-gaskets"><span class="color-indicator" style="background-color: #424242;"></span>View Gaskets</button>
+        <button id="view-tie-rods"><span class="color-indicator" style="background-color: #9E9E9E;"></span>View Tie Rods</button>
+        <button id="view-nozzles"><span class="color-indicator" style="background-color: #FFC107;"></span>View Nozzles</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 50); // Initial camera position
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(1, 1, 1);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-1, -1, -1);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along XZ plane)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            frame: null,
+            fixedEndPlate: null,
+            movableEndPlate: null,
+            plates: null,
+            gaskets: null, // Added for gaskets
+            tieRods: null,
+            nozzles: null,
+            fluidFlowHot: null, 
+            fluidFlowCold: null, 
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'frame': {
+                title: 'Frame',
+                description: 'The sturdy structure comprising the carrying bar (top), guide bar (bottom), and support column. It holds the plate pack and end plates in place and provides structural integrity to the heat exchanger.',
+                color: 0x6a1b9a, // Medium Purple
+                internal: false
+            },
+            'fixedEndPlate': {
+                title: 'Fixed End Plate',
+                description: 'A heavy, stationary plate at one end of the heat exchanger, typically bolted to the frame. It provides a robust sealing surface for the plate pack and houses the inlet/outlet nozzles for one set of fluids.',
+                color: 0x757575, // Grey
+                internal: false
+            },
+            'movableEndPlate': {
+                title: 'Movable End Plate',
+                description: 'A heavy plate at the opposite end of the heat exchanger, which can be moved along the guide bar to compress the plate pack. It also provides sealing for the plate pack and may contain nozzles for the other fluid.',
+                color: 0x757575, // Grey
+                internal: false
+            },
+            'plates': {
+                title: 'Heat Transfer Plates',
+                description: 'Thin, corrugated metal plates (e.g., stainless steel, titanium) designed for efficient heat transfer. Each plate has gasket grooves and port holes. The corrugations create turbulence and increase surface area for heat exchange.',
+                color: 0xBDBDBD, // Light Grey
+                internal: true
+            },
+            'gaskets': {
+                title: 'Gaskets',
+                description: 'Elastomeric seals (e.g., NBR, EPDM, Viton) precisely fitted into grooves on each plate. Gaskets are crucial in gasketed plate heat exchangers as they create a tight seal between adjacent plates, prevent fluid mixing, and most importantly, direct the hot and cold fluids into alternating channels for efficient heat exchange.',
+                color: 0x424242, // Dark Grey
+                internal: true
+            },
+            'tieRods': {
+                title: 'Tie Rods (Compression Bolts)',
+                description: 'Long bolts that extend through the fixed and movable end plates, running along the frame. They are tightened to compress the plate pack and gaskets, ensuring a leak-proof seal and structural stability.',
+                color: 0x9E9E9E, // Medium Grey
+                internal: false
+            },
+            'nozzles': {
+                title: 'Nozzles / Ports',
+                description: 'Inlet and outlet connections (typically flanged) on the end plates. These allow the hot and cold fluids to enter and exit the heat exchanger, directing them into the appropriate plate channels for efficient heat transfer.',
+                color: 0xFFC107, // Amber
+                internal: false
+            }
+        };
+
+        // Create all components of the gasketed plate heat exchanger
+        function createComponents() {
+            const plateWidth = 20;
+            const plateHeight = 15;
+            const plateThickness = 0.1;
+            const gasketThickness = 0.05; // Explicit gasket thickness
+            const numPlates = 30;
+            const plateSpacing = plateThickness + gasketThickness; // Total thickness per plate pair
+            const totalPlateStackThickness = numPlates * plateSpacing;
+
+            const endPlateThickness = 1;
+            const tieRodRadius = 0.3;
+            const tieRodLength = plateWidth + endPlateThickness * 2 + 2; // Adjusted for frame
+            const nozzleRadius = 1;
+            const nozzleLength = 3;
+
+            // Frame
+            const frameMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.frame.color,
+                metalness: 0.8,
+                roughness: 0.3,
+                clearcoat: 0.5
+            });
+            components.frame = new THREE.Group();
+
+            // Carrying Bar (Top)
+            const carryingBar = new THREE.Mesh(
+                new THREE.BoxGeometry(plateWidth + 4, 1, tieRodLength + 2), // Longer to accommodate tie rods
+                frameMaterial
+            );
+            carryingBar.position.set(0, plateHeight / 2 + 1.5, 0);
+            carryingBar.userData = { type: 'frame' };
+            components.frame.add(carryingBar);
+
+            // Guide Bar (Bottom)
+            const guideBar = new THREE.Mesh(
+                new THREE.BoxGeometry(plateWidth + 4, 1, tieRodLength + 2),
+                frameMaterial
+            );
+            guideBar.position.set(0, -plateHeight / 2 - 1.5, 0);
+            guideBar.userData = { type: 'frame' };
+            components.frame.add(guideBar);
+
+            // Support Column (Vertical) - simplified, usually at one end
+            const supportColumn = new THREE.Mesh(
+                new THREE.BoxGeometry(1, plateHeight + 3, 1),
+                frameMaterial
+            );
+            supportColumn.position.set(-(plateWidth / 2 + 1.5), 0, tieRodLength / 2 + 1); // Positioned at one end
+            supportColumn.userData = { type: 'frame' };
+            components.frame.add(supportColumn);
+
+            // End Plates
+            const endPlateMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fixedEndPlate.color,
+                metalness: 0.7,
+                roughness: 0.4,
+                clearcoat: 0.3
+            });
+
+            // Fixed End Plate
+            components.fixedEndPlate = new THREE.Mesh(
+                new THREE.BoxGeometry(endPlateThickness, plateHeight + 2, plateWidth + 2),
+                endPlateMaterial
+            );
+            components.fixedEndPlate.position.set(-totalPlateStackThickness / 2 - endPlateThickness / 2, 0, 0);
+            components.fixedEndPlate.userData = { type: 'fixedEndPlate' };
+
+            // Movable End Plate
+            components.movableEndPlate = new THREE.Mesh(
+                new THREE.BoxGeometry(endPlateThickness, plateHeight + 2, plateWidth + 2),
+                endPlateMaterial
+            );
+            components.movableEndPlate.position.set(totalPlateStackThickness / 2 + endPlateThickness / 2, 0, 0);
+            components.movableEndPlate.userData = { type: 'movableEndPlate' };
+
+            // Plates & Gaskets
+            components.plates = new THREE.Group();
+            components.gaskets = new THREE.Group();
+
+            const plateMaterial1 = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.plates.color,
+                metalness: 0.5,
+                roughness: 0.2,
+                clearcoat: 0.1,
+                side: THREE.DoubleSide
+            });
+            const plateMaterial2 = new THREE.MeshPhysicalMaterial({
+                color: 0x9E9E9E, // Slightly darker grey for alternating fluid
+                metalness: 0.5,
+                roughness: 0.2,
+                clearcoat: 0.1,
+                side: THREE.DoubleSide
+            });
+            const gasketMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.gaskets.color,
+                metalness: 0.1,
+                roughness: 0.8,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            // Gasket outline (simplified as a thin frame around the plate)
+            const gasketFrameGeometry = new THREE.BoxGeometry(gasketThickness, plateHeight, plateWidth);
+            const gasketPortGeometry = new THREE.CylinderGeometry(nozzleRadius * 0.8, nozzleRadius * 0.8, gasketThickness * 2, 16);
+
+            for (let i = 0; i < numPlates; i++) {
+                const plate = new THREE.Mesh(
+                    new THREE.BoxGeometry(plateThickness, plateHeight, plateWidth),
+                    i % 2 === 0 ? plateMaterial1 : plateMaterial2
+                );
+                plate.position.x = i * plateSpacing - totalPlateStackThickness / 2 + plateThickness / 2;
+                plate.userData = { type: 'plates' };
+                components.plates.add(plate);
+
+                // Add a gasket for each plate (except the very last one, as it seals against the movable end plate)
+                if (i < numPlates - 1) {
+                    const gasketGroup = new THREE.Group();
+                    const gasketFrame = new THREE.Mesh(gasketFrameGeometry, gasketMaterial);
+                    gasketFrame.position.x = plate.position.x + plateThickness / 2 + gasketThickness / 2;
+                    gasketFrame.userData = { type: 'gaskets' };
+                    gasketGroup.add(gasketFrame);
+
+                    // Add gasket material around port holes (simplified)
+                    const portHoleOffset = plateWidth / 2 - 2;
+                    const portHoleYOffset = plateHeight / 2 - 2;
+
+                    const gasketPort1 = new THREE.Mesh(gasketPortGeometry, gasketMaterial);
+                    gasketPort1.position.set(gasketFrame.position.x, portHoleYOffset, portHoleOffset);
+                    gasketPort1.rotation.x = Math.PI / 2;
+                    gasketPort1.userData = { type: 'gaskets' };
+                    gasketGroup.add(gasketPort1);
+
+                    const gasketPort2 = new THREE.Mesh(gasketPortGeometry, gasketMaterial);
+                    gasketPort2.position.set(gasketFrame.position.x, -portHoleYOffset, portHoleOffset);
+                    gasketPort2.rotation.x = Math.PI / 2;
+                    gasketPort2.userData = { type: 'gaskets' };
+                    gasketGroup.add(gasketPort2);
+
+                    const gasketPort3 = new THREE.Mesh(gasketPortGeometry, gasketMaterial);
+                    gasketPort3.position.set(gasketFrame.position.x, portHoleYOffset, -portHoleOffset);
+                    gasketPort3.rotation.x = Math.PI / 2;
+                    gasketPort3.userData = { type: 'gaskets' };
+                    gasketGroup.add(gasketPort3);
+
+                    const gasketPort4 = new THREE.Mesh(gasketPortGeometry, gasketMaterial);
+                    gasketPort4.position.set(gasketFrame.position.x, -portHoleYOffset, -portHoleOffset);
+                    gasketPort4.rotation.x = Math.PI / 2;
+                    gasketPort4.userData = { type: 'gaskets' };
+                    gasketGroup.add(gasketPort4);
+
+                    components.gaskets.add(gasketGroup);
+                }
+            }
+
+            // Tie Rods
+            components.tieRods = new THREE.Group();
+            const tieRodMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.tieRods.color,
+                metalness: 0.6,
+                roughness: 0.5
+            });
+
+            const tieRodPositions = [
+                new THREE.Vector3(0, plateHeight / 2 + 0.5, plateWidth / 2 + 0.5),
+                new THREE.Vector3(0, plateHeight / 2 + 0.5, -(plateWidth / 2 + 0.5)),
+                new THREE.Vector3(0, -(plateHeight / 2 + 0.5), plateWidth / 2 + 0.5),
+                new THREE.Vector3(0, -(plateHeight / 2 + 0.5), -(plateWidth / 2 + 0.5))
+            ];
+
+            tieRodPositions.forEach(pos => {
+                const tieRod = new THREE.Mesh(
+                    new THREE.CylinderGeometry(tieRodRadius, tieRodRadius, tieRodLength, 16),
+                    tieRodMaterial
+                );
+                tieRod.rotation.z = Math.PI / 2; // Orient along X-axis
+                tieRod.position.copy(pos);
+                tieRod.userData = { type: 'tieRods' };
+                components.tieRods.add(tieRod);
+            });
+
+            // Nozzles
+            components.nozzles = new THREE.Group();
+            const nozzleMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.nozzles.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const flangeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x616161, // Darker grey for flange
+                metalness: 0.6,
+                roughness: 0.4
+            });
+
+            // Define nozzle positions on the fixed end plate for series flow
+            const nozzlePositions = [
+                { x: -totalPlateStackThickness / 2 - endPlateThickness, y: plateHeight / 2 - 2, z: plateWidth / 2 - 2, type: 'nozzles' }, // Fluid 1 Inlet (Fixed Plate)
+                { x: -totalPlateStackThickness / 2 - endPlateThickness, y: plateHeight / 2 - 2, z: -(plateWidth / 2 - 2), type: 'nozzles' }, // Fluid 2 Inlet (Fixed Plate)
+                { x: totalPlateStackThickness / 2 + endPlateThickness, y: -(plateHeight / 2 - 2), z: -(plateWidth / 2 - 2), type: 'nozzles' }, // Fluid 1 Outlet (Movable Plate)
+                { x: totalPlateStackThickness / 2 + endPlateThickness, y: -(plateHeight / 2 - 2), z: plateWidth / 2 - 2, type: 'nozzles' }  // Fluid 2 Outlet (Movable Plate)
+            ];
+
+            nozzlePositions.forEach(pos => {
+                const nozzle = new THREE.Mesh(
+                    new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16),
+                    nozzleMaterial
+                );
+                nozzle.rotation.y = Math.PI / 2; // Orient along X-axis
+                nozzle.position.set(pos.x + (pos.x > 0 ? nozzleLength / 2 : -nozzleLength / 2), pos.y, pos.z);
+                nozzle.userData = { type: pos.type };
+
+                const flange = new THREE.Mesh(
+                    new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16),
+                    flangeMaterial
+                );
+                flange.rotation.y = Math.PI / 2;
+                flange.position.set(pos.x + (pos.x > 0 ? nozzleLength : -nozzleLength), pos.y, pos.z);
+                flange.userData = { type: pos.type };
+
+                const nozzleGroup = new THREE.Group();
+                nozzleGroup.add(nozzle);
+                nozzleGroup.add(flange);
+                nozzleGroup.userData = { type: pos.type };
+                components.nozzles.add(nozzleGroup);
+            });
+
+            // Fluid Flow Animation
+            components.fluidFlowHot = new THREE.Group();
+            components.fluidFlowCold = new THREE.Group();
+
+            const numFluidParticles = 100;
+            const particleSize = 0.2;
+            const hotFluidColor = 0xff0000; // Red
+            const coldFluidColor = 0x0000ff; // Blue
+
+            function createFluidParticles(color, curve, numParticles) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: particleSize,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.8,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.curve = curve; // Store curve for animation
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Define paths for hot and cold fluid (simplified serpentine)
+            const halfPlateThickness = totalPlateStackThickness / 2;
+            const plateCenterY = 0;
+            const plateCenterZ = 0;
+
+            // Hot Fluid Path (Top-Right Front -> Bottom-Left Back)
+            const hotFluidPathPoints = [
+                new THREE.Vector3(-halfPlateThickness - 1, plateHeight / 2 - 2, plateWidth / 2 - 2), // Start slightly before inlet
+                new THREE.Vector3(-halfPlateThickness + plateSpacing * 2, plateHeight / 2 - 2, plateWidth / 2 - 2), // Inside inlet
+                new THREE.Vector3(0, plateCenterY + 3, plateCenterZ + 3), // Mid-point to simulate flow across plates
+                new THREE.Vector3(0, plateCenterY - 3, plateCenterZ - 3), // Another mid-point for serpentine
+                new THREE.Vector3(halfPlateThickness - plateSpacing * 2, -(plateHeight / 2 - 2), -(plateWidth / 2 - 2)), // Near outlet
+                new THREE.Vector3(halfPlateThickness + 1, -(plateHeight / 2 - 2), -(plateWidth / 2 - 2)) // End slightly after outlet
+            ];
+            const hotFluidCurve = new THREE.CatmullRomCurve3(hotFluidPathPoints);
+
+            // Cold Fluid Path (Top-Left Front -> Bottom-Right Back)
+            const coldFluidPathPoints = [
+                new THREE.Vector3(-halfPlateThickness - 1, plateHeight / 2 - 2, -(plateWidth / 2 - 2)), // Start slightly before inlet
+                new THREE.Vector3(-halfPlateThickness + plateSpacing * 2, plateHeight / 2 - 2, -(plateWidth / 2 - 2)), // Inside inlet
+                new THREE.Vector3(0, plateCenterY + 3, plateCenterZ - 3), // Mid-point to simulate flow across plates
+                new THREE.Vector3(0, plateCenterY - 3, plateCenterZ + 3), // Another mid-point for serpentine
+                new THREE.Vector3(halfPlateThickness - plateSpacing * 2, -(plateHeight / 2 - 2), plateWidth / 2 - 2), // Near outlet
+                new THREE.Vector3(halfPlateThickness + 1, -(plateHeight / 2 - 2), plateWidth / 2 - 2) // End slightly after outlet
+            ];
+            const coldFluidCurve = new THREE.CatmullRomCurve3(coldFluidPathPoints);
+
+
+            const hotFluidParticles = createFluidParticles(hotFluidColor, hotFluidCurve, numFluidParticles);
+            const coldFluidParticles = createFluidParticles(coldFluidColor, coldFluidCurve, numFluidParticles);
+
+            components.fluidFlowHot.add(hotFluidParticles);
+            components.fluidFlowCold.add(coldFluidParticles);
+            components.fluidFlowHot.visible = false; // Initially hidden
+            components.fluidFlowCold.visible = false; // Initially hidden
+            scene.add(components.fluidFlowHot);
+            scene.add(components.fluidFlowCold);
+
+
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.frame);
+            components.fullAssembly.add(components.fixedEndPlate);
+            components.fullAssembly.add(components.movableEndPlate);
+            components.fullAssembly.add(components.plates);
+            components.fullAssembly.add(components.gaskets); // Add gaskets to full assembly
+            components.fullAssembly.add(components.tieRods);
+            components.fullAssembly.add(components.nozzles);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp !== components.fluidFlowHot && comp !== components.fluidFlowCold) {
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views
+            components.fluidFlowHot.visible = false;
+            components.fluidFlowCold.visible = false;
+
+            // Show the requested component(s)
+            if (componentType === 'frame') {
+                components.frame.visible = true;
+            } else if (componentType === 'fixedEndPlate') {
+                components.fixedEndPlate.visible = true;
+            } else if (componentType === 'movableEndPlate') {
+                components.movableEndPlate.visible = true;
+            } else if (componentType === 'plates') {
+                components.plates.visible = true;
+                components.gaskets.visible = true; // Show gaskets with plates
+                components.fluidFlowHot.visible = true; 
+                components.fluidFlowCold.visible = true; 
+            } else if (componentType === 'gaskets') {
+                components.gaskets.visible = true;
+                components.plates.visible = true; // Show plates for context
+            } else if (componentType === 'tieRods') {
+                components.tieRods.visible = true;
+            } else if (componentType === 'nozzles') {
+                components.nozzles.visible = true;
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp) comp.visible = true;
+                });
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'frame') targetObject = components.frame;
+            else if (componentType === 'fixedEndPlate') targetObject = components.fixedEndPlate;
+            else if (componentType === 'movableEndPlate') targetObject = components.movableEndPlate;
+            else if (componentType === 'plates') targetObject = components.plates;
+            else if (componentType === 'gaskets') targetObject = components.gaskets;
+            else if (componentType === 'tieRods') targetObject = components.tieRods;
+            else if (componentType === 'nozzles') targetObject = components.nozzles;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle frame visibility
+        function toggleFrameVisibility() {
+            components.frame.visible = !components.frame.visible;
+            document.getElementById('toggle-frame').innerHTML = 
+                `<span class="color-indicator" style="background-color: #${new THREE.Color(componentInfo.frame.color).getHexString()};"></span>` +
+                (components.frame.visible ? 'Hide Frame' : 'Show Frame');
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowHot.visible = isSectionView;
+            components.fluidFlowCold.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    if (child.parent && child.parent.userData.type === 'fullAssembly' || child.userData.type === 'plates' || child.userData.type === 'fixedEndPlate' || child.userData.type === 'movableEndPlate' || child.userData.type === 'gaskets') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-frame').addEventListener('click', toggleFrameVisibility);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-fixed-end-plate').addEventListener('click', () => showOnly('fixedEndPlate'));
+        document.getElementById('view-movable-end-plate').addEventListener('click', () => showOnly('movableEndPlate'));
+        document.getElementById('view-plates').addEventListener('click', () => showOnly('plates'));
+        document.getElementById('view-gaskets').addEventListener('click', () => showOnly('gaskets')); // New button for gaskets
+        document.getElementById('view-tie-rods').addEventListener('click', () => showOnly('tieRods'));
+        document.getElementById('view-nozzles').addEventListener('click', () => showOnly('nozzles'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate fluid particles if visible
+            if (components.fluidFlowHot.visible) {
+                const hotParticles = components.fluidFlowHot.children[0];
+                const hotPositions = hotParticles.geometry.attributes.position.array;
+                const hotCurve = hotParticles.userData.curve;
+
+                for (let i = 0; i < hotParticles.userData.progress.length; i++) {
+                    hotParticles.userData.progress[i] = (hotParticles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                    const p = hotCurve.getPointAt(hotParticles.userData.progress[i]);
+                    hotPositions[i * 3] = p.x;
+                    hotPositions[i * 3 + 1] = p.y;
+                    hotPositions[i * 3 + 2] = p.z;
+                }
+                hotParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (components.fluidFlowCold.visible) {
+                const coldParticles = components.fluidFlowCold.children[0];
+                const coldPositions = coldParticles.geometry.attributes.position.array;
+                const coldCurve = coldParticles.userData.curve;
+
+                for (let i = 0; i < coldParticles.userData.progress.length; i++) {
+                    coldParticles.userData.progress[i] = (coldParticles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                    const p = coldCurve.getPointAt(coldParticles.userData.progress[i]);
+                    coldPositions[i * 3] = p.x;
+                    coldPositions[i * 3 + 1] = p.y;
+                    coldPositions[i * 3 + 2] = p.z;
+                }
+                coldParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

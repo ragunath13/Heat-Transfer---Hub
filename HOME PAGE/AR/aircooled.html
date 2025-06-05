@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Air Cooled Heat Exchanger</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #7cb342; /* Light Green border */
+            box-shadow: 0 4px 15px rgba(124, 179, 66, 0.2); /* Light Green shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #7cb342; /* Light Green title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #7cb342; /* Light Green border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(124, 179, 66, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(124, 179, 66, 0.2); /* Lighter green on hover */
+            border-color: #c5e1a5; /* Lighter border on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Air Cooled Heat Exchanger - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-structure"><span class="color-indicator" style="background-color: #424242;"></span>Toggle Structure</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-finned-tube-bundle"><span class="color-indicator" style="background-color: #e0e0e0;"></span>View Finned Tube Bundle</button>
+        <button id="view-headers"><span class="color-indicator" style="background-color: #757575;"></span>View Headers</button>
+        <button id="view-fans"><span class="color-indicator" style="background-color: #03a9f4;"></span>View Fans</button>
+        <button id="view-fan-deck"><span class="color-indicator" style="background-color: #616161;"></span>View Fan Deck</button>
+        <button id="view-support-structure"><span class="color-indicator" style="background-color: #424242;"></span>View Support Structure</button>
+        <button id="view-nozzles"><span class="color-indicator" style="background-color: #ffb74d;"></span>View Nozzles</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 30, 40); // Initial camera position, slightly elevated
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 10, 0); // Point camera slightly towards the center of the unit
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(10, 20, 15);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024; // default
+        directionalLight.shadow.mapSize.height = 1024; // default
+        directionalLight.shadow.camera.near = 0.5; // default
+        directionalLight.shadow.camera.far = 100; // default
+        directionalLight.shadow.camera.left = -50;
+        directionalLight.shadow.camera.right = 50;
+        directionalLight.shadow.camera.top = 50;
+        directionalLight.shadow.camera.bottom = -50;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-10, -20, -15);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        let fanRotationSpeed = 0.1; // Speed for fan animation
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (cutting along XZ plane)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // Cuts along Z-axis
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            finnedTubeBundle: null,
+            headers: null,
+            fans: null,
+            fanDeck: null,
+            supportStructure: null,
+            nozzles: null,
+            fluidFlowTube: null, // Fluid for inside tubes
+            fluidFlowAir: null, // Fluid for air flow over fins
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'finnedTubeBundle': {
+                title: 'Finned Tube Bundle',
+                description: 'A bank of horizontal tubes with external fins, designed to maximize heat transfer area. The process fluid flows inside the tubes, while ambient air is forced over the fins to cool it.',
+                color: 0xe0e0e0, // Light Grey (for fins)
+                internal: true
+            },
+            'headers': {
+                title: 'Headers',
+                description: 'Manifolds at each end of the tube bundle that distribute and collect the process fluid to and from the tubes. They are typically rectangular or circular in cross-section.',
+                color: 0x757575, // Medium Grey
+                internal: false
+            },
+            'fans': {
+                title: 'Fans',
+                description: 'Large axial fans (induced or forced draft) that move a high volume of ambient air across the finned tube bundle. They are crucial for creating the necessary airflow for heat rejection.',
+                color: 0x03a9f4, // Light Blue
+                internal: false
+            },
+            'fanDeck': {
+                title: 'Fan Deck',
+                description: 'A structural platform, usually made of steel, that supports the fans and provides access for maintenance. It sits above the tube bundle in induced draft configurations.',
+                color: 0x616161, // Dark Grey
+                internal: false
+            },
+            'supportStructure': {
+                title: 'Support Structure',
+                description: 'The main steel framework (columns, beams, bracing) that elevates the entire heat exchanger unit, supporting the tube bundle, fan deck, and fans. It ensures stability and allows for air intake from below.',
+                color: 0x424242, // Dark Grey
+                internal: false
+            },
+            'nozzles': {
+                title: 'Nozzles / Ports',
+                description: 'Inlet and outlet connections for the process fluid on the headers. These are typically flanged connections for integration into the plant piping system.',
+                color: 0xffb74d, // Light Orange
+                internal: false
+            }
+        };
+
+        // Create all components of the air cooled heat exchanger
+        function createComponents() {
+            const bundleWidth = 30;
+            const bundleDepth = 15;
+            const bundleHeight = 5; // Thickness of the tube bank
+            const tubeLength = bundleWidth - 4; // Length of individual tubes
+            const tubeRadius = 0.4;
+            const finThickness = 0.03;
+            const finOuterRadius = tubeRadius * 2.5;
+            const numTubeRows = 4; // Rows in height
+            const numTubeCols = 10; // Columns in depth
+            const numFinsPerTube = 50;
+
+            const headerThickness = 2;
+            const headerHeight = bundleHeight + 2;
+            const headerDepth = bundleDepth;
+
+            const fanRadius = 7;
+            const fanBladeCount = 5;
+            const fanMotorHeight = 3;
+            const fanMotorRadius = 1;
+
+            const fanDeckThickness = 0.5;
+            const fanDeckWidth = bundleWidth + 10;
+            const fanDeckDepth = bundleDepth + 10;
+
+            const supportColumnHeight = 15;
+            const supportColumnRadius = 0.8;
+
+            // Nozzle related constants - moved to top
+            const nozzleRadius = 1.5; // Radius for nozzles
+            const nozzleLength = 4;   // Length for nozzles
+            const nozzleOffset = 3;   // Offset for nozzle positioning
+
+
+            // Finned Tube Bundle
+            components.finnedTubeBundle = new THREE.Group();
+            const tubeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xcccccc, // Base tube color
+                metalness: 0.8,
+                roughness: 0.2
+            });
+            const finMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.finnedTubeBundle.color, // Fin color
+                metalness: 0.6,
+                roughness: 0.3,
+                side: THREE.DoubleSide
+            });
+
+            const finGeometry = new THREE.RingGeometry(tubeRadius, finOuterRadius, 32);
+            const finMesh = new THREE.Mesh(finGeometry, finMaterial);
+
+            for (let r = 0; r < numTubeRows; r++) {
+                for (let c = 0; c < numTubeCols; c++) {
+                    const tubeGroup = new THREE.Group();
+                    const tube = new THREE.Mesh(
+                        new THREE.CylinderGeometry(tubeRadius, tubeRadius, tubeLength, 16),
+                        tubeMaterial
+                    );
+                    tube.rotation.z = Math.PI / 2; // Orient along X-axis
+                    tube.userData = { type: 'finnedTubeBundle' };
+                    tubeGroup.add(tube);
+
+                    for (let k = 0; k < numFinsPerTube; k++) {
+                        const fin = finMesh.clone();
+                        fin.position.x = (k / (numFinsPerTube - 1)) * tubeLength - tubeLength / 2;
+                        fin.rotation.y = Math.PI / 2; // Face along Z-axis
+                        fin.userData = { type: 'finnedTubeBundle' };
+                        tubeGroup.add(fin);
+                    }
+
+                    tubeGroup.position.set(
+                        0,
+                        (r * (bundleHeight / numTubeRows)) - bundleHeight / 2 + tubeRadius,
+                        (c * (bundleDepth / numTubeCols)) - bundleDepth / 2 + tubeRadius
+                    );
+                    components.finnedTubeBundle.add(tubeGroup);
+                }
+            }
+            components.finnedTubeBundle.position.y = supportColumnHeight; // Position above ground
+            components.finnedTubeBundle.position.x = 0;
+            components.finnedTubeBundle.position.z = 0;
+
+
+            // Headers
+            components.headers = new THREE.Group();
+            const headerMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.headers.color,
+                metalness: 0.7,
+                roughness: 0.4,
+                clearcoat: 0.4
+            });
+
+            // Left Header
+            const leftHeader = new THREE.Mesh(
+                new THREE.BoxGeometry(headerThickness, headerHeight, headerDepth),
+                headerMaterial
+            );
+            leftHeader.position.x = -bundleWidth / 2 - headerThickness / 2;
+            leftHeader.userData = { type: 'headers' };
+            components.headers.add(leftHeader);
+
+            // Right Header
+            const rightHeader = new THREE.Mesh(
+                new THREE.BoxGeometry(headerThickness, headerHeight, headerDepth),
+                headerMaterial
+            );
+            rightHeader.position.x = bundleWidth / 2 + headerThickness / 2;
+            rightHeader.userData = { type: 'headers' };
+            components.headers.add(rightHeader);
+            components.headers.position.y = supportColumnHeight;
+
+
+            // Fans
+            components.fans = new THREE.Group();
+            const fanMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fans.color,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            const motorMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x424242, // Dark grey motor
+                metalness: 0.7,
+                roughness: 0.3
+            });
+
+            const numFans = 2; // Two fans
+            const fanSpacing = fanDeckWidth / (numFans + 1);
+
+            for (let i = 0; i < numFans; i++) {
+                const fanGroup = new THREE.Group();
+
+                // Motor
+                const motor = new THREE.Mesh(
+                    new THREE.CylinderGeometry(fanMotorRadius, fanMotorRadius, fanMotorHeight, 16),
+                    motorMaterial
+                );
+                motor.position.y = fanMotorHeight / 2;
+                motor.userData = { type: 'fans' };
+                fanGroup.add(motor);
+
+                // Blades
+                const bladeGeometry = new THREE.BoxGeometry(fanRadius * 0.8, fanRadius * 0.2, 0.5);
+                for (let j = 0; j < fanBladeCount; j++) {
+                    const blade = new THREE.Mesh(bladeGeometry, fanMaterial);
+                    blade.position.y = fanMotorHeight / 2;
+                    blade.rotation.y = (j / fanBladeCount) * Math.PI * 2;
+                    blade.userData = { type: 'fans' };
+                    fanGroup.add(blade);
+                }
+                fanGroup.userData = { type: 'fans', isFan: true }; // Mark as fan for animation
+
+                fanGroup.position.set(
+                    (i * fanSpacing) - (fanDeckWidth / 2) + fanSpacing,
+                    supportColumnHeight + bundleHeight + fanDeckThickness + fanMotorHeight / 2,
+                    0
+                );
+                components.fans.add(fanGroup);
+            }
+
+
+            // Fan Deck
+            const fanDeckMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.fanDeck.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            components.fanDeck = new THREE.Mesh(
+                new THREE.BoxGeometry(fanDeckWidth, fanDeckThickness, fanDeckDepth),
+                fanDeckMaterial
+            );
+            components.fanDeck.position.y = supportColumnHeight + bundleHeight + fanDeckThickness / 2;
+            components.fanDeck.userData = { type: 'fanDeck' };
+
+
+            // Support Structure
+            components.supportStructure = new THREE.Group();
+            const supportMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.supportStructure.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+
+            const columnPositions = [
+                new THREE.Vector3(bundleWidth / 2 + 2, 0, bundleDepth / 2 + 2),
+                new THREE.Vector3(-bundleWidth / 2 - 2, 0, bundleDepth / 2 + 2),
+                new THREE.Vector3(bundleWidth / 2 + 2, 0, -bundleDepth / 2 - 2),
+                new THREE.Vector3(-bundleWidth / 2 - 2, 0, -bundleDepth / 2 - 2)
+            ];
+
+            columnPositions.forEach(pos => {
+                const column = new THREE.Mesh(
+                    new THREE.CylinderGeometry(supportColumnRadius, supportColumnRadius, supportColumnHeight, 16),
+                    supportMaterial
+                );
+                column.position.set(pos.x, supportColumnHeight / 2, pos.z);
+                column.userData = { type: 'supportStructure' };
+                components.supportStructure.add(column);
+            });
+
+            // Beams (simplified)
+            const beamThickness = 0.5;
+            const horizontalBeamMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x546e7a, // Blue Grey
+                metalness: 0.7,
+                roughness: 0.3
+            });
+
+            const topBeamX = new THREE.Mesh(new THREE.BoxGeometry(bundleWidth + 8, beamThickness, beamThickness), horizontalBeamMaterial);
+            topBeamX.position.set(0, supportColumnHeight, bundleDepth / 2 + 2);
+            topBeamX.userData = { type: 'supportStructure' };
+            components.supportStructure.add(topBeamX);
+
+            const topBeamX2 = topBeamX.clone();
+            topBeamX2.position.z = -(bundleDepth / 2 + 2);
+            components.supportStructure.add(topBeamX2);
+
+            const topBeamZ = new THREE.Mesh(new THREE.BoxGeometry(beamThickness, beamThickness, bundleDepth + 8), horizontalBeamMaterial);
+            topBeamZ.position.set(bundleWidth / 2 + 2, supportColumnHeight, 0);
+            topBeamZ.userData = { type: 'supportStructure' };
+            components.supportStructure.add(topBeamZ);
+
+            const topBeamZ2 = topBeamZ.clone();
+            topBeamZ2.position.x = -(bundleWidth / 2 + 2);
+            components.supportStructure.add(topBeamZ2);
+
+
+            // Nozzles
+            components.nozzles = new THREE.Group();
+            const nozzleMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.nozzles.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const flangeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x616161, // Darker grey for flange
+                metalness: 0.6,
+                roughness: 0.4
+            });
+
+            // Inlet Nozzle (left header)
+            const inletNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16), nozzleMaterial);
+            inletNozzle.rotation.z = Math.PI / 2;
+            inletNozzle.position.set(-bundleWidth / 2 - headerThickness - nozzleLength / 2, supportColumnHeight + bundleHeight / 2 + nozzleOffset, 0);
+            inletNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(inletNozzle);
+
+            const inletFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16), flangeMaterial);
+            inletFlange.rotation.z = Math.PI / 2;
+            inletFlange.position.set(-bundleWidth / 2 - headerThickness - nozzleLength - 0.25, supportColumnHeight + bundleHeight / 2 + nozzleOffset, 0);
+            inletFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(inletFlange);
+
+            // Outlet Nozzle (right header)
+            const outletNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16), nozzleMaterial);
+            outletNozzle.rotation.z = Math.PI / 2;
+            outletNozzle.position.set(bundleWidth / 2 + headerThickness + nozzleLength / 2, supportColumnHeight + bundleHeight / 2 - nozzleOffset, 0);
+            outletNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(outletNozzle);
+
+            const outletFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16), flangeMaterial);
+            outletFlange.rotation.z = Math.PI / 2;
+            outletFlange.position.set(bundleWidth / 2 + headerThickness + nozzleLength + 0.25, supportColumnHeight + bundleHeight / 2 - nozzleOffset, 0);
+            outletFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(outletFlange);
+
+
+            // Fluid Flow Animation
+            components.fluidFlowTube = new THREE.Group();
+            components.fluidFlowAir = new THREE.Group();
+
+            const numTubeParticles = 100;
+            const numAirParticles = 200;
+            const particleSize = 0.2;
+            const hotFluidColor = 0xff0000; // Red for hot fluid
+            const coldAirColor = 0x00bfff; // Deep Sky Blue for cold air
+
+            function createFluidParticles(color, numParticles) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: particleSize,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.7,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Tube-side fluid (hot fluid)
+            const tubeFluidParticles = createFluidParticles(hotFluidColor, numTubeParticles);
+            tubeFluidParticles.userData.curves = []; // Store curves for each tube
+
+            // Create a path for a representative tube
+            const representativeTubePathPoints = [
+                new THREE.Vector3(-bundleWidth / 2 - headerThickness - nozzleLength, supportColumnHeight + bundleHeight / 2 + nozzleOffset, 0), // Inlet
+                new THREE.Vector3(-bundleWidth / 2 + 1, supportColumnHeight + bundleHeight / 2 + nozzleOffset, 0), // Enter header
+                new THREE.Vector3(-bundleWidth / 2 + 1, supportColumnHeight + bundleHeight / 2 - (bundleHeight / numTubeRows) * 1.5, 0), // Distribute down
+                new THREE.Vector3(bundleWidth / 2 - 1, supportColumnHeight + bundleHeight / 2 - (bundleHeight / numTubeRows) * 1.5, 0), // Through tube
+                new THREE.Vector3(bundleWidth / 2 - 1, supportColumnHeight + bundleHeight / 2 - nozzleOffset, 0), // Collect in header
+                new THREE.Vector3(bundleWidth / 2 + headerThickness + nozzleLength, supportColumnHeight + bundleHeight / 2 - nozzleOffset, 0) // Outlet
+            ];
+            tubeFluidParticles.userData.curves.push(new THREE.CatmullRomCurve3(representativeTubePathPoints));
+            components.fluidFlowTube.add(tubeFluidParticles);
+
+
+            // Air-side fluid (cold air) - flowing upwards through the bundle
+            const airFluidParticles = createFluidParticles(coldAirColor, numAirParticles);
+            components.fluidFlowAir.add(airFluidParticles);
+
+            components.fluidFlowTube.visible = false; // Initially hidden
+            components.fluidFlowAir.visible = false; // Initially hidden
+
+            scene.add(components.fluidFlowTube);
+            scene.add(components.fluidFlowAir);
+
+
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.finnedTubeBundle);
+            components.fullAssembly.add(components.headers);
+            components.fullAssembly.add(components.fans);
+            components.fullAssembly.add(components.fanDeck);
+            components.fullAssembly.add(components.supportStructure);
+            components.fullAssembly.add(components.nozzles);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp !== components.fluidFlowTube && comp !== components.fluidFlowAir) {
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views
+            components.fluidFlowTube.visible = false;
+            components.fluidFlowAir.visible = false;
+
+            // Show the requested component(s)
+            if (componentType === 'finnedTubeBundle') {
+                components.finnedTubeBundle.visible = true;
+                components.headers.visible = true; // Show context
+                components.fluidFlowTube.visible = true; // Show tube fluid
+                components.fluidFlowAir.visible = true; // Show air fluid
+            } else if (componentType === 'headers') {
+                components.headers.visible = true;
+                components.finnedTubeBundle.visible = true; // Show context
+                components.nozzles.visible = true; // Show context
+            } else if (componentType === 'fans') {
+                components.fans.visible = true;
+                components.fanDeck.visible = true; // Show context
+                components.fluidFlowAir.visible = true; // Show air fluid
+            } else if (componentType === 'fanDeck') {
+                components.fanDeck.visible = true;
+                components.fans.visible = true; // Show context
+                components.supportStructure.visible = true; // Show context
+            } else if (componentType === 'supportStructure') {
+                components.supportStructure.visible = true;
+                components.finnedTubeBundle.visible = true; // Show context
+                components.fanDeck.visible = true; // Show context
+            } else if (componentType === 'nozzles') {
+                components.nozzles.visible = true;
+                components.headers.visible = true; // Show context
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp) comp.visible = true;
+                });
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'finnedTubeBundle') targetObject = components.finnedTubeBundle;
+            else if (componentType === 'headers') targetObject = components.headers;
+            else if (componentType === 'fans') targetObject = components.fans;
+            else if (componentType === 'fanDeck') targetObject = components.fanDeck;
+            else if (componentType === 'supportStructure') targetObject = components.supportStructure;
+            else if (componentType === 'nozzles') targetObject = components.nozzles;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle support structure visibility
+        function toggleStructureVisibility() {
+            components.supportStructure.visible = !components.supportStructure.visible;
+            components.fanDeck.visible = !components.fanDeck.visible; // Toggle fan deck with structure
+            components.fans.visible = !components.fans.visible; // Toggle fans with structure
+            document.getElementById('toggle-structure').innerHTML = 
+                `<span class="color-indicator" style="background-color: #${new THREE.Color(componentInfo.supportStructure.color).getHexString()};"></span>` +
+                (components.supportStructure.visible ? 'Hide Structure' : 'Show Structure');
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowTube.visible = isSectionView;
+            components.fluidFlowAir.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    if (child.parent && child.parent.userData.type === 'fullAssembly' || child.userData.type === 'finnedTubeBundle' || child.userData.type === 'headers' || child.userData.type === 'fans' || child.userData.type === 'fanDeck' || child.userData.type === 'supportStructure') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-structure').addEventListener('click', toggleStructureVisibility);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-finned-tube-bundle').addEventListener('click', () => showOnly('finnedTubeBundle'));
+        document.getElementById('view-headers').addEventListener('click', () => showOnly('headers'));
+        document.getElementById('view-fans').addEventListener('click', () => showOnly('fans'));
+        document.getElementById('view-fan-deck').addEventListener('click', () => showOnly('fanDeck'));
+        document.getElementById('view-support-structure').addEventListener('click', () => showOnly('supportStructure'));
+        document.getElementById('view-nozzles').addEventListener('click', () => showOnly('nozzles'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate fluid particles if visible
+            if (components.fluidFlowTube.visible) {
+                const tubeParticles = components.fluidFlowTube.children[0];
+                const tubePositions = tubeParticles.geometry.attributes.position.array;
+                const tubeCurve = tubeParticles.userData.curves[0]; // Using the single representative curve
+
+                for (let i = 0; i < tubeParticles.userData.progress.length; i++) {
+                    tubeParticles.userData.progress[i] = (tubeParticles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                    const p = tubeCurve.getPointAt(tubeParticles.userData.progress[i]);
+                    tubePositions[i * 3] = p.x;
+                    tubePositions[i * 3 + 1] = p.y;
+                    tubePositions[i * 3 + 2] = p.z;
+                }
+                tubeParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (components.fluidFlowAir.visible) {
+                const airParticles = components.fluidFlowAir.children[0];
+                const airPositions = airParticles.geometry.attributes.position.array;
+                const numAirParticles = airParticles.userData.progress.length;
+                const bundleMinY = components.finnedTubeBundle.position.y - components.finnedTubeBundle.geometry.parameters.height / 2;
+                const bundleMaxY = components.finnedTubeBundle.position.y + components.finnedTubeBundle.geometry.parameters.height / 2;
+                const airFlowSpeed = 0.3; // Speed of air particles
+
+                for (let i = 0; i < numAirParticles; i++) {
+                    // Simulate air flowing upwards through the bundle
+                    airPositions[i * 3 + 1] += airFlowSpeed; // Move along Y-axis (upwards)
+
+                    // If particle moves past the top of the bundle, reset it to the bottom
+                    if (airPositions[i * 3 + 1] > bundleMaxY + 5) { // Reset slightly above the bundle
+                        airPositions[i * 3] = (Math.random() - 0.5) * bundleWidth * 0.8; // Random X within bundle width
+                        airPositions[i * 3 + 1] = bundleMinY - 5; // Start slightly below bundle
+                        airPositions[i * 3 + 2] = (Math.random() - 0.5) * bundleDepth * 0.8; // Random Z within bundle depth
+                    }
+                }
+                airParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate fans
+            components.fans.children.forEach(fanGroup => {
+                if (fanGroup.userData.isFan) {
+                    fanGroup.rotation.y += fanRotationSpeed; // Rotate fan blades
+                }
+            });
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

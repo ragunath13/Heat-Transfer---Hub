@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Box Furnace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            color: #ffffff; /* Pure white for better visibility */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff; /* Ensure info panel text is pure white */
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #ff7043; /* Orange-red border for furnace theme */
+            box-shadow: 0 4px 15px rgba(255, 112, 67, 0.2); /* Orange-red shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #ffab91; /* Lighter orange-red for info panel title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #ffffff; /* Ensure main title is pure white */
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.9); /* Increased opacity */
+            color: #ffffff; /* Ensure button text is pure white */
+            border: 2px solid #ff7043; /* Thicker orange-red border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255, 112, 67, 0.3); /* More prominent shadow */
+        }
+        button:hover {
+            background-color: rgba(255, 112, 67, 0.3); /* Lighter orange-red on hover */
+            border-color: #ffab91; /* Lighter border on hover */
+            box-shadow: 0 6px 15px rgba(255, 112, 67, 0.4); /* Enhanced shadow on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Box Furnace - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: #ffffff; font-size: 14px;">Component Quick View:</div>
+        <button id="view-casing"><span class="color-indicator" style="background-color: #616161;"></span>View Casing</button>
+        <button id="view-chamber"><span class="color-indicator" style="background-color: #ff8a65;"></span>View Chamber</button>
+        <button id="view-heating-elements"><span class="color-indicator" style="background-color: #ef5350;"></span>View Heating Elements</button>
+        <button id="view-insulation"><span class="color-indicator" style="background-color: #bdbdbd;"></span>View Insulation</button>
+        <button id="view-door"><span class="color-indicator" style="background-color: #757575;"></span>View Door</button>
+        <button id="view-exhaust-stack"><span class="color-indicator" style="background-color: #424242;"></span>View Exhaust Stack</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main Three.js variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(25, 20, 35); // Initial camera position, adjusted for furnace size
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 10, 0); // Point camera towards the center of the furnace
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(10, 50, 20); // Positioned above and to the side
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 150;
+        directionalLight.shadow.camera.left = -60;
+        directionalLight.shadow.camera.right = 60;
+        directionalLight.shadow.camera.top = 60;
+        directionalLight.shadow.camera.bottom = -60;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-10, -50, -20);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along Z axis)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            casing: null,
+            chamber: null,
+            heatingElements: null,
+            insulation: null,
+            door: null,
+            exhaustStack: null,
+            heatParticles: null,
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'casing': {
+                title: 'Furnace Casing',
+                description: 'The outer metal shell of the furnace, providing structural integrity and containing the insulation and internal components.',
+                color: 0x616161, // Dark Grey
+                internal: false
+            },
+            'chamber': {
+                title: 'Heating Chamber',
+                description: 'The internal space where materials are placed for heat treatment. It is lined with refractory materials to withstand high temperatures.',
+                color: 0xff8a65, // Light Orange (hot)
+                internal: true
+            },
+            'heatingElements': {
+                title: 'Heating Elements',
+                description: 'Electric resistance coils or gas burners that generate the heat required for the furnace operation.',
+                color: 0xef5350, // Bright Red (very hot)
+                internal: true
+            },
+            'insulation': {
+                title: 'Insulation',
+                description: 'Layers of refractory and insulating materials between the casing and the chamber to minimize heat loss and maintain high internal temperatures.',
+                color: 0xbdbdbd, // Light Grey (insulation)
+                internal: true
+            },
+            'door': {
+                title: 'Furnace Door',
+                description: 'A heavy, insulated door for loading and unloading materials, designed to seal tightly to prevent heat escape.',
+                color: 0x757575, // Medium Grey
+                internal: false
+            },
+            'exhaustStack': {
+                title: 'Exhaust Stack (Optional)',
+                description: 'For gas-fired furnaces, this stack vents combustion byproducts and excess heat safely to the atmosphere.',
+                color: 0x424242, // Darker Grey
+                internal: false
+            }
+        };
+
+        // Global constants for furnace dimensions
+        const furnaceWidth = 15;
+        const furnaceHeight = 12;
+        const furnaceDepth = 18;
+
+        const casingThickness = 0.5;
+        const insulationThickness = 1.5;
+
+        const doorThickness = 0.8;
+        const doorHeight = furnaceHeight * 0.7;
+        const doorWidth = furnaceWidth * 0.6;
+
+        const elementRadius = 0.2;
+        const elementLength = furnaceDepth * 0.8;
+
+        const stackRadius = 1.0;
+        const stackHeight = 8;
+
+
+        // Global constants for fluid particles
+        const particleSizeHeat = 0.3;
+
+
+        // Create all components of the box furnace
+        function createComponents() {
+            // Overall Furnace Group (for positioning)
+            const furnaceGroup = new THREE.Group();
+            // Position the entire furnace so its base is at Y=0
+            furnaceGroup.position.y = furnaceHeight / 2; 
+
+            // Casing
+            const casingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.casing.color,
+                metalness: 0.8,
+                roughness: 0.2,
+                clearcoat: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.casing = new THREE.Mesh(
+                new THREE.BoxGeometry(furnaceWidth, furnaceHeight, furnaceDepth),
+                casingMaterial
+            );
+            components.casing.position.y = 0;
+            components.casing.userData = { type: 'casing' };
+            furnaceGroup.add(components.casing);
+
+            // Insulation (inner layer)
+            const insulationMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.insulation.color,
+                roughness: 0.8,
+                metalness: 0.1,
+                side: THREE.DoubleSide
+            });
+            components.insulation = new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    furnaceWidth - casingThickness * 2, 
+                    furnaceHeight - casingThickness * 2, 
+                    furnaceDepth - casingThickness * 2
+                ),
+                insulationMaterial
+            );
+            components.insulation.position.y = 0;
+            components.insulation.userData = { type: 'insulation' };
+            furnaceGroup.add(components.insulation);
+
+            // Chamber (innermost layer)
+            const chamberMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.chamber.color,
+                emissive: 0xff4500, // Orange-red emissive to show heat
+                emissiveIntensity: 0.5,
+                roughness: 0.5,
+                metalness: 0.1,
+                side: THREE.DoubleSide
+            });
+            components.chamber = new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    furnaceWidth - casingThickness * 2 - insulationThickness * 2, 
+                    furnaceHeight - casingThickness * 2 - insulationThickness * 2, 
+                    furnaceDepth - casingThickness * 2 - insulationThickness * 2
+                ),
+                chamberMaterial
+            );
+            components.chamber.position.y = 0;
+            components.chamber.userData = { type: 'chamber' };
+            furnaceGroup.add(components.chamber);
+
+            // Heating Elements (simplified as horizontal cylinders inside chamber)
+            components.heatingElements = new THREE.Group();
+            const elementMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.heatingElements.color,
+                emissive: 0xff0000, // Bright red emissive for glowing elements
+                emissiveIntensity: 1.0,
+                metalness: 0.9,
+                roughness: 0.1
+            });
+
+            // Elements on side walls
+            const numElementsSide = 3;
+            const elementSpacingY = (components.chamber.geometry.parameters.height - elementRadius * 2) / (numElementsSide + 1);
+            const elementOffsetX = components.chamber.geometry.parameters.width / 2 - elementRadius;
+
+            for (let i = 0; i < numElementsSide; i++) {
+                const elementY = -components.chamber.geometry.parameters.height / 2 + elementSpacingY * (i + 1);
+                
+                const element1 = new THREE.Mesh(new THREE.CylinderGeometry(elementRadius, elementRadius, elementLength, 8), elementMaterial);
+                element1.rotation.z = Math.PI / 2; // Rotate to be horizontal along Z
+                element1.position.set(-elementOffsetX, elementY, 0);
+                element1.userData = { type: 'heatingElements' };
+                components.heatingElements.add(element1);
+
+                const element2 = element1.clone();
+                element2.position.x = elementOffsetX;
+                components.heatingElements.add(element2);
+            }
+            // Elements on back wall
+            const numElementsBack = 2;
+            const elementSpacingX = (components.chamber.geometry.parameters.width - elementRadius * 2) / (numElementsBack + 1);
+            const elementOffsetZ = components.chamber.geometry.parameters.depth / 2 - elementRadius;
+
+            for (let i = 0; i < numElementsBack; i++) {
+                const elementX = -components.chamber.geometry.parameters.width / 2 + elementSpacingX * (i + 1);
+                
+                const element3 = new THREE.Mesh(new THREE.CylinderGeometry(elementRadius, elementRadius, elementLength, 8), elementMaterial);
+                element3.rotation.x = Math.PI / 2; // Rotate to be horizontal along X
+                element3.position.set(elementX, 0, -elementOffsetZ); // Position at back wall
+                element3.userData = { type: 'heatingElements' };
+                components.heatingElements.add(element3);
+            }
+
+            furnaceGroup.add(components.heatingElements);
+
+            // Door (on the front)
+            const doorMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.door.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                clearcoat: 0.5,
+                side: THREE.DoubleSide
+            });
+            components.door = new THREE.Mesh(
+                new THREE.BoxGeometry(doorWidth, doorHeight, doorThickness),
+                doorMaterial
+            );
+            components.door.position.set(0, 0, furnaceDepth / 2 + doorThickness / 2);
+            components.door.userData = { type: 'door' };
+            furnaceGroup.add(components.door);
+
+            // Exhaust Stack (on top, optional)
+            const stackMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.exhaustStack.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            components.exhaustStack = new THREE.Mesh(
+                new THREE.CylinderGeometry(stackRadius, stackRadius, stackHeight, 16),
+                stackMaterial
+            );
+            components.exhaustStack.position.set(furnaceWidth / 4, furnaceHeight / 2 + stackHeight / 2, -furnaceDepth / 4); // Offset on top
+            components.exhaustStack.userData = { type: 'exhaustStack' };
+            furnaceGroup.add(components.exhaustStack);
+
+
+            // Heat Flow Animation
+            components.heatParticles = new THREE.Group();
+            const heatColor = 0xffa07a; // Salmon for heat particles (original color)
+
+            function createHeatParticles(color, numParticles, size) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: size,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.7,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Simulate heat rising from elements
+            const heatParticles = createHeatParticles(heatColor, 200, particleSizeHeat);
+            heatParticles.userData.paths = [];
+            
+            // Paths from heating elements to chamber top
+            for (let i = 0; i < 5; i++) {
+                const xOffset = (Math.random() - 0.5) * components.chamber.geometry.parameters.width * 0.8;
+                const zOffset = (Math.random() - 0.5) * components.chamber.geometry.parameters.depth * 0.8;
+                const heatPathPoints = [ // Defined heatPathPoints inside the loop
+                    new THREE.Vector3(xOffset, components.chamber.position.y - components.chamber.geometry.parameters.height / 2 + 1, zOffset), // From bottom of chamber
+                    new THREE.Vector3(xOffset * 0.8, components.chamber.position.y + components.chamber.geometry.parameters.height / 2 - 1, zOffset * 0.8), // To top of chamber
+                    new THREE.Vector3(xOffset * 0.5, components.exhaustStack.position.y - stackHeight / 2 + 1, zOffset * 0.5) // Towards exhaust
+                ];
+                heatParticles.userData.paths.push(new THREE.CatmullRomCurve3(heatPathPoints));
+            }
+            components.heatParticles.add(heatParticles);
+            furnaceGroup.add(components.heatParticles);
+
+
+            // Add all fluid flows to the scene, initially hidden
+            components.heatParticles.visible = false;
+
+            // Full assembly
+            components.fullAssembly = furnaceGroup; // The main group is the full assembly
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                // Exclude fluid flows and the main fullAssembly group from being hidden individually
+                if (comp && comp !== components.fullAssembly && 
+                    !comp.userData.isFluidFlow) { // Assuming fluid flows will have this userData
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views, unless explicitly shown
+            components.heatParticles.visible = false;
+
+            // Show the requested component(s) and relevant context
+            if (componentType === 'casing') {
+                components.casing.visible = true;
+            } else if (componentType === 'chamber') {
+                components.chamber.visible = true;
+                components.casing.visible = true; // Context
+                components.insulation.visible = true; // Context
+                components.heatingElements.visible = true; // Context
+                components.heatParticles.visible = true;
+            } else if (componentType === 'heatingElements') {
+                components.heatingElements.visible = true;
+                components.chamber.visible = true; // Context
+                components.heatParticles.visible = true;
+            } else if (componentType === 'insulation') {
+                components.insulation.visible = true;
+                components.casing.visible = true; // Context
+                components.chamber.visible = true; // Context
+            } else if (componentType === 'door') {
+                components.door.visible = true;
+                components.casing.visible = true; // Context
+            } else if (componentType === 'exhaustStack') {
+                components.exhaustStack.visible = true;
+                components.casing.visible = true; // Context
+                components.heatParticles.visible = true; // Show heat exiting
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fullAssembly) comp.visible = true;
+                });
+                // Show all fluid animations in full view by default
+                components.heatParticles.visible = true;
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'casing') targetObject = components.casing;
+            else if (componentType === 'chamber') targetObject = components.chamber;
+            else if (componentType === 'heatingElements') targetObject = components.heatingElements;
+            else if (componentType === 'insulation') targetObject = components.insulation;
+            else if (componentType === 'door') targetObject = components.door;
+            else if (componentType === 'exhaustStack') targetObject = components.exhaustStack;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 2.5; // Adjusted multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.heatParticles.visible = isSectionView;
+
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    const componentType = child.userData.type;
+                    if (componentType === 'casing' || componentType === 'chamber' || 
+                        componentType === 'heatingElements' || componentType === 'insulation' || 
+                        componentType === 'door' || componentType === 'exhaustStack') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-casing').addEventListener('click', () => showOnly('casing'));
+        document.getElementById('view-chamber').addEventListener('click', () => showOnly('chamber'));
+        document.getElementById('view-heating-elements').addEventListener('click', () => showOnly('heatingElements'));
+        document.getElementById('view-insulation').addEventListener('click', () => showOnly('insulation'));
+        document.getElementById('view-door').addEventListener('click', () => showOnly('door'));
+        document.getElementById('view-exhaust-stack').addEventListener('click', () => showOnly('exhaustStack'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate heat particles
+            if (components.heatParticles.visible) {
+                const heatParticles = components.heatParticles.children[0];
+                const heatPositions = heatParticles.geometry.attributes.position.array;
+                const heatPaths = heatParticles.userData.paths;
+                const particlesPerPath = Math.floor(heatParticles.userData.progress.length / heatPaths.length);
+
+                for (let i = 0; i < heatParticles.userData.progress.length; i++) {
+                    const pathIndex = Math.floor(i / particlesPerPath);
+                    const currentPath = heatPaths[pathIndex];
+                    if (!currentPath) continue;
+
+                    heatParticles.userData.progress[i] = (heatParticles.userData.progress[i] + 0.005) % 1; // Adjust speed
+                    const p = currentPath.getPointAt(heatParticles.userData.progress[i]);
+                    heatPositions[i * 3] = p.x + (Math.random() - 0.5) * 0.3; // Slight drift
+                    heatPositions[i * 3 + 1] = p.y + (Math.random() - 0.5) * 0.3;
+                    heatPositions[i * 3 + 2] = p.z + (Math.random() - 0.5) * 0.3;
+                }
+                heatParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>

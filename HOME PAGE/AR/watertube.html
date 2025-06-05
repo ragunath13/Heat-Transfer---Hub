@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Water Tube Boiler</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        canvas {
+            display: block;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.5s ease;
+            z-index: 100;
+            border: 1px solid #4fc3f7; /* Light Blue border */
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2); /* Light Blue shadow */
+        }
+        .info-panel h3 {
+            margin-top: 0;
+            color: #4fc3f7; /* Light Blue title */
+            font-size: 22px;
+        }
+        .info-panel p {
+            margin-bottom: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            z-index: 100;
+            border-radius: 8px; /* Rounded corners */
+        }
+        #controls {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #4fc3f7; /* Light Blue border */
+            padding: 8px 12px;
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer;
+            min-width: 180px; /* Increased width for better text display */
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(79, 195, 247, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: rgba(79, 195, 247, 0.2); /* Lighter blue on hover */
+            border-color: #b3e5fc; /* Lighter border on hover */
+        }
+        .component-button {
+            display: flex;
+            align-items: center;
+        }
+        .component-button .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Small border for visibility */
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Water Tube Boiler - Click on any component</div>
+    <div id="controls">
+        <button id="reset-view">Show Full Assembly</button>
+        <button id="toggle-casing"><span class="color-indicator" style="background-color: #616161;"></span>Toggle Casing</button>
+        <button id="section-view">Section View</button>
+        <div style="margin-top: 10px; color: white; font-size: 14px;">Component Quick View:</div>
+        <button id="view-steam-drum"><span class="color-indicator" style="background-color: #90a4ae;"></span>View Steam Drum</button>
+        <button id="view-mud-drum"><span class="color-indicator" style="background-color: #90a4ae;"></span>View Mud Drum</button>
+        <button id="view-water-tubes"><span class="color-indicator" style="background-color: #03a9f4;"></span>View Water Tubes</button>
+        <button id="view-furnace"><span class="color-indicator" style="background-color: #f44336;"></span>View Furnace</button>
+        <button id="view-downcomers-risers"><span class="color-indicator" style="background-color: #607d8b;"></span>View Downcomers/Risers</button>
+        <button id="view-superheater"><span class="color-indicator" style="background-color: #ffeb3b;"></span>View Superheater</button>
+        <button id="view-nozzles"><span class="color-indicator" style="background-color: #ffb74d;"></span>View Nozzles</button>
+    </div>
+    <div id="info-panel" class="info-panel" style="display: none;">
+        <h3 id="component-title">Component</h3>
+        <p id="component-description">Description will appear here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/curves/CatmullRomCurve3.js"></script>
+    <script>
+        // Main variables
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 30, 40); // Initial camera position, elevated
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 10, 0); // Point camera slightly towards the center
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Main light source
+        directionalLight.position.set(10, 20, 15);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024; // default
+        directionalLight.shadow.mapSize.height = 1024; // default
+        directionalLight.shadow.camera.near = 0.5; // default
+        directionalLight.shadow.camera.far = 100; // default
+        directionalLight.shadow.camera.left = -50;
+        directionalLight.shadow.camera.right = 50;
+        directionalLight.shadow.camera.top = 50;
+        directionalLight.shadow.camera.bottom = -50;
+        scene.add(directionalLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3); // Secondary light
+        backLight.position.set(-10, -20, -15);
+        scene.add(backLight);
+        
+        // Interaction tools
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Animation variables
+        let animationId = null;
+        let targetPosition = null;
+        let targetLookAt = null;
+        let isAnimating = false;
+        
+        // Section view
+        let isSectionView = false;
+        // Section plane for cutting through the model (initially cutting along XZ plane)
+        const sectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const sectionHelper = new THREE.PlaneHelper(sectionPlane, 20, 0xff0000); // Red helper plane
+        sectionHelper.visible = false;
+        scene.add(sectionHelper);
+        renderer.localClippingEnabled = false; // Disable clipping by default
+
+        // Component storage
+        const components = {
+            steamDrum: null,
+            mudDrum: null,
+            waterTubes: null,
+            furnace: null,
+            downcomersRisers: null,
+            superheater: null,
+            nozzles: null,
+            casing: null, // Outer structure/casing
+            fluidFlowWater: null, 
+            fluidFlowSteam: null, 
+            fluidFlowGas: null,
+            fullAssembly: null
+        };
+        
+        // Component information (descriptions, colors, etc.)
+        const componentInfo = {
+            'steamDrum': {
+                title: 'Steam Drum',
+                description: 'The upper cylindrical pressure vessel where saturated steam separates from the steam-water mixture. It collects steam before it goes to the superheater or process, and supplies water to the downcomers.',
+                color: 0x90a4ae, // Blue Grey
+                internal: false
+            },
+            'mudDrum': {
+                title: 'Mud Drum (Water Drum)',
+                description: 'The lower cylindrical pressure vessel, typically smaller than the steam drum. It collects feedwater and also acts as a collection point for sludge and impurities in the boiler water, which can be removed via blowdown.',
+                color: 0x90a4ae, // Blue Grey
+                internal: false
+            },
+            'waterTubes': {
+                title: 'Water Tubes',
+                description: 'Numerous tubes through which water flows and is heated by the hot combustion gases in the furnace. As water absorbs heat, it boils and generates a steam-water mixture, which rises to the steam drum.',
+                color: 0x03a9f4, // Light Blue
+                internal: true
+            },
+            'furnace': {
+                title: 'Furnace / Combustion Chamber',
+                description: 'The large chamber where fuel is burned to produce hot combustion gases. In a water tube boiler, the water tubes form the walls of the furnace, absorbing radiant heat directly from the flame.',
+                color: 0xf44336, // Red
+                internal: true
+            },
+            'downcomersRisers': {
+                title: 'Downcomers and Risers',
+                description: 'Downcomers are tubes that carry unheated water from the steam drum to the mud drum or lower headers. Risers are tubes that carry the heated steam-water mixture from the heated tubes to the steam drum, completing the natural circulation loop.',
+                color: 0x607d8b, // Blue Grey Dark
+                internal: true
+            },
+            'superheater': {
+                title: 'Superheater',
+                description: 'A bank of tubes located in the path of hot flue gases, designed to further heat the saturated steam from the steam drum to a higher temperature (superheated steam). This increases efficiency and prevents condensation in turbines or process equipment.',
+                color: 0xffeb3b, // Yellow
+                internal: true
+            },
+            'nozzles': {
+                title: 'Nozzles / Ports',
+                description: 'Connections on the drums and headers for various purposes, including steam outlet, feedwater inlet, blowdown, safety valves, and pressure gauges. These are vital for boiler operation, control, and safety.',
+                color: 0xffb74d, // Light Orange
+                internal: false
+            },
+            'casing': {
+                title: 'Boiler Casing',
+                description: 'The external enclosure of the boiler, typically made of steel plates and often lined with refractory material. It contains the hot combustion gases, provides insulation, and forms the structural integrity of the boiler unit.',
+                color: 0x616161, // Dark Grey
+                internal: false
+            }
+        };
+
+        // Global constants for boiler dimensions
+        const drumRadius = 4;
+        const drumLength = 25;
+        const drumThickness = 0.3;
+
+        const furnaceWidth = 20;
+        const furnaceHeight = 25;
+        const furnaceDepth = 15;
+
+        const tubeRadius = 0.3;
+        const numTubeRows = 10;
+        const numTubeCols = 10;
+        const tubeVerticalSpacing = 1.5;
+        const tubeHorizontalSpacing = 1.5;
+
+        const downcomerRiserRadius = 0.6;
+        const superheaterTubeRadius = 0.25;
+        const numSuperheaterTubes = 15;
+
+        const nozzleRadius = 0.7;
+        const nozzleLength = 2;
+
+        const casingThickness = 0.5;
+        const casingOffset = 2; // Offset from internal components
+
+
+        // Create all components of the water tube boiler
+        function createComponents() {
+            // Steam Drum
+            const drumMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.steamDrum.color,
+                metalness: 0.7,
+                roughness: 0.3,
+                clearcoat: 0.4
+            });
+            components.steamDrum = new THREE.Mesh(
+                new THREE.CylinderGeometry(drumRadius, drumRadius, drumLength, 32),
+                drumMaterial
+            );
+            components.steamDrum.rotation.z = Math.PI / 2; // Horizontal
+            components.steamDrum.position.y = furnaceHeight / 2 + drumRadius + 5; // Position above furnace
+            components.steamDrum.userData = { type: 'steamDrum' };
+
+            // Mud Drum
+            components.mudDrum = new THREE.Mesh(
+                new THREE.CylinderGeometry(drumRadius * 0.8, drumRadius * 0.8, drumLength * 0.8, 32),
+                drumMaterial
+            );
+            components.mudDrum.rotation.z = Math.PI / 2; // Horizontal
+            components.mudDrum.position.y = -furnaceHeight / 2 - drumRadius * 0.8 - 5; // Position below furnace
+            components.mudDrum.userData = { type: 'mudDrum' };
+
+            // Furnace Walls (made of water tubes)
+            components.furnace = new THREE.Group();
+            const furnaceMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.furnace.color,
+                metalness: 0.1,
+                roughness: 0.8,
+                transparent: true,
+                opacity: 0.3, // Semi-transparent to see tubes
+                side: THREE.DoubleSide
+            });
+            const furnaceBox = new THREE.Mesh(
+                new THREE.BoxGeometry(furnaceWidth, furnaceHeight, furnaceDepth),
+                furnaceMaterial
+            );
+            furnaceBox.userData = { type: 'furnace' };
+            components.furnace.add(furnaceBox);
+
+            // Water Tubes (forming furnace walls and convection banks)
+            components.waterTubes = new THREE.Group();
+            const waterTubeMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.waterTubes.color,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+
+            // Furnace Wall Tubes (simplified vertical tubes)
+            for (let i = 0; i < numTubeRows; i++) {
+                const tubeY = (i * tubeVerticalSpacing) - (numTubeRows - 1) * tubeVerticalSpacing / 2;
+                // Front wall
+                const frontTube = new THREE.Mesh(
+                    new THREE.CylinderGeometry(tubeRadius, tubeRadius, furnaceHeight, 16),
+                    waterTubeMaterial
+                );
+                frontTube.position.set((i * tubeHorizontalSpacing) - (numTubeRows - 1) * tubeHorizontalSpacing / 2, tubeY, furnaceDepth / 2);
+                frontTube.userData = { type: 'waterTubes' };
+                components.waterTubes.add(frontTube);
+
+                // Back wall
+                const backTube = frontTube.clone();
+                backTube.position.z = -furnaceDepth / 2;
+                components.waterTubes.add(backTube);
+
+                // Side walls (simplified, just a few tubes)
+                if (i % 3 === 0) {
+                    const sideTube1 = new THREE.Mesh(
+                        new THREE.CylinderGeometry(tubeRadius, tubeRadius, furnaceHeight, 16),
+                        waterTubeMaterial
+                    );
+                    sideTube1.position.set(furnaceWidth / 2, tubeY, (i * tubeHorizontalSpacing) - (numTubeRows - 1) * tubeHorizontalSpacing / 2);
+                    sideTube1.rotation.z = Math.PI / 2; // Rotate for side wall
+                    components.waterTubes.add(sideTube1);
+
+                    const sideTube2 = sideTube1.clone();
+                    sideTube2.position.x = -furnaceWidth / 2;
+                    components.waterTubes.add(sideTube2);
+                }
+            }
+
+            // Downcomers and Risers (simplified large tubes)
+            components.downcomersRisers = new THREE.Group();
+            const drMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.downcomersRisers.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+
+            // Downcomers (from steam drum to mud drum)
+            const downcomer1 = new THREE.Mesh(
+                new THREE.CylinderGeometry(downcomerRiserRadius, downcomerRiserRadius, furnaceHeight + drumRadius * 2 + 10, 16),
+                drMaterial
+            );
+            downcomer1.position.set(drumLength / 2 - drumRadius * 2, (components.steamDrum.position.y + components.mudDrum.position.y) / 2, 0);
+            downcomer1.userData = { type: 'downcomersRisers' };
+            components.downcomersRisers.add(downcomer1);
+
+            const downcomer2 = downcomer1.clone();
+            downcomer2.position.x = -(drumLength / 2 - drumRadius * 2);
+            components.downcomersRisers.add(downcomer2);
+
+            // Risers (from mud drum/headers to steam drum - represented by water tubes)
+            // The water tubes themselves act as risers in the heated zone.
+            // No separate riser geometry needed for this simplified model beyond the water tubes.
+
+
+            // Superheater (simplified U-bend tubes)
+            components.superheater = new THREE.Group();
+            const superheaterMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.superheater.color,
+                metalness: 0.8,
+                roughness: 0.2,
+                clearcoat: 0.5
+            });
+
+            for (let i = 0; i < numSuperheaterTubes; i++) {
+                const superheaterTube = new THREE.Mesh(
+                    new THREE.TorusGeometry(superheaterTubeRadius * 5, superheaterTubeRadius, 8, 32, Math.PI), // Half torus for U-bend
+                    superheaterMaterial
+                );
+                superheaterTube.rotation.x = Math.PI / 2; // Orient correctly
+                superheaterTube.position.set(
+                    (i * 1.5) - (numSuperheaterTubes - 1) * 0.75, // Spread across width
+                    components.steamDrum.position.y - drumRadius - 2, // Below steam drum, above furnace
+                    0
+                );
+                superheaterTube.userData = { type: 'superheater' };
+                components.superheater.add(superheaterTube);
+            }
+            components.superheater.position.y = furnaceHeight / 2 + 2; // Position above furnace, below steam drum
+
+
+            // Nozzles
+            components.nozzles = new THREE.Group();
+            const nozzleMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.nozzles.color,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const flangeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x616161, // Darker grey for flange
+                metalness: 0.6,
+                roughness: 0.4
+            });
+
+            // Steam Outlet Nozzle (top of steam drum)
+            const steamOutletNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius, nozzleRadius, nozzleLength, 16), nozzleMaterial);
+            steamOutletNozzle.position.set(0, components.steamDrum.position.y + drumRadius + nozzleLength / 2, 0);
+            steamOutletNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(steamOutletNozzle);
+
+            const steamOutletFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.5, nozzleRadius * 1.5, 0.5, 16), flangeMaterial);
+            steamOutletFlange.position.set(0, components.steamDrum.position.y + drumRadius + nozzleLength + 0.25, 0);
+            steamOutletFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(steamOutletFlange);
+
+            // Feedwater Inlet Nozzle (side of steam drum)
+            const feedwaterNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 0.7, nozzleRadius * 0.7, nozzleLength, 16), nozzleMaterial);
+            feedwaterNozzle.rotation.y = Math.PI / 2;
+            feedwaterNozzle.position.set(components.steamDrum.position.x + drumLength / 2, components.steamDrum.position.y, drumRadius + nozzleLength / 2);
+            feedwaterNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(feedwaterNozzle);
+
+            const feedwaterFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 1.05, nozzleRadius * 1.05, 0.5, 16), flangeMaterial);
+            feedwaterFlange.rotation.y = Math.PI / 2;
+            feedwaterFlange.position.set(components.steamDrum.position.x + drumLength / 2, components.steamDrum.position.y, drumRadius + nozzleLength + 0.25);
+            feedwaterFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(feedwaterFlange);
+
+            // Blowdown Nozzle (bottom of mud drum)
+            const blowdownNozzle = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 0.6, nozzleRadius * 0.6, nozzleLength, 16), nozzleMaterial);
+            blowdownNozzle.position.set(0, components.mudDrum.position.y - drumRadius * 0.8 - nozzleLength / 2, 0);
+            blowdownNozzle.userData = { type: 'nozzles' };
+            components.nozzles.add(blowdownNozzle);
+
+            const blowdownFlange = new THREE.Mesh(new THREE.CylinderGeometry(nozzleRadius * 0.9, nozzleRadius * 0.9, 0.5, 16), flangeMaterial);
+            blowdownFlange.position.set(0, components.mudDrum.position.y - drumRadius * 0.8 - nozzleLength - 0.25, 0);
+            blowdownFlange.userData = { type: 'nozzles' };
+            components.nozzles.add(blowdownFlange);
+
+
+            // Boiler Casing (simplified transparent box around everything)
+            const casingMaterial = new THREE.MeshPhysicalMaterial({
+                color: componentInfo.casing.color,
+                metalness: 0.5,
+                roughness: 0.5,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.BackSide // Render inside out for better transparency effect
+            });
+            components.casing = new THREE.Mesh(
+                new THREE.BoxGeometry(furnaceWidth + casingOffset * 2, furnaceHeight + drumRadius * 4 + casingOffset * 2, furnaceDepth + casingOffset * 2),
+                casingMaterial
+            );
+            components.casing.position.y = (components.steamDrum.position.y + components.mudDrum.position.y) / 2;
+            components.casing.userData = { type: 'casing' };
+
+
+            // Fluid Flow Animation
+            components.fluidFlowWater = new THREE.Group();
+            components.fluidFlowSteam = new THREE.Group();
+            components.fluidFlowGas = new THREE.Group();
+
+            const numWaterParticles = 250;
+            const numSteamParticles = 100;
+            const numGasParticles = 200;
+            const particleSizeWater = 0.2;
+            const particleSizeSteam = 0.3;
+            const particleSizeGas = 0.4;
+
+            const waterColor = 0x00bfff; // Deep Sky Blue for water
+            const steamColor = 0xffffff; // White for steam
+            const hotGasColor = 0xffa500; // Orange for hot gas
+
+            function createFluidParticles(color, numParticles, size) {
+                const positions = new Float32Array(numParticles * 3);
+                const particles = new THREE.BufferAttribute(positions, 3);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', particles);
+
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: size,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    opacity: 0.7,
+                    sizeAttenuation: true
+                });
+
+                const points = new THREE.Points(geometry, material);
+                points.userData.progress = new Array(numParticles).fill(0).map(() => Math.random()); // Random initial progress
+                return points;
+            }
+
+            // Water Circulation (Downcomers -> Mud Drum -> Water Tubes -> Steam Drum)
+            const waterParticles = createFluidParticles(waterColor, numWaterParticles, particleSizeWater);
+            waterParticles.userData.paths = [];
+
+            // Example path for water circulation (simplified loop)
+            const waterPathPoints = [
+                new THREE.Vector3(components.steamDrum.position.x + drumLength / 2 - downcomerRiserRadius * 2, components.steamDrum.position.y - drumRadius, components.steamDrum.position.z), // Start at steam drum bottom
+                new THREE.Vector3(components.steamDrum.position.x + drumLength / 2 - downcomerRiserRadius * 2, components.mudDrum.position.y + drumRadius * 0.8, components.mudDrum.position.z), // Down to mud drum
+                new THREE.Vector3(components.mudDrum.position.x, components.mudDrum.position.y + drumRadius * 0.8, components.mudDrum.position.z), // Along mud drum
+                new THREE.Vector3(components.mudDrum.position.x, components.furnace.position.y - furnaceHeight / 2, components.furnace.position.z + furnaceDepth / 2 - tubeHorizontalSpacing), // Into water tube bottom
+                new THREE.Vector3(components.furnace.position.x, components.furnace.position.y + furnaceHeight / 2, components.furnace.position.z - furnaceDepth / 2 + tubeHorizontalSpacing), // Up through water tube
+                new THREE.Vector3(components.steamDrum.position.x, components.steamDrum.position.y + drumRadius, components.steamDrum.position.z) // Back to steam drum top
+            ];
+            waterParticles.userData.paths.push(new THREE.CatmullRomCurve3(waterPathPoints));
+            components.fluidFlowWater.add(waterParticles);
+
+
+            // Steam Generation (rising from water tubes to steam drum, then to superheater)
+            const steamParticles = createFluidParticles(steamColor, numSteamParticles, particleSizeSteam);
+            steamParticles.userData.paths = [];
+            const steamPathPoints = [
+                new THREE.Vector3(components.furnace.position.x, components.furnace.position.y + furnaceHeight / 2, components.furnace.position.z - furnaceDepth / 2 + tubeHorizontalSpacing), // From water tube top
+                new THREE.Vector3(components.steamDrum.position.x, components.steamDrum.position.y + drumRadius, components.steamDrum.position.z), // Into steam drum
+                new THREE.Vector3(components.steamDrum.position.x, components.steamDrum.position.y + drumRadius + nozzleLength, components.steamDrum.position.z), // Out steam nozzle
+                new THREE.Vector3(components.superheater.position.x, components.superheater.position.y + superheaterTubeRadius * 5, components.superheater.position.z), // Into superheater
+                new THREE.Vector3(components.superheater.position.x, components.superheater.position.y + superheaterTubeRadius * 5, components.superheater.position.z + 5), // Through superheater
+                new THREE.Vector3(components.superheater.position.x, components.superheater.position.y + superheaterTubeRadius * 5 + nozzleLength, components.superheater.position.z + 5) // Out superheater
+            ];
+            steamParticles.userData.paths.push(new THREE.CatmullRomCurve3(steamPathPoints));
+            components.fluidFlowSteam.add(steamParticles);
+
+
+            // Hot Gas Flow (through furnace, over tubes, then to superheater)
+            const gasParticles = createFluidParticles(hotGasColor, numGasParticles, particleSizeGas);
+            gasParticles.userData.paths = [];
+            const gasPathPoints = [
+                new THREE.Vector3(components.furnace.position.x - furnaceWidth / 2, components.furnace.position.y - furnaceHeight / 2, components.furnace.position.z - furnaceDepth / 2), // Furnace bottom-left-front (inlet)
+                new THREE.Vector3(components.furnace.position.x + furnaceWidth / 2, components.furnace.position.y + furnaceHeight / 2, components.furnace.position.z + furnaceDepth / 2), // Furnace top-right-back (through furnace)
+                new THREE.Vector3(components.superheater.position.x, components.superheater.position.y + superheaterTubeRadius * 5 + 5, components.superheater.position.z), // Towards superheater
+                new THREE.Vector3(components.superheater.position.x + 5, components.superheater.position.y + superheaterTubeRadius * 5 + 5, components.superheater.position.z + 5) // Out superheater exit
+            ];
+            gasParticles.userData.paths.push(new THREE.CatmullRomCurve3(gasPathPoints));
+            components.fluidFlowGas.add(gasParticles);
+
+
+            components.fluidFlowWater.visible = false; 
+            components.fluidFlowSteam.visible = false; 
+            components.fluidFlowGas.visible = false; 
+            scene.add(components.fluidFlowWater);
+            scene.add(components.fluidFlowSteam);
+            scene.add(components.fluidFlowGas);
+
+
+            // Full assembly
+            components.fullAssembly = new THREE.Group();
+            components.fullAssembly.add(components.steamDrum);
+            components.fullAssembly.add(components.mudDrum);
+            components.fullAssembly.add(components.waterTubes);
+            components.fullAssembly.add(components.furnace);
+            components.fullAssembly.add(components.downcomersRisers);
+            components.fullAssembly.add(components.superheater);
+            components.fullAssembly.add(components.nozzles);
+            components.fullAssembly.add(components.casing);
+            
+            scene.add(components.fullAssembly);
+        }
+
+        // Initialize components
+        createComponents();
+
+        // Show only specific component(s)
+        function showOnly(componentType) {
+            // Hide all components first
+            Object.values(components).forEach(comp => {
+                if (comp && comp !== components.fullAssembly && comp !== components.fluidFlowWater && comp !== components.fluidFlowSteam && comp !== components.fluidFlowGas) {
+                    comp.visible = false;
+                }
+            });
+            
+            // Hide fluid animations by default when changing views
+            components.fluidFlowWater.visible = false;
+            components.fluidFlowSteam.visible = false;
+            components.fluidFlowGas.visible = false;
+
+            // Show the requested component(s)
+            if (componentType === 'steamDrum') {
+                components.steamDrum.visible = true;
+                components.mudDrum.visible = true; // Context
+                components.downcomersRisers.visible = true; // Context
+                components.nozzles.visible = true; // Context
+                components.fluidFlowWater.visible = true; // Show water flow
+                components.fluidFlowSteam.visible = true; // Show steam flow
+            } else if (componentType === 'mudDrum') {
+                components.mudDrum.visible = true;
+                components.steamDrum.visible = true; // Context
+                components.downcomersRisers.visible = true; // Context
+                components.waterTubes.visible = true; // Context
+                components.fluidFlowWater.visible = true; // Show water flow
+            } else if (componentType === 'waterTubes') {
+                components.waterTubes.visible = true;
+                components.furnace.visible = true; // Context
+                components.mudDrum.visible = true; // Context
+                components.steamDrum.visible = true; // Context
+                components.fluidFlowWater.visible = true; // Show water flow
+                components.fluidFlowSteam.visible = true; // Show steam flow
+                components.fluidFlowGas.visible = true; // Show gas flow
+            } else if (componentType === 'furnace') {
+                components.furnace.visible = true;
+                components.waterTubes.visible = true; // Context
+                components.fluidFlowGas.visible = true; // Show gas flow
+            } else if (componentType === 'downcomersRisers') {
+                components.downcomersRisers.visible = true;
+                components.steamDrum.visible = true; // Context
+                components.mudDrum.visible = true; // Context
+                components.fluidFlowWater.visible = true; // Show water flow
+            } else if (componentType === 'superheater') {
+                components.superheater.visible = true;
+                components.steamDrum.visible = true; // Context
+                components.fluidFlowSteam.visible = true; // Show steam flow
+                components.fluidFlowGas.visible = true; // Show gas flow
+            } else if (componentType === 'nozzles') {
+                components.nozzles.visible = true;
+                components.steamDrum.visible = true; // Context
+                components.mudDrum.visible = true; // Context
+            } else if (componentType === 'casing') {
+                components.casing.visible = true;
+            } else if (componentType === 'full') {
+                Object.values(components).forEach(comp => {
+                    if (comp && comp !== components.fluidFlowWater && comp !== components.fluidFlowSteam && comp !== components.fluidFlowGas) comp.visible = true;
+                });
+                // Show all fluid animations in full view by default
+                components.fluidFlowWater.visible = true;
+                components.fluidFlowSteam.visible = true;
+                components.fluidFlowGas.visible = true;
+            }
+            
+            // Update info panel if showing single component
+            if (componentType !== 'full' && componentInfo[componentType]) {
+                document.getElementById('component-title').textContent = componentInfo[componentType].title;
+                document.getElementById('component-description').textContent = componentInfo[componentType].description;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+            
+            // Focus camera on the shown component(s)
+            let targetObject;
+            if (componentType === 'steamDrum') targetObject = components.steamDrum;
+            else if (componentType === 'mudDrum') targetObject = components.mudDrum;
+            else if (componentType === 'waterTubes') targetObject = components.waterTubes;
+            else if (componentType === 'furnace') targetObject = components.furnace;
+            else if (componentType === 'downcomersRisers') targetObject = components.downcomersRisers;
+            else if (componentType === 'superheater') targetObject = components.superheater;
+            else if (componentType === 'nozzles') targetObject = components.nozzles;
+            else if (componentType === 'casing') targetObject = components.casing;
+            else targetObject = components.fullAssembly;
+            
+            animateCameraToComponent(targetObject);
+        }
+
+        // Camera animation to focus on object
+        function animateCameraToComponent(object) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            controls.enabled = false; // Disable orbit controls during animation
+            
+            const boundingBox = new THREE.Box3().setFromObject(object);
+            const size = boundingBox.getSize(new THREE.Vector3());
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const distance = maxDim * 1.8; // Adjust multiplier for desired zoom level
+            
+            // Calculate target position for camera
+            const currentCameraPosition = camera.position.clone();
+            const currentLookAt = controls.target.clone();
+
+            // Determine a direction from the object's center to place the camera
+            // Default to looking from front-right-top if object is at origin
+            let direction = new THREE.Vector3().subVectors(currentCameraPosition, center).normalize();
+            if (direction.length() === 0) direction.set(0.5, 0.5, 1).normalize(); // Fallback if camera is at center
+
+            targetPosition = new THREE.Vector3().copy(center).add(direction.multiplyScalar(distance));
+            targetLookAt = center.clone();
+            
+            animateCamera();
+        }
+
+        function animateCamera() {
+            if (!targetPosition || !targetLookAt) return;
+            
+            const moveSpeed = 0.05; // Slower for smoother transition
+            const lookSpeed = 0.05;
+            
+            camera.position.lerp(targetPosition, moveSpeed);
+            controls.target.lerp(targetLookAt, lookSpeed);
+            
+            const positionDiff = camera.position.distanceTo(targetPosition);
+            const lookDiff = controls.target.distanceTo(targetLookAt);
+            
+            if (positionDiff < 0.1 && lookDiff < 0.1) { // Threshold for animation end
+                camera.position.copy(targetPosition);
+                controls.target.copy(targetLookAt);
+                isAnimating = false;
+                controls.enabled = true; // Re-enable orbit controls
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateCamera);
+        }
+
+        // Toggle casing visibility
+        function toggleCasingVisibility() {
+            components.casing.visible = !components.casing.visible;
+            document.getElementById('toggle-casing').innerHTML = 
+                `<span class="color-indicator" style="background-color: #${new THREE.Color(componentInfo.casing.color).getHexString()};"></span>` +
+                (components.casing.visible ? 'Hide Casing' : 'Show Casing');
+        }
+
+        // Toggle section view
+        function toggleSectionView() {
+            isSectionView = !isSectionView;
+            renderer.localClippingEnabled = isSectionView;
+            sectionHelper.visible = isSectionView;
+            
+            // Toggle fluid visibility based on section view
+            components.fluidFlowWater.visible = isSectionView;
+            components.fluidFlowSteam.visible = isSectionView;
+            components.fluidFlowGas.visible = isSectionView;
+
+            scene.traverse(child => {
+                if (child.isMesh) {
+                    // Apply clipping planes only to components that are part of the main assembly
+                    if (child.parent && child.parent.userData.type === 'fullAssembly' || child.userData.type === 'steamDrum' || child.userData.type === 'mudDrum' || child.userData.type === 'waterTubes' || child.userData.type === 'furnace' || child.userData.type === 'downcomersRisers' || child.userData.type === 'superheater' || child.userData.type === 'casing') {
+                         child.material.clippingPlanes = isSectionView ? [sectionPlane] : null;
+                    } else {
+                        child.material.clippingPlanes = null;
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            document.getElementById('section-view').textContent = 
+                isSectionView ? 'Full View' : 'Section View';
+        }
+
+        // Handle mouse clicks
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the raycaster with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the ray
+            const intersects = raycaster.intersectObjects(scene.children, true); // true for recursive check
+            
+            if (intersects.length > 0) {
+                let clickedObject = intersects[0].object;
+                // Traverse up the hierarchy to find the main component group
+                while (clickedObject && !clickedObject.userData.type && clickedObject.parent) {
+                    clickedObject = clickedObject.parent;
+                }
+                
+                if (clickedObject && clickedObject.userData.type) {
+                    const componentType = clickedObject.userData.type;
+                    showOnly(componentType);
+                }
+            }
+        }
+
+        // Set up UI controls
+        document.getElementById('toggle-casing').addEventListener('click', toggleCasingVisibility);
+        document.getElementById('section-view').addEventListener('click', toggleSectionView);
+        document.getElementById('reset-view').addEventListener('click', () => showOnly('full'));
+        document.getElementById('view-steam-drum').addEventListener('click', () => showOnly('steamDrum'));
+        document.getElementById('view-mud-drum').addEventListener('click', () => showOnly('mudDrum'));
+        document.getElementById('view-water-tubes').addEventListener('click', () => showOnly('waterTubes'));
+        document.getElementById('view-furnace').addEventListener('click', () => showOnly('furnace'));
+        document.getElementById('view-downcomers-risers').addEventListener('click', () => showOnly('downcomersRisers'));
+        document.getElementById('view-superheater').addEventListener('click', () => showOnly('superheater'));
+        document.getElementById('view-nozzles').addEventListener('click', () => showOnly('nozzles'));
+
+        window.addEventListener('click', onMouseClick, false);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate); // Request next frame
+            controls.update(); // Update orbit controls
+
+            // Animate fluid particles if visible
+            if (components.fluidFlowWater.visible) {
+                const waterParticles = components.fluidFlowWater.children[0];
+                const waterPositions = waterParticles.geometry.attributes.position.array;
+                const waterPath = waterParticles.userData.paths[0]; // Assuming one main path
+
+                for (let i = 0; i < waterParticles.userData.progress.length; i++) {
+                    waterParticles.userData.progress[i] = (waterParticles.userData.progress[i] + 0.003) % 1; // Adjust speed
+                    const p = waterPath.getPointAt(waterParticles.userData.progress[i]);
+                    waterPositions[i * 3] = p.x;
+                    waterPositions[i * 3 + 1] = p.y;
+                    waterPositions[i * 3 + 2] = p.z;
+                }
+                waterParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (components.fluidFlowSteam.visible) {
+                const steamParticles = components.fluidFlowSteam.children[0];
+                const steamPositions = steamParticles.geometry.attributes.position.array;
+                const steamPath = steamParticles.userData.paths[0]; // Assuming one main path
+
+                for (let i = 0; i < steamParticles.userData.progress.length; i++) {
+                    steamParticles.userData.progress[i] = (steamParticles.userData.progress[i] + 0.007) % 1; // Faster for steam
+                    const p = steamPath.getPointAt(steamParticles.userData.progress[i]);
+                    steamPositions[i * 3] = p.x;
+                    steamPositions[i * 3 + 1] = p.y;
+                    steamPositions[i * 3 + 2] = p.z;
+                }
+                steamParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (components.fluidFlowGas.visible) {
+                const gasParticles = components.fluidFlowGas.children[0];
+                const gasPositions = gasParticles.geometry.attributes.position.array;
+                const gasPath = gasParticles.userData.paths[0]; // Assuming one main path
+
+                for (let i = 0; i < gasParticles.userData.progress.length; i++) {
+                    gasParticles.userData.progress[i] = (gasParticles.userData.progress[i] + 0.004) % 1; // Adjust speed
+                    const p = gasPath.getPointAt(gasParticles.userData.progress[i]);
+                    gasPositions[i * 3] = p.x;
+                    gasPositions[i * 3 + 1] = p.y;
+                    gasPositions[i * 3 + 2] = p.z;
+                }
+                gasParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera); // Render the scene
+        }
+        
+        // Start the animation on window load.
+        window.onload = function () {
+            animate(); 
+        }
+    </script>
+</body>
+</html>
