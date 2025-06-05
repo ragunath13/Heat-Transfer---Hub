@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dependence of Thermal Conductivity on Temperature and Material</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    code.k-formula {
+      display: block;
+      background-color: #000000;
+      padding: 10px;
+      font-size:30px;
+      border-left: 4px solid #ff6600;
+      font-family: monospace;
+      margin: 1em 0;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="conduction_heading">🌡️ Dependence of Thermal Conductivity on Temperature and Material</h1>
+  
+  <h2 class="conduction_all_subtopics">🔍 Material Dependence</h2>
+  <p>Thermal conductivity (<strong>k</strong>) varies significantly across different materials. It is primarily determined by the material's atomic structure, bonding type, and the presence of free electrons or phonons for heat transport. Here’s how different materials behave:</p>
+  
+  <ul class="future_tch_points">
+    <li><strong>Metals:</strong> Metals have high thermal conductivity due to the presence of free electrons that can move easily and transfer heat. Example: Copper (~400 W/m·K), Aluminum (~205 W/m·K).</li>
+    <li><strong>Insulators:</strong> Insulating materials have low thermal conductivity because heat is transferred via slower-moving phonons (vibrating atoms). Example: Glass (~0.8 W/m·K), Polystyrene (~0.03 W/m·K).</li>
+    <li><strong>Polymers:</strong> Thermal conductivity in polymers is generally low because of their amorphous structure, which hinders heat flow. Example: PVC (~0.2 W/m·K), Rubber (~0.15 W/m·K).</li>
+    <li><strong>Ceramics:</strong> Thermal conductivity in ceramics varies widely depending on the material composition and structure. Example: Alumina (~30 W/m·K), Silicon Carbide (~120 W/m·K).</li>
+  </ul>
+
+  <h2 class="conduction_all_subtopics">📈 Temperature Dependence</h2>
+  <p>Thermal conductivity also depends on the temperature of the material. The temperature affects the behavior of free electrons and phonons, resulting in changes in heat transfer properties:</p>
+
+  <ul class="future_tch_points">
+    <li><strong>Metals:</strong> Thermal conductivity generally decreases with increasing temperature. As temperature rises, atoms vibrate more, causing increased scattering of free electrons, which reduces their ability to transfer heat.</li>
+    <li><strong>Non-metals:</strong> In non-metals, the thermal conductivity typically increases with temperature at low to moderate temperatures due to more efficient phonon transport, but at higher temperatures, it may decrease due to phonon scattering.</li>
+    <li><strong>Phase Changes:</strong> Materials undergoing phase changes (e.g., melting) exhibit a drastic change in thermal conductivity. For example, water has a very high conductivity in the liquid state compared to its solid state (ice).</li>
+  </ul>
+
+  <h2 class="conduction_all_subtopics">🧪 Empirical Relation (for certain materials)</h2>
+  <p>An approximate empirical relation for temperature-dependent thermal conductivity is:</p>
+  <center><code class="k-formula">
+    k(T) = k₀ · (1 + α(T - T₀))
+  </code></center>
+  <ul class="future_tch_points">
+    <li><strong>k(T):</strong> Thermal conductivity at temperature T</li>
+    <li><strong>k₀:</strong> Reference thermal conductivity at base temperature T₀</li>
+    <li><strong>α:</strong> Temperature coefficient (1/K)</li>
+  </ul>
+  <p>This relation is a first-order approximation for some materials, especially metals. For non-metals or ceramics, more complex models might be necessary due to varying temperature dependencies.</p>
+
+  <h2 class="conduction_all_subtopics">🌡️ High-Temperature Behavior</h2>
+  <p>At very high temperatures (e.g., in industrial applications, or during high-energy processes), the behavior of thermal conductivity can become more complex:</p>
+  <ul class="future_tch_points">
+    <li><strong>Thermal degradation:</strong> Some materials, like polymers and composites, experience thermal degradation at high temperatures, which leads to a decrease in thermal conductivity.</li>
+    <li><strong>Radiation:</strong> At high temperatures, radiation becomes a significant mode of heat transfer. The contribution of radiation should be considered in such conditions, as it can affect the effective thermal conductivity.</li>
+    <li><strong>Phase transition effects:</strong> At high temperatures, materials may undergo phase transitions (e.g., solid to liquid), drastically altering their thermal conductivity.</li>
+  </ul>
+
+  <h2 class="conduction_all_subtopics">📝 Notes</h2>
+  <ul class="future_tch_points">
+    <li>Material anisotropy can cause direction-dependent thermal conductivity, especially in crystalline materials and composites.</li>
+    <li>The inclusion of impurities or defects in a material can significantly reduce its thermal conductivity, as they disrupt the regular lattice structure.</li>
+    <li>Temperature gradients across materials in real-world applications may lead to non-uniform thermal behavior, requiring special design considerations for heat management (e.g., using insulation in high-heat zones).</li>
+  </ul>
+
+  <h2 class="conduction_all_subtopics">🏗️ Applications of Thermal Conductivity</h2>
+  <ul class="future_tch_points">
+    <li>In electronics, high thermal conductivity materials are used for heat sinks to dissipate heat from components.</li>
+    <li>Thermal conductivity is critical in building insulation materials, such as fiberglass or foam, which help maintain energy efficiency.</li>
+    <li>Materials with low thermal conductivity are used in cryogenics to reduce heat transfer at low temperatures.</li>
+    <li>In aerospace, high-temperature materials like ceramics and composites are designed to withstand the extreme thermal gradients during flight.</li>
+    <li>In energy storage systems (e.g., batteries), understanding thermal conductivity helps in managing the heat generated during charging and discharging cycles.</li>
+  </ul>
+
+  <h2 class="conduction_all_subtopics">📚 References</h2>
+  <ul class="future_tch_points">
+    <li>Yunus A. Çengel, <em>Heat and Mass Transfer: Fundamentals and Applications</em>, McGraw-Hill</li>
+    <li>Frank P. Incropera et al., <em>Fundamentals of Heat and Mass Transfer</em>, Wiley</li>
+    <li>Callister, <em>Materials Science and Engineering</em>, Wiley</li>
+    <li>Michael F. Ashby, <em>Materials Selection in Mechanical Design</em>, Butterworth-Heinemann</li>
+  </ul>
+</body>
+</html>

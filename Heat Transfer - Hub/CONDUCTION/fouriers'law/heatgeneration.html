@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Heat Generation in Solids</title>
+  <link rel="stylesheet" href="subtopic.css">
+</head>
+<body>
+  <h1 class="conduction_heading">🔥 Heat Generation in Solids</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 What is Heat Generation in Solids?</h2>
+    <p>Heat generation in solids refers to the process where thermal energy is produced within the material due to various internal mechanisms such as electrical resistance, nuclear reactions, chemical reactions, or friction. This energy acts as a source term in the heat conduction equation, contributing to temperature rise throughout the solid.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 General Heat Conduction Equation (with Generation)</h2>
+    <p>The one-dimensional steady-state heat conduction equation with uniform internal heat generation is given by:</p>
+    <p>    <code class="k-formula">
+        d²T/dx² + (q<sub>g</sub> / k) = 0
+      </code></p>
+    <ul class="future_tch_points">
+      <li><strong>T:</strong> Temperature (K)</li>
+      <li><strong>x:</strong> Spatial coordinate (m)</li>
+      <li><strong>q<sub>g</sub>:</strong> Volumetric heat generation rate (W/m³)</li>
+      <li><strong>k:</strong> Thermal conductivity (W/m·K)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⚡ Sources of Internal Heat Generation</h2>
+    <ul class="future_tch_points">
+      <li><strong>Joule Heating:</strong> Due to electric current in resistive materials (e.g., wires, heating elements)</li>
+      <li><strong>Nuclear Reactions:</strong> Heat generated in nuclear fuel rods</li>
+      <li><strong>Chemical Reactions:</strong> Exothermic reactions inside a body (e.g., battery cells)</li>
+      <li><strong>Frictional Heating:</strong> Generated during contact or movement between surfaces</li>
+      <li><strong>Viscous Heating:</strong> Occurs in fluids under high shear</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📊 Analytical Solution for Heat Generation</h2>
+    <p>For a slab of thickness 2L with uniform heat generation and constant surface temperature:</p>
+    <p><code>\ T(x) = T<sub>s</sub> + (q<sub>g</sub> / 2k) · (L² - x²)
+    </code></p>
+    <p>This parabolic distribution shows maximum temperature at the center of the slab (x = 0).</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔍 Physical Interpretation</h2>
+    <p>When heat is generated internally, temperature increases not only due to external heating but also due to the continuous energy addition within the solid. This leads to a non-linear temperature profile, and proper thermal management is essential to avoid material failure or performance degradation.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏗️ Applications</h2>
+    <ul class="future_tch_points">
+      <li>Electrical components and circuit boards</li>
+      <li>Nuclear reactor cores</li>
+      <li>Battery and fuel cell systems</li>
+      <li>Combustion chambers</li>
+      <li>Frictional heating in brake systems</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📚 References</h2>
+    <ul class="future_tch_points">
+      <li>Yunus A. Çengel, <em>Heat and Mass Transfer: Fundamentals and Applications</em>, McGraw-Hill</li>
+      <li>Frank P. Incropera et al., <em>Fundamentals of Heat and Mass Transfer</em>, Wiley</li>
+      <li>J.P. Holman, <em>Heat Transfer</em>, McGraw-Hill</li>
+      <li>Adrian Bejan, <em>Convection Heat Transfer</em>, Wiley</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📝 Additional Notes</h2>
+    <ul class="future_tch_points">
+      <li>The temperature profile becomes more non-linear as heat generation increases.</li>
+      <li>Heat sinks and active cooling are often required in high-heat-generation applications.</li>
+      <li>Material selection is critical to handle generated heat and avoid thermal failure.</li>
+      <li>Transient analysis is necessary when generation changes with time.</li>
+    </ul>
+  </div>
+
+</body>
+</html>

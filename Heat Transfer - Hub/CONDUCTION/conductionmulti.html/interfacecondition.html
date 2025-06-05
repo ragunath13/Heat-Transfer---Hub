@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interface Conditions in Conduction</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+  
+  <!-- MathJax for formula rendering -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🌡️ Interface Conditions in Multilayer Conduction</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔍 Introduction</h2>
+    <p>
+      In composite systems composed of two or more different materials, such as walls, pipes, or insulators,
+      each layer may have different thermal conductivities. The temperature distribution across these materials
+      is governed by conduction laws, and continuity at the interface must be satisfied to ensure energy balance.
+    </p>
+    <p>
+      Multilayer systems are common in engineering applications where materials are selected for specific
+      thermal, mechanical, or chemical properties. The interfaces between materials can influence heat flow,
+      and it’s crucial to model them accurately for predicting temperature profiles and designing insulation systems.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Governing Conditions at the Interface</h2>
+    <p>The following conditions must be satisfied at the interface between two materials:</p>
+    <ul class="future_tch_points">
+      <li>Continuity of Temperature:</li>
+      <div class="formula-box">
+        \[
+        T_1(x_{\text{interface}}) = T_2(x_{\text{interface}})
+        \]
+      </div>
+
+      <li>Continuity of Heat Flux:</li>
+      <div class="formula-box">
+        \[
+        -k_1 \left( \frac{dT}{dx} \right)_1 = -k_2 \left( \frac{dT}{dx} \right)_2
+        \]
+      </div>
+    </ul>
+    <p>
+      These ensure that there is no sudden jump in temperature or energy loss at the boundary of two materials
+      in perfect contact. In systems with large differences in thermal conductivity, steep gradients can form near the interfaces.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Derivation of Interface Equations</h2>
+    <p>Let’s consider two layers, Material 1 and Material 2, with thicknesses \( L_1 \) and \( L_2 \),
+    and thermal conductivities \( k_1 \) and \( k_2 \) respectively. In steady-state and one-dimensional conduction:</p>
+
+    <div class="formula-box">
+      \[
+      \frac{T_{\infty} - T_s}{R_{\text{total}}} = \dot{q},
+      \quad \text{where} \quad 
+      R_{\text{total}} = \frac{L_1}{k_1 A} + \frac{L_2}{k_2 A}
+      \]
+    </div>
+
+    <p>The temperature drop in each layer can be evaluated separately, and the interface temperature can be computed using the heat flux:</p>
+
+    <div class="formula-box">
+      \[
+      T_{\text{interface}} = T_s + \dot{q} \cdot \frac{L_1}{k_1}
+      \]
+    </div>
+
+    <p>
+      This equation helps in determining the thermal behavior of layered systems, such as insulation materials in walls
+      or thermal protection layers in electronics.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⚠️ Imperfect Contact Consideration</h2>
+    <p>In real systems, there may be a thermal contact resistance \( R_c \) at the interface.
+    This leads to a temperature drop across the interface:</p>
+
+    <div class="formula-box">
+      \[
+      \Delta T = q \cdot R_c
+      \]
+    </div>
+
+    <p>This resistance can be caused by rough surfaces, air gaps, or oxidation layers.
+    It's especially important in systems requiring precise temperature control like
+    semiconductors or cryogenic systems.</p>
+
+    <p>
+      The total thermal resistance in such a system becomes:
+    </p>
+
+    <div class="formula-box">
+      \[
+      R_{\text{total}} = \frac{L_1}{k_1 A} + R_c + \frac{L_2}{k_2 A}
+      \]
+    </div>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📊 Practical Design Considerations</h2>
+    <ul class="future_tch_points">
+      <li>Use of thermal interface materials (TIMs) to reduce contact resistance</li>
+      <li>Selection of materials with matching thermal expansion coefficients to avoid cracking</li>
+      <li>Analysis of transient behavior in multilayer systems for startup/shutdown cycles</li>
+      <li>Incorporating multilayer models in simulation software (e.g., ANSYS, COMSOL)</li>
+    </ul>
+  </div>
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔥 Animated Concept: Heat Flow Across Layers</h2>
+    <p>This animation illustrates how heat flows across two different materials with an interface:</p>
+  
+    <div style="display: flex; justify-content: center; margin-top: 20px;">
+      <div style="
+        width: 200px;
+        height: 30px;
+        background: linear-gradient(to right, #ff4500, #ffcc00);
+        animation: heatFlow1 3s infinite alternate;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+      "></div>
+      <div style="
+        width: 200px;
+        height: 30px;
+        background: linear-gradient(to right, #ffcc00, #4444ff);
+        animation: heatFlow2 3s infinite alternate;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      "></div>
+    </div>
+  
+    <p style="margin-top: 15px;">The color gradient represents the temperature gradient, transitioning through an interface.</p>
+  </div>
+  
+  <style>
+  @keyframes heatFlow1 {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  
+  @keyframes heatFlow2 {
+    0%   { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  </style>
+  
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏭 Applications</h2>
+    <ul class="future_tch_points">
+      <li>Thermal insulation in building walls and spacecraft</li>
+      <li>Heat shielding in aerospace and automotive components</li>
+      <li>Composite structures in electronics cooling</li>
+      <li>Layered armor and protective coatings</li>
+      <li>Microelectronics and chip-level heat management</li>
+    </ul>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🧊 Effect on Total Thermal Resistance</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+
+  <!-- MathJax for equations -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🧊 Effect on Total Thermal Resistance</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Concept Overview</h2>
+    <p>
+      In thermal systems involving multiple layers of materials, **thermal resistance** plays a crucial role in determining the rate of heat transfer. Each layer contributes a conduction resistance, and the interfaces between layers introduce an additional resistance known as <strong>thermal contact resistance (R<sub>tc</sub>)</strong>.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧮 Total Thermal Resistance Equation</h2>
+    <p>The combined thermal resistance of a system is:</p>
+    <div class="formula-box">
+      \[
+      R_{\text{total}} = R_1 + R_{tc} + R_2
+      \]
+    </div>
+    <ul class="future_tch_points">
+      <li>\( R_1, R_2 \): Conduction resistance of each layer</li>
+      <li>\( R_{tc} \): Thermal contact resistance due to imperfect surface contact</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Conduction Resistance of a Layer</h2>
+    <div class="formula-box">
+      \[
+      R = \frac{L}{kA}
+      \]
+    </div>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li>\( L \): Thickness of the layer (m)</li>
+      <li>\( k \): Thermal conductivity (W/m·K)</li>
+      <li>\( A \): Cross-sectional area (m²)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔍 Thermal Contact Resistance</h2>
+    <div class="formula-box">
+      \[
+      R_{tc} = \frac{1}{h_{tc} \cdot A}
+      \]
+    </div>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li>\( h_{tc} \): Thermal contact conductance (W/m²·K)</li>
+      <li>\( A \): Contact area (m²)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⚠️ Factors Affecting Thermal Contact Resistance</h2>
+    <ul class="future_tch_points">
+      <li><strong>Surface Roughness:</strong> Rougher surfaces trap air and reduce actual contact area.</li>
+      <li><strong>Contact Pressure:</strong> Higher pressure improves surface conformity and decreases resistance.</li>
+      <li><strong>Material Properties:</strong> Softer materials may deform better to form good contact.</li>
+      <li><strong>Presence of Gaps or Voids:</strong> Trapped air is a poor conductor and increases resistance.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🛠️ Reducing Contact Resistance</h2>
+    <ul class="future_tch_points">
+      <li>Use of <strong>thermal interface materials (TIMs)</strong> like thermal grease, paste, or pads.</li>
+      <li>Polishing and machining surfaces for improved flatness.</li>
+      <li>Applying clamping pressure to improve contact area.</li>
+      <li>Coating with conductive materials like silver or copper.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🌡️ Heat Transfer Through the System</h2>
+    <div class="formula-box">
+      \[
+      Q = \frac{T_{\text{hot}} - T_{\text{cold}}}{R_{\text{total}}}
+      \]
+    </div>
+    <ul class="future_tch_points">
+      <li>\( Q \): Heat transfer rate (W)</li>
+      <li>\( T_{\text{hot}}, T_{\text{cold}} \): Temperatures on either side of the system</li>
+      <li>\( R_{\text{total}} \): Combined thermal resistance (K/W)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📌 Engineering Significance</h2>
+    <p>
+      Thermal contact resistance is crucial in fields like:
+    </p>
+    <ul class="future_tch_points">
+      <li>Electronic device cooling (e.g., CPU and GPU heatsinks)</li>
+      <li>Power electronics, aerospace systems, and automotive engines</li>
+      <li>Thermal protection systems in spacecraft</li>
+      <li>Layered insulation systems</li>
+    </ul>
+    <p>
+      Even small changes in \( R_{tc} \) can significantly impact thermal performance and reliability.
+    </p>
+  </div>
+
+</body>
+</html>

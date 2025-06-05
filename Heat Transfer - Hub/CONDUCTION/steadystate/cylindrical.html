@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cylindrical Coordinates: Heat Transfer in Pipe Insulation</title>
+  <link rel="stylesheet" href="subtopic.css" />
+  <style>
+    canvas {
+      background: #111;
+      display: block;
+      margin: 30px auto;
+      border: 2px solid #555;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="conduction_heading">📏 Cylindrical Coordinates: Heat Transfer in Pipe Insulation</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔍 Concept Overview</h2>
+    <p>In cylindrical coordinates, heat conduction refers to the radial heat transfer through a cylindrical object. This is particularly relevant in situations such as the heat flow through a pipe, where thermal energy moves from the fluid inside to the insulation and then to the outer environment. The geometry of the cylindrical pipe causes the heat to flow in the radial direction.</p>
+    <p>For pipe insulation, heat transfer is governed by the material's thermal conductivity, the temperature difference between the inner and outer surfaces, and the dimensions of the pipe and insulation.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Governing Equation & Derivation</h2>
+    <p>The steady-state heat conduction equation in cylindrical coordinates (without heat generation) is derived from Fourier's law of heat conduction:</p>
+    <code>q = -k * 2π * r * L * (dT/dr)</code>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li><strong>q:</strong> Heat transfer rate (W)</li>
+      <li><strong>k:</strong> Thermal conductivity (W/m·K)</li>
+      <li><strong>L:</strong> Length of the pipe (m)</li>
+      <li><strong>r:</strong> Radial distance (m)</li>
+      <li><strong>dT/dr:</strong> Radial temperature gradient (°C/m)</li>
+    </ul>
+    <p>This equation calculates the rate of heat transfer for a radial system such as a pipe. The term <code>r</code> appears due to the cylindrical geometry, where the heat is transferred outward through the wall. The distance <code>r</code> increases from the pipe's inner surface to the outer surface, creating a temperature gradient.</p>
+    
+    <h3>Derivation of the Equation:</h3>
+    <p>Let's start with Fourier's law of heat conduction:</p>
+    <code>q = -k * 2π * r * L * (dT/dr)</code>
+    <p>We integrate this equation over the radial distance from the inner radius <code>r<sub>i</sub></code> to the outer radius <code>r<sub>o</sub></code> to find the total heat transfer:</p>
+    <code>q = -k * 2π * L * ∫<sub>r<sub>i</sub></code><sup>r<sub>o</sub></sup> (dT/dr) dr</code>
+    <p>On solving this integral, we get:</p>
+    <code>q = k * 2π * L * (T<sub>i</sub> - T<sub>o</sub>) / ln(r<sub>o</sub> / r<sub>i</sub>)</code>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li><strong>T<sub>i</sub>:</strong> Temperature at the inner surface (°C)</li>
+      <li><strong>T<sub>o</sub>:</strong> Temperature at the outer surface (°C)</li>
+      <li><strong>r<sub>i</sub>:</strong> Inner radius of the pipe (m)</li>
+      <li><strong>r<sub>o</sub>:</strong> Outer radius of the pipe (m)</li>
+    </ul>
+    <p>This final expression tells us how much heat is transferred radially from the inner surface of the pipe to the outer surface, depending on the temperature difference, the thermal conductivity of the material, and the pipe's dimensions.</p>
+  </div>
+  <h1 class="conduction_heading">📏 Cylindrical Coordinates: Heat Transfer in Pipe Insulation</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Full Derivation in Cylindrical Coordinates</h2>
+    <p>To derive the heat conduction equation in cylindrical coordinates for steady-state, one-dimensional radial conduction with no internal heat generation, we start from the general form of Fourier’s law and apply energy conservation over a differential control volume.</p>
+
+    <h3>Step 1: Consider a Differential Element</h3>
+    <p>Consider a thin cylindrical shell of thickness <code>dr</code>, inner radius <code>r</code>, length <code>L</code>, and unit depth in the axial direction. Heat flows radially inward.</p>
+
+    <h3>Step 2: Apply Fourier’s Law</h3>
+    <p>The radial heat flux at radius <code>r</code> is given by:</p>
+    <code>q_r = -k * (dT/dr)</code>
+    <p>Total heat flow through the cylindrical surface of radius <code>r</code> is:</p>
+    <code>Q_r = q_r * A = -k * (dT/dr) * (2πrL)</code>
+
+    <h3>Step 3: Energy Conservation</h3>
+    <p>Net heat entering the control volume:</p>
+    <code>Q_{in} - Q_{out} = dQ = (Q_r - Q_{r+dr})</code>
+    <p>Expanding <code>Q_{r+dr}</code> in a Taylor series and ignoring higher-order terms:</p>
+    <code>Q_{r+dr} = Q_r + (dQ_r/dr) * dr</code>
+    <p>So,</p>
+    <code>dQ = - (dQ_r/dr) * dr</code>
+
+    <h3>Step 4: Substitute for <code>Q_r</code></h3>
+    <p>From earlier:</p>
+    <code>Q_r = -k * 2πrL * (dT/dr)</code>
+    <p>Now differentiate with respect to <code>r</code>:</p>
+    <code>dQ_r/dr = -k * 2πL * [(dT/dr) + r * (d²T/dr²)]</code>
+    <p>Then:</p>
+    <code>dQ = k * 2πL * [(dT/dr) + r * (d²T/dr²)] * dr</code>
+
+    <h3>Step 5: Set Net Heat Change to Zero</h3>
+    <p>Under steady state with no heat generation, <code>dQ = 0</code>. So,</p>
+    <code>(d/dr)(r * dT/dr) = 0</code>
+
+    <h3>Step 6: Solve the Differential Equation</h3>
+    <code>(d/dr)(r * dT/dr) = 0</code>
+    <p>Integrate once:</p>
+    <code>r * dT/dr = C₁</code>
+    <p>Then:</p>
+    <code>dT/dr = C₁ / r</code>
+    <p>Integrate again:</p>
+    <code>T(r) = C₁ * ln(r) + C₂</code>
+
+    <h3>Step 7: Apply Boundary Conditions</h3>
+    <p>Let <code>T = T₁</code> at <code>r = r₁</code> (inner radius), and <code>T = T₂</code> at <code>r = r₂</code> (outer radius). Substituting into the general solution:</p>
+    <code>T₁ = C₁ * ln(r₁) + C₂</code><br>
+    <code>T₂ = C₁ * ln(r₂) + C₂</code>
+    <p>Subtract these two equations:</p>
+    <code>T₁ - T₂ = C₁ * [ln(r₁) - ln(r₂)]</code>
+    <code>C₁ = (T₁ - T₂) / ln(r₁ / r₂)</code>
+
+    <p>Now plug back into <code>Q_r</code> to find the heat transfer rate:</p>
+    <code>q = -k * 2πrL * dT/dr</code>
+    <code>q = 2πkL * (T₁ - T₂) / ln(r₂ / r₁)</code>
+
+    <p>This is the final formula for steady-state heat conduction in cylindrical coordinates without heat generation.</p>
+  </div>
+
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🎞️ 3D Animation: Heat Flow Inward in Pipe with Temperature Difference</h2>
+    <canvas id="pipeCanvas" width="600" height="300"></canvas>
+    <script>
+      const pipeCanvas = document.getElementById("pipeCanvas");
+      const ctx = pipeCanvas.getContext("2d");
+
+      // Particle class to represent heat flow
+      class Particle {
+        constructor(angle, radius, temperature) {
+          this.angle = angle;  // Initial angle for distribution
+          this.radius = radius;  // Radial distance
+          this.speed = 0.5 + Math.random() * 1;  // Random speed
+          this.temperature = temperature;  // Temperature at current position
+        }
+
+        // Update the particle position (inward movement)
+        update() {
+          this.radius -= this.speed;  // Move the particle inward
+          if (this.radius < 40) {  // Reset particle when it reaches the center
+            this.radius = 100;
+            this.temperature = 100;  // Reset temperature to maximum at outer radius
+          }
+        }
+
+        // Draw the particle with color based on its temperature
+        draw() {
+          const x = 150 + this.radius * Math.cos(this.angle);
+          const y = 150 + this.radius * Math.sin(this.angle);
+
+          // Color particles based on their radial position (temperature gradient)
+          const tempRatio = (this.radius - 40) / (100 - 40);  // Ratio of temperature change
+          const red = Math.min(255, 255 * tempRatio);  // Higher red for higher temperature
+          const blue = Math.min(255, 255 * (1 - tempRatio));  // Higher blue for lower temperature
+
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, Math.PI * 2);  // Small circle to represent heat
+          ctx.fillStyle = `rgb(${red}, ${0}, ${blue})`;  // Gradient color based on temp
+          ctx.fill();
+        }
+      }
+
+      const particles = [];
+      const numParticles = 100;  // Number of particles representing heat
+
+      // Create particles in the outer surface with high temperature (red)
+      for (let i = 0; i < numParticles; i++) {
+        const angle = (2 * Math.PI / numParticles) * i;  // Distribute evenly around the pipe
+        particles.push(new Particle(angle, 100, 100));  // Initial radius is 100 (outer surface)
+      }
+
+      // Draw the pipe with 3D effect (simulating the cylindrical shape)
+      function drawPipe() {
+        // Outer pipe surface (representing the insulation layer)
+        ctx.fillStyle = "#4CAF50";  // Green (Insulation)
+        ctx.beginPath();
+        ctx.arc(150, 150, 100, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner pipe surface (fluid)
+        ctx.fillStyle = "#FF5733";  // Red (Hot fluid)
+        ctx.beginPath();
+        ctx.arc(150, 150, 40, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Labels for inner and outer
+        ctx.fillStyle = "white";
+        ctx.font = "14px Arial";
+        ctx.fillText("Outer Surface (Hot)", 220, 120);
+        ctx.fillText("Inner Surface (Cold)", 90, 230);
+      }
+
+      // Main animation loop
+      function animateHeatFlow() {
+        ctx.clearRect(0, 0, pipeCanvas.width, pipeCanvas.height);  // Clear the canvas
+
+        drawPipe();  // Draw the 3D-like pipe
+        for (const p of particles) {
+          p.update();  // Update particle position (moving inward)
+          p.draw();    // Draw each particle (representing heat)
+        }
+
+        requestAnimationFrame(animateHeatFlow);  // Continuous animation
+      }
+
+      animateHeatFlow();  // Start the animation loop
+    </script>
+    <p>The animation above now shows heat particles moving inward from the outer surface (hotter, red) toward the center (cooler, blue). The color of each particle gradually changes from red (hot) to blue (cool) as it moves inward, reflecting the decreasing temperature from the outer to the inner surface.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Real-Life Applications</h2>
+    <ul class="future_tch_points">
+      <li>Insulated pipes in industrial processes to conserve energy.</li>
+      <li>Thermal management in HVAC systems to prevent heat loss.</li>
+      <li>Thermal protection in underground pipelines carrying hot fluids.</li>
+      <li>Insulated pipes in district heating systems for energy efficiency.</li>
+      <li>Oil and gas pipelines to prevent heat loss during transportation.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧠 Intuitive Understanding</h2>
+    <p>Imagine a hot pipe carrying steam through a building. Without insulation, much of the heat escapes, warming the surrounding air. Insulating the pipe traps the heat inside, preventing the surrounding environment from being heated. The thicker the insulation, the better the heat is kept inside the pipe. This makes insulation very important in industrial applications where energy efficiency and cost savings are essential.</p>
+  </div>
+
+</body>
+</html>

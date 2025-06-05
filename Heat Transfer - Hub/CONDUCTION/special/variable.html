@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Variable Thermal Conductivity in Transient Conduction</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+
+  <!-- MathJax for equations -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🔥 Variable Thermal Conductivity in Transient Heat Conduction</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Introduction</h2>
+    <p>
+      In many real-world applications, the thermal conductivity \(k\) of materials changes with temperature.
+      This temperature dependence leads to non-linear behavior in the heat conduction equation,
+      especially in transient (time-varying) scenarios. For example, during rapid heating, as in fire exposure or high-power electronics,
+      the ability of materials to conduct heat changes significantly, influencing temperature distribution.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Governing Equation</h2>
+    <p>The 1D transient heat conduction equation becomes non-linear when \( k \) varies with temperature:</p>
+    <div class="formula-box">
+      \[
+      \rho c_p \frac{\partial T}{\partial t} = \frac{\partial}{\partial x} \left( k(T) \frac{\partial T}{\partial x} \right)
+      \]
+    </div>
+    <p>
+      This form accounts for the variation of conductivity inside the differential operator.
+      It cannot be simplified using constant-coefficient solutions and must be approached numerically.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔢 Common Models for \(k(T)\)</h2>
+    <ul class="future_tch_points">
+      <li>Linear: \( k(T) = k_0 (1 + \beta T) \)</li>
+      <li>Exponential: \( k(T) = k_0 e^{\alpha T} \)</li>
+      <li>Power Law: \( k(T) = aT^n \)</li>
+      <li>Empirical polynomial fit: \( k(T) = a + bT + cT^2 \)</li>
+    </ul>
+    <p>
+      These models are selected based on experimental data or theoretical analysis. For moderate temperature ranges,
+      linear or polynomial forms are generally used.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧮 Derivation Insight</h2>
+    <p>
+      To derive a numerical form, we discretize the spatial domain using central differencing and time using finite differences.
+      The diffusion term becomes:
+    </p>
+    <div class="formula-box">
+      \[
+      \left( k \frac{\partial T}{\partial x} \right) \approx \frac{1}{\Delta x} \left[ k_{i+1/2} \frac{T_{i+1} - T_i}{\Delta x} - k_{i-1/2} \frac{T_i - T_{i-1}}{\Delta x} \right]
+      \]
+    </div>
+    <p>
+      Where \( k_{i+1/2} \) and \( k_{i-1/2} \) are evaluated using interpolated values of \( k(T) \) between adjacent nodes.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧪 Practical Engineering Applications</h2>
+    <ul class="future_tch_points">
+      <li>🚀 Spacecraft re-entry insulation undergoing extreme heating</li>
+      <li>🔥 Thermal barrier coatings in jet engines and turbines</li>
+      <li>🔋 Battery thermal runaway and safety modeling</li>
+      <li>💡 High-intensity LEDs and microprocessors under fluctuating loads</li>
+      <li>🏗️ Fire-resistance testing in structural components</li>
+    </ul>
+    <p>
+      These systems operate in wide temperature ranges where assuming constant thermal conductivity leads to
+      inaccurate predictions of hot spots and failure points.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⚙️ Numerical Solution Tips</h2>
+    <ul class="future_tch_points">
+      <li>Use iterative methods like Newton-Raphson for nonlinear systems</li>
+      <li>Apply implicit time-stepping (e.g., Crank-Nicolson) for stability</li>
+      <li>Update thermal conductivity at each iteration based on temperature</li>
+      <li>Use relaxation or under-relaxation to prevent divergence</li>
+    </ul>
+    <p>
+      Tools such as MATLAB, Python (NumPy + SciPy), and COMSOL can simulate such systems effectively.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔁 Physical Interpretation</h2>
+    <p>
+      As the material heats up, the structure of its molecules may allow easier or harder flow of heat.
+      In metals, \(k\) usually decreases with temperature due to electron scattering, while in insulators,
+      \(k\) might increase. This changing behavior alters how fast and how far heat can propagate over time.
+    </p>
+    <p>
+      Therefore, accounting for variable \(k(T)\) is essential when dealing with wide temperature ranges,
+      especially in thermal runaway and fire safety assessments.
+    </p>
+  </div>
+
+</body>
+</html>

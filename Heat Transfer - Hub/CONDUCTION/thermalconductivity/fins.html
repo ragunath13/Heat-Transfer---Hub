@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fins and Boundary Conditions</title>
+  <link rel="stylesheet" href="subtopic.css">
+</head>
+<body>
+  <h1 class="conduction_heading">🌡️ Fins and Boundary Conditions in Heat Transfer</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 What are Fins?</h2>
+    <p>Fins are extended surfaces used to increase the heat transfer rate from a surface to the surrounding fluid. By increasing the surface area, fins improve the efficiency of heat dissipation in applications like radiators, heat sinks, and engine components.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧠 How Fins Work</h2>
+    <p>Heat is conducted from the base of the fin and transferred to the surrounding fluid via convection. The fin effectiveness depends on material thermal conductivity, surface area, and the surrounding fluid's convective properties.</p>
+    <ul class="future_tch_points">
+      <li>High thermal conductivity materials (e.g., copper, aluminum) are preferred.</li>
+      <li>Longer and thinner fins can improve surface area but may reduce efficiency if too long due to temperature drop along the length.</li>
+      <li>Fins are often used in arrays to maximize total exposed surface area.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔍 Types of Fins</h2>
+    <ul class="future_tch_points">
+      <li><strong>Longitudinal Fins:</strong> Common in ducts and heat exchangers.</li>
+      <li><strong>Annular Fins:</strong> Found around cylindrical surfaces (e.g., pipes).</li>
+      <li><strong>Pin Fins:</strong> Short, circular fins used in compact heat sinks.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Governing Equation of Fins</h2>
+    <p>The heat conduction in a straight fin is governed by the following differential equation:</p>
+    <code>
+      \( \frac{d^2T}{dx^2} - \frac{hP}{kA}(T - T_\infty) = 0 \)
+    </code>
+    <p>This can also be written in terms of excess temperature \( \theta = T(x) - T_\infty \):</p>
+    <code>
+      \( \frac{d^2\theta}{dx^2} - m^2\theta = 0 \)
+    </code>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li><strong>\( T \):</strong> Temperature along the fin</li>
+      <li><strong>\( h \):</strong> Convective heat transfer coefficient</li>
+      <li><strong>\( P \):</strong> Perimeter of the fin cross-section</li>
+      <li><strong>\( k \):</strong> Thermal conductivity</li>
+      <li><strong>\( A \):</strong> Cross-sectional area of the fin</li>
+      <li><strong>\( T_\infty \):</strong> Ambient temperature</li>
+      <li><strong>\( m = \sqrt{\frac{hP}{kA}} \):</strong> Fin parameter</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📏 Boundary Conditions</h2>
+    <ul class="future_tch_points">
+      <li><strong>Prescribed Temperature:</strong> Fin tip is held at a constant temperature.</li>
+      <li><strong>Adiabatic Tip:</strong> No heat loss from the tip of the fin (most common assumption).</li>
+      <li><strong>Convective Tip:</strong> Fin tip loses heat by convection to the surrounding fluid.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔬 Real-World Applications</h2>
+    <ul class="future_tch_points">
+      <li>Electronics cooling systems (CPU and GPU heat sinks)</li>
+      <li>Radiators in automobiles and HVAC systems</li>
+      <li>Power plant condensers and boilers</li>
+      <li>Airplane engines and turbine blades</li>
+      <li>LED lighting systems for thermal management</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📚 References</h2>
+    <ul class="future_tch_points">
+      <li>Çengel & Ghajar, <em>Heat and Mass Transfer</em>, McGraw-Hill</li>
+      <li>Incropera et al., <em>Fundamentals of Heat and Mass Transfer</em>, Wiley</li>
+      <li>Holman, <em>Heat Transfer</em>, McGraw-Hill</li>
+    </ul>
+  </div>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

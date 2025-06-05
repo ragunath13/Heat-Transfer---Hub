@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌡️ Imperfect Contact Between Surfaces</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+  
+  <!-- MathJax for formula rendering -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🌡️ Imperfect Contact Between Surfaces</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Governing Concept</h2>
+    <p>
+      In heat transfer, when two surfaces are in thermal contact but imperfectly (due to surface roughness, contamination, etc.), the heat transfer between the surfaces is reduced. This phenomenon is described by the **thermal contact resistance** (\(R_{tc}\)), which represents the opposition to heat transfer at the interface.
+    </p>
+    <p>
+      The **heat transfer rate** (\(Q\)) across the imperfect contact interface is given by the following equation:
+    </p>
+
+    <div class="formula-box">
+      \[
+      Q = \frac{T_1 - T_2}{R_{tc}}
+      \]
+    </div>
+
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li>\(Q\): Heat transfer rate (W)</li>
+      <li>\(T_1\), \(T_2\): Temperatures of the two surfaces in contact (K)</li>
+      <li>\(R_{tc}\): Thermal contact resistance (m²·K/W)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Thermal Contact Resistance</h2>
+    <p>
+      The **thermal contact resistance** \(R_{tc}\) is a measure of how much resistance to heat transfer exists at the interface between two materials. It can be approximated as:
+    </p>
+
+    <div class="formula-box">
+      \[
+      R_{tc} = \frac{1}{h_{tc} A}
+      \]
+    </div>
+
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li>\(h_{tc}\): Thermal contact conductance (W/m²·K)</li>
+      <li>\(A\): Contact area between the two surfaces (m²)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🌡️ Temperature Difference Across the Interface</h2>
+    <p>
+      The temperature difference across the contact interface can be calculated using the following equation:
+    </p>
+
+    <div class="formula-box">
+      \[
+      \Delta T = Q \cdot R_{tc}
+      \]
+    </div>
+
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li>\(\Delta T\): Temperature difference across the interface (K)</li>
+      <li>\(Q\): Heat transfer rate (W)</li>
+      <li>\(R_{tc}\): Thermal contact resistance (m²·K/W)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏭 Applications</h2>
+    <ul class="future_tch_points">
+      <li>Heat exchangers</li>
+      <li>Electronic components and microprocessors</li>
+      <li>Engine components</li>
+      <li>Solar panels and their connections</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📊 Example Problem</h2>
+    <p>
+      Let's consider two surfaces with the following conditions:
+      - Temperature of surface 1: \(T_1 = 200 \, \text{K}\)
+      - Temperature of surface 2: \(T_2 = 50 \, \text{K}\)
+      - Contact area between the surfaces: \(A = 0.1 \, \text{m}^2\)
+      - Thermal contact conductance: \(h_{tc} = 500 \, \text{W/m}^2 \cdot \text{K}\)
+    </p>
+    <p>
+      First, we calculate the **thermal contact resistance** \(R_{tc}\) as follows:
+    </p>
+
+    <div class="formula-box">
+      \[
+      R_{tc} = \frac{1}{h_{tc} A} = \frac{1}{500 \times 0.1} = 0.02 \, \text{m}^2 \cdot \text{K/W}
+      \]
+    </div>
+
+    <p>
+      Then, the **heat transfer rate** \(Q\) across the interface is given by:
+    </p>
+
+    <div class="formula-box">
+      \[
+      Q = \frac{T_1 - T_2}{R_{tc}} = \frac{200 - 50}{0.02} = 7500 \, \text{W}
+      \]
+    </div>
+
+    <p>
+      Thus, the heat transfer rate across the interface is \(7500 \, \text{W}\).
+    </p>
+  </div>
+
+</body>
+</html>

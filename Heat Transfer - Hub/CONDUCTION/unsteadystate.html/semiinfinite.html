@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semi-Infinite Solids - Heat Transfer</title>
+    <link rel="stylesheet" href="subtopic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+    <!-- MathJax CDN -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+</head>
+<body>
+    <h1 class="conduction_heading">📊 Heat Transfer in Semi-Infinite Solids</h1>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🔹 Concept of Semi-Infinite Solids</h2>
+        <p>A semi-infinite solid is an idealized approximation where the solid is assumed to be large in one direction (usually the depth) compared to the heat penetration depth. In this idealization, the thermal response of the solid at any point is primarily influenced by the surface condition, and it assumes no significant heat loss in the direction perpendicular to the surface.</p>
+        
+        <p><strong>Temperature Distribution with Constant Surface Temperature:</strong></p>
+        <p style="background:#111; padding:10px; border-radius:10px; color:#ff5a01; font-family:'Rajdhani';">
+            $$ \frac{T(x,t) - T_s}{T_i - T_s} = \text{erf} \left( \frac{x}{2\sqrt{\alpha t}} \right) $$
+        </p>
+        <p style="color: #ddd;">Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>T(x,t)</strong> = Temperature at depth x and time t</li>
+            <li><strong>T_s</strong> = Surface temperature</li>
+            <li><strong>T_i</strong> = Initial temperature</li>
+            <li><strong>α</strong> = Thermal diffusivity</li>
+            <li><strong>erf</strong> = Error function, representing the mathematical relation in heat diffusion</li>
+        </ul>
+
+        <p><strong>Temperature Distribution with Constant Surface Heat Flux:</strong></p>
+        <p style="background:#111; padding:10px; border-radius:10px; color:#03dac6; font-family:'Rajdhani';">
+            $$ T(x, t) = T_i + \frac{2q_0 \sqrt{\alpha t}}{k \sqrt{\pi}} \exp \left( - \frac{x^2}{4\alpha t} \right) $$
+        </p>
+        <p style="color: #ddd;">Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>q₀</strong> = Surface heat flux</li>
+            <li><strong>k</strong> = Thermal conductivity</li>
+            <li><strong>x</strong> = Distance from the surface</li>
+            <li><strong>t</strong> = Time</li>
+            <li><strong>α</strong> = Thermal diffusivity</li>
+        </ul>
+
+        <p><strong>Thermal Penetration Depth:</strong></p>
+        <p style="background:#111; padding:10px; border-radius:10px; color:#ff5a01; font-family:'Rajdhani';">
+            $$ \delta = 2\sqrt{\alpha t} $$
+        </p>
+        <p style="color: #ddd;">Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>δ</strong> = Thermal penetration depth</li>
+            <li><strong>α</strong> = Thermal diffusivity</li>
+            <li><strong>t</strong> = Time</li>
+        </ul>
+
+        <p><strong>Complementary Error Function:</strong></p>
+        <p style="background:#111; padding:10px; border-radius:10px; color:#ff5a01; font-family:'Rajdhani';">
+            $$ \text{erfc}(x) = 1 - \text{erf}(x) $$
+        </p>
+        <p style="color: #ddd;">Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>erfc(x)</strong> = Complementary error function</li>
+        </ul>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📚 More Insights</h2>
+        <p>The error function <code>erf</code> and complementary error function <code>erfc</code> are essential in solving unsteady-state heat transfer problems in semi-infinite solids. These mathematical functions express the spread of heat in the solid and provide a means to calculate the temperature at any depth as a function of time.</p>
+        
+        <p><strong>Example Calculation:</strong></p>
+        <p>Consider a semi-infinite solid with an initial temperature <strong>T<sub>i</sub> = 100°C</strong> and a surface temperature <strong>T<sub>s</sub> = 0°C</strong>. For a given time <strong>t = 10 seconds</strong> and thermal diffusivity <strong>α = 1.2 x 10<sup>-6</sup> m²/s</strong>, calculate the temperature at a depth <strong>x = 0.02 meters</strong>.</p>
+        <p>Using the temperature distribution equation for a constant surface temperature, substitute the values into the formula:</p>
+        <pre>
+            $$ \frac{T(x,t) - T_s}{T_i - T_s} = \text{erf} \left( \frac{x}{2\sqrt{\alpha t}} \right) $$ 
+        </pre>
+        <p>Once the error function value is calculated, the temperature at that point can be determined. The complementary error function can also be used to determine the remaining heat distribution.</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">⚙️ Practical Applications</h2>
+        <p>Semi-infinite solids and their temperature distribution models have real-world applications in several industries, including:</p>
+        <ul class="future_tch_points">
+            <li><strong>Metal Casting:</strong> Heat transfer during the solidification process where molten metal contacts a mold surface.</li>
+            <li><strong>Geothermal Heat Flow:</strong> Modeling the heat transfer through the Earth's crust at a specific depth.</li>
+            <li><strong>Thermal Energy Storage:</strong> Studying the temperature changes in phase-change materials used for thermal storage.</li>
+            <li><strong>Heat Treating of Materials:</strong> Understanding how materials are heated to specific temperatures for strengthening or altering their properties.</li>
+        </ul>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📉 Graphical Representation of Heat Diffusion</h2>
+        <p>Understanding the temperature distribution with respect to time and depth can be visualized through graphical plots of the error function. The following graph illustrates the temperature distribution at different times for a semi-infinite solid:</p>
+        
+        <div style="width: 80%; margin: 0 auto; padding: 20px;">
+            <!-- Example of a placeholder graph -->
+            <img src="https://via.placeholder.com/600x400.png?text=Temperature+Distribution+Graph" alt="Temperature Distribution Graph" style="width:100%; border-radius: 10px;">
+        </div>
+
+        <p>This graph shows how temperature decays with depth at different times for a semi-infinite solid, illustrating the **thermal penetration depth** and **error function** behavior over time.</p>
+    </div>
+
+</body>
+</html>

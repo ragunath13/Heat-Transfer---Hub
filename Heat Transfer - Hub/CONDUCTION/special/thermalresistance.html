@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thermal Contact Resistance</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🧱 Thermal Contact Resistance</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Definition and Significance</h2>
+    <p>
+      Thermal contact resistance (\( R_c \)) is the resistance to heat flow that occurs at the interface between two solid materials in contact. 
+      It is a critical factor in heat transfer analysis in systems where surfaces are bolted, clamped, or simply pressed together.
+    </p>
+    <p>
+      Even if two solids appear to be in full contact, microscopic surface roughness causes actual contact to occur only at discrete points, 
+      introducing thermal constriction resistance.
+    </p>
+  </div>
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔬 Understanding Thermal Contact Resistance in Engineering Systems</h2>
+    <p>
+      Thermal contact resistance arises when two solid materials are in contact, and it impedes the flow of heat across their interface. Despite appearing smooth, solid surfaces are rough on the microscopic scale, creating voids and air gaps that reduce the effective heat transfer area. This leads to a measurable temperature drop at the junction.
+    </p>
+  </div>
+  
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📎 Governing Equation and Physical Interpretation</h2>
+    <p>
+      The thermal contact resistance \( R_c \) is mathematically defined as:
+    </p>
+    <div class="formula-box">
+      \[
+      R_c = \frac{\Delta T_{\text{interface}}}{q}
+      \]
+    </div>
+    <p>
+      Where:
+      <ul class="future_tch_points">
+        <li>\( \Delta T_{\text{interface}} \): Temperature drop at the interface</li>
+        <li>\( q \): Steady-state heat flux through the interface</li>
+      </ul>
+      The contact resistance acts like a thermal bottleneck in systems where high conductivity and precise temperature control are critical.
+    </p>
+  </div>
+  
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧱 Interface Modeling in Layered Media</h2>
+    <p>
+      When two slabs are joined, each having its own conductive resistance, the interface can be modeled using an additional resistance:
+    </p>
+    <div class="formula-box">
+      \[
+      R_{\text{total}} = \frac{L_1}{k_1 A} + R_c + \frac{L_2}{k_2 A}
+      \]
+    </div>
+    <p>
+      Here, \( L_1 \) and \( L_2 \) are the material thicknesses, \( k_1 \) and \( k_2 \) the respective thermal conductivities, and \( A \) is the cross-sectional area. The additional \( R_c \) term captures the imperfect thermal bridge at the junction.
+    </p>
+  </div>
+  
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📌 Reduction Techniques and Engineering Practice</h2>
+    <p>
+      Engineers employ various methods to reduce contact resistance:
+      <ul class="future_tch_points">
+        <li>Applying surface pressure to enhance real contact area</li>
+        <li>Using interface fillers like thermal pastes, pads, or metallic foils</li>
+        <li>Smoothing and polishing surface finishes</li>
+        <li>Maintaining cleanliness to avoid contaminant-induced gaps</li>
+      </ul>
+      Accurate modeling of contact resistance is critical in high-precision thermal design scenarios such as satellite electronics, CPUs, and laser diodes.
+    </p>
+  </div>
+  
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧮 Formula and Key Equations</h2>
+    <p>The basic equation for thermal contact resistance is:</p>
+    <div class="formula-box">
+      \[
+      R_c = \frac{\Delta T}{q}
+      \]
+    </div>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li>\( R_c \) = Thermal contact resistance (K/W)</li>
+      <li>\( \Delta T \) = Temperature drop across the interface (K)</li>
+      <li>\( q \) = Heat flux (W/m²)</li>
+    </ul>
+
+    <p>Total thermal resistance in a system with contact resistance becomes:</p>
+    <div class="formula-box">
+      \[
+      R_{\text{total}} = \frac{L_1}{k_1 A} + R_c + \frac{L_2}{k_2 A}
+      \]
+    </div>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧪 Factors Influencing Contact Resistance</h2>
+    <ul class="future_tch_points">
+      <li>Surface roughness and waviness</li>
+      <li>Material hardness and deformation under pressure</li>
+      <li>Contact pressure at the interface</li>
+      <li>Presence of interstitial materials like air or grease</li>
+      <li>Oxidation layers or contamination</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🛠️ Methods to Reduce Thermal Contact Resistance</h2>
+    <ul class="future_tch_points">
+      <li>Use of thermal interface materials (TIMs)</li>
+      <li>Increasing contact pressure</li>
+      <li>Smoothing and polishing contact surfaces</li>
+      <li>Using soft metals (like indium or copper) at interfaces</li>
+      <li>Vacuum bonding or soldering</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📊 Practical Applications</h2>
+    <ul class="future_tch_points">
+      <li>Electronic component cooling (e.g., CPUs, GPUs)</li>
+      <li>Satellite and spacecraft thermal design</li>
+      <li>Power electronics and heat sink assemblies</li>
+      <li>Fusion reactors and nuclear plant heat exchangers</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📈 Experimental Techniques</h2>
+    <p>
+      Measuring \( R_c \) requires carefully designed setups where the temperature drop across the interface and heat flow rate are measured under known loading conditions.
+      Common methods include guarded hot plate tests, laser flash analysis, and transient plane source methods.
+    </p>
+  </div>
+
+</body>
+</html>

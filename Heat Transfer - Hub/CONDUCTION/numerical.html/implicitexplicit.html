@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explicit and Implicit Schemes in Conduction</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+
+  <!-- MathJax for formula rendering -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🧮 Explicit and Implicit Schemes in Heat Conduction</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔍 Introduction</h2>
+    <p>
+      In transient heat conduction problems, numerical methods are employed when analytical solutions are difficult.
+      The finite difference method (FDM) discretizes time and space to solve the heat equation. Two common time integration schemes are:
+    </p>
+    <ul class="future_tch_points">
+      <li>🔹 Explicit Scheme (Forward in Time)</li>
+      <li>🔹 Implicit Scheme (Backward in Time)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Heat Equation and Discretization</h2>
+    <p>
+      The one-dimensional transient conduction equation:
+    </p>
+    <div class="formula-box">
+      \[
+      \frac{\partial T}{\partial t} = \alpha \frac{\partial^2 T}{\partial x^2}
+      \]
+    </div>
+    <p>
+      Using finite difference, it is discretized as:
+    </p>
+    <div class="formula-box">
+      \[
+      \frac{T_i^{n+1} - T_i^n}{\Delta t} = \alpha \frac{T_{i+1}^n - 2T_i^n + T_{i-1}^n}{\Delta x^2}
+      \]
+    </div>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⏩ Explicit Method</h2>
+    <p>
+      In the explicit scheme, the future temperature is calculated directly using current values:
+    </p>
+    <div class="formula-box">
+      \[
+      T_i^{n+1} = T_i^n + \frac{\alpha \Delta t}{\Delta x^2} (T_{i+1}^n - 2T_i^n + T_{i-1}^n)
+      \]
+    </div>
+    <p>
+      The explicit scheme is conditionally stable and requires the Fourier number:
+    </p>
+    <div class="formula-box">
+      \[
+      Fo = \frac{\alpha \Delta t}{\Delta x^2} \leq \frac{1}{2}
+      \]
+    </div>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⏪ Implicit Method</h2>
+    <p>
+      In the implicit scheme, future temperatures appear on both sides and a system of equations must be solved:
+    </p>
+    <div class="formula-box">
+      \[
+      T_i^{n+1} - Fo (T_{i+1}^{n+1} - 2T_i^{n+1} + T_{i-1}^{n+1}) = T_i^n
+      \]
+    </div>
+    <p>
+      This method is unconditionally stable and suitable for larger time steps, but involves solving a linear system at each time step.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📊 Comparison</h2>
+    <ul class="future_tch_points">
+      <li>✅ Explicit: Simple, fast, conditionally stable</li>
+      <li>✅ Implicit: Stable for any time step, but computationally expensive</li>
+      <li>✅ Implicit preferred for stiff systems and long-time simulations</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏭 Applications</h2>
+    <ul class="future_tch_points">
+      <li>Simulating heat flow in walls, fins, and complex geometries</li>
+      <li>Transient thermal behavior in electronics</li>
+      <li>Modeling startup and shutdown of thermal systems</li>
+      <li>Engineering software like ANSYS, MATLAB, and OpenFOAM</li>
+    </ul>
+  </div>
+
+</body>
+</html>

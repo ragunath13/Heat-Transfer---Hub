@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📉 One-Term Approximation</title>
+    <link rel="stylesheet" href="subtopic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <h1 class="conduction_heading">📉 One-Term Approximation Method</h1>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">❓ What is the One-Term Approximation?</h2>
+        <p>
+            When Biot number (<strong>Bi &gt; 0.1</strong>) and Fourier number (<strong>Fo &gt; 0.2</strong>) apply, 
+            the Heisler chart can be replaced with a simple exponential equation:
+        </p>
+        <div style="background:#111; padding: 15px; border-radius: 10px; color: #ff5a01; text-align: center; font-family: 'Rajdhani', sans-serif;">
+            θ/θ<sub>i</sub> = A × exp(–λ² × Fo)
+        </div>
+        <p style="margin-top: 10px;">Here, <strong>A</strong> and <strong>λ</strong> are constants based on the geometry:</p>
+
+        <ul class="future_tch_points">
+            <li><strong>Plane Wall:</strong> A = 1, λ = π</li>
+            <li><strong>Cylinder:</strong> A = 1.27, λ = 1.0</li>
+            <li><strong>Sphere:</strong> A = 1.36, λ = 1.0</li>
+        </ul>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">⚙️ Example Calculation</h2>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+            <div style="width: 45%; min-width: 250px;">
+                <p><strong>Given:</strong></p>
+                <ul class="future_tch_points">
+                    <li>Material: Metal rod (cylinder)</li>
+                    <li>Radius = 1 cm</li>
+                    <li>Initial T = 200°C</li>
+                    <li>Ambient T = 25°C</li>
+                    <li>Fo = 0.3</li>
+                    <li>Bi = 0.2</li>
+                </ul>
+            </div>
+            <div style="width: 45%; min-width: 250px;">
+                <p><strong>Steps:</strong></p>
+                <ol class="future_tch_points">
+                    <li>A = 1.27, λ = 1.0</li>
+                    <li>θ/θ<sub>i</sub> = 1.27 × exp(–1² × 0.3) ≈ 0.94</li>
+                    <li>T = 25 + (200–25) × 0.94 ≈ 190°C</li>
+                </ol>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <div style="display: inline-block; width: 300px; height: 30px; background: #222; border-radius: 15px; overflow: hidden;">
+                <div id="approxTempBar" style="width: 100%; height: 100%; background: linear-gradient(to right, #ff0000, #ff5a01);"></div>
+            </div>
+            <p style="color:#d3d3d3; margin-top: 5px;">Approximate temperature decay using one-term method</p>
+        </div>
+    </div>
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🔍 Why Does One-Term Approximation Work?</h2>
+        <p>
+            The full transient conduction solution involves an infinite series of exponential terms. 
+            However, for <strong>Fo &gt; 0.2</strong>, the higher-order terms decay rapidly and contribute very little. 
+            So, we keep just the first term for a simpler but reasonably accurate solution.
+        </p>
+        <div style="text-align: center; font-family: 'Rajdhani'; color: #d3d3d3; background: #111; padding: 15px; margin-top: 10px; border-radius: 10px;">
+            Full solution: <br> 
+            θ/θ<sub>i</sub> = Σ A<sub>n</sub> × exp(–λ<sub>n</sub>² Fo)
+            <br><br>
+            One-term approximation: <br>
+            θ/θ<sub>i</sub> ≈ A × exp(–λ² Fo)
+        </div>
+    </div>
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">⚖️ How Accurate Is It?</h2>
+        <ul class="future_tch_points">
+            <li><strong>Error &lt; 5%</strong> for Fo &gt; 0.2</li>
+            <li>Highly accurate for long-time predictions</li>
+            <li>Less accurate at the start of cooling (Fo &lt; 0.2)</li>
+        </ul>
+    </div>
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🔬 Physical Insight Behind the One-Term Approximation</h2>
+        <p>
+            When a body starts cooling, it loses heat from its surface. As time progresses, temperature differences inside the body begin to level out.
+            In this situation, only the slowest-decaying mode (the first term in the series solution) dominates the temperature profile.
+            This is the essence of the <strong>one-term approximation</strong>.
+        </p>
+        <ul class="future_tch_points">
+            <li>Applies to semi-infinite bodies or thick objects</li>
+            <li>Valid when internal conduction dominates surface effects</li>
+            <li>Saves time without large loss of accuracy</li>
+        </ul>
+    </div>
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📏 Geometries Where One-Term Works</h2>
+        <p>One-term approximation is derived for specific geometries with symmetry:</p>
+        <ul class="future_tch_points">
+            <li>🔹 Plane Wall (slab) – thickness 2L</li>
+            <li>🔹 Long Cylinder – radius r₀</li>
+            <li>🔹 Sphere – radius r₀</li>
+        </ul>
+        <p>In each case, the solution involves a different λ value and coefficient A.</p>
+    </div>
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📘 Mathematical Form (One-Term Approximation)</h2>
+        <p>Temperature ratio is calculated as:</p>
+        <div style="text-align: center; font-family: 'Rajdhani'; color: #ff5a01; background: #111; padding: 15px; border-radius: 10px;">
+            θ/θ<sub>i</sub> = A × exp(–λ² × Fo)
+        </div>
+        <p style="margin-top: 10px;">Here’s how λ and A vary by geometry:</p>
+        <table style="width: 100%; color: #d3d3d3; background: #222; border-collapse: collapse; margin-top: 10px;">
+            <thead style="background: #333;">
+                <tr>
+                    <th style="padding: 8px; border: 1px solid #444;">Geometry</th>
+                    <th style="padding: 8px; border: 1px solid #444;">λ</th>
+                    <th style="padding: 8px; border: 1px solid #444;">A</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #444;">Plane Wall</td>
+                    <td style="padding: 8px; border: 1px solid #444;">π/2</td>
+                    <td style="padding: 8px; border: 1px solid #444;">1</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #444;">Cylinder</td>
+                    <td style="padding: 8px; border: 1px solid #444;">1st root of J<sub>0</sub></td>
+                    <td style="padding: 8px; border: 1px solid #444;">From chart or table</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #444;">Sphere</td>
+                    <td style="padding: 8px; border: 1px solid #444;">π</td>
+                    <td style="padding: 8px; border: 1px solid #444;">6/π²</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📉 When One-Term Fails — Use Heisler Charts</h2>
+        <p>If your Biot number is:</p>
+        <ul class="future_tch_points">
+            <li><strong>Bi &lt; 0.1</strong> → Use lumped capacitance model</li>
+            <li><strong>Bi &gt; 0.1</strong> and <strong>Fo &lt; 0.2</strong> → One-term may be inaccurate</li>
+        </ul>
+        <p>In those cases, the full Heisler charts give better predictions.</p>
+    </div>
+    
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">✅ Advantages & ❌ Limitations</h2>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+            <div style="width: 45%; min-width: 250px;">
+                <p><strong>✅ Pros:</strong></p>
+                <ul class="future_tch_points">
+                    <li>Fast estimation without charts</li>
+                    <li>Easy to use in hand calculations</li>
+                    <li>Great for steady Bi and simple geometry</li>
+                </ul>
+            </div>
+            <div style="width: 45%; min-width: 250px;">
+                <p><strong>❌ Cons:</strong></p>
+                <ul class="future_tch_points">
+                    <li>Less accurate for short times (Fo &lt; 0.2)</li>
+                    <li>Only for Bi &gt; 0.1</li>
+                    <li>Only applies to constant surface temperature problems</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📉 Visualizing Exponential Cooling</h2>
+        <p>Exponential decay means temperature drops quickly at first, then slowly approaches the ambient temperature. This behavior is well captured by:</p>
+        <div style="text-align: center; font-family: 'Rajdhani'; color: #ff5a01;">
+            θ/θ<sub>i</sub> = A × e<sup>–λ²Fo</sup>
+        </div>
+        <div style="text-align: center; margin-top: 15px;">
+            <div style="display: inline-block; width: 300px; height: 200px; background: #222; border-radius: 10px; position: relative;">
+                <!-- Approximate decay curve -->
+                <svg width="300" height="200" style="position: absolute; left: 0; top: 0;">
+                    <path d="M20,180 Q100,50 280,20" stroke="#ff5a01" fill="none" stroke-width="3"/>
+                    <line x1="20" y1="180" x2="20" y2="20" stroke="#4568DC" stroke-width="2"/>
+                    <line x1="20" y1="180" x2="280" y2="180" stroke="#4568DC" stroke-width="2"/>
+                    <text x="140" y="195" fill="#d3d3d3">Fo</text>
+                    <text x="5" y="50" fill="#d3d3d3" transform="rotate(-90 5,50)">θ/θᵢ</text>
+                </svg>
+            </div>
+            <p style="color:#d3d3d3; margin-top: 10px;">Exponential decay curve for one-term approximation</p>
+        </div>
+    </div>
+    
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🧠 When is This Method Useful?</h2>
+        <ul class="future_tch_points">
+            <li>Quick estimations without charts</li>
+            <li>Fo > 0.2 ensures higher mode terms are negligible</li>
+            <li>Especially helpful in numerical modeling</li>
+        </ul>
+    </div>
+
+    <script>
+        // Animated approximation bar
+        let approxWidth = 100;
+        const approxBar = document.getElementById('approxTempBar');
+
+        function animateApproxBar() {
+            approxWidth -= 0.3;
+            if (approxWidth < 20) approxWidth = 100;
+
+            approxBar.style.width = approxWidth + '%';
+            approxBar.style.background = `linear-gradient(to right, 
+                rgba(255, 0, 0, 0.9), rgba(255, 90, 1, 0.9) ${approxWidth}%, #222 ${approxWidth}%)`;
+
+            requestAnimationFrame(animateApproxBar);
+        }
+
+        animateApproxBar();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🔍 Stability Criteria in Finite Difference Methods</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+
+  <!-- MathJax for formulas -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🧠 Stability Criteria in Finite Difference Methods</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Introduction to Stability</h2>
+    <p>
+      In numerical simulations of unsteady heat conduction using finite difference methods, **stability** refers to the condition where numerical errors do not grow uncontrollably as the solution progresses in time.
+    </p>
+    <p>
+      Stability ensures that the computed temperature remains physically meaningful and does not diverge due to round-off or truncation errors.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧮 Fourier Number and Time Step Criterion</h2>
+    <p>
+      The **Fourier Number (Fo)** is a key parameter governing stability:
+    </p>
+    <div class="formula-box">
+      \[
+      Fo = \frac{\alpha \Delta t}{(\Delta x)^2}
+      \]
+    </div>
+    <ul class="future_tch_points">
+      <li>\( \alpha \): Thermal diffusivity \((m^2/s)\)</li>
+      <li>\( \Delta t \): Time step</li>
+      <li>\( \Delta x \): Spatial step</li>
+    </ul>
+    <p>
+      For **explicit schemes**, a strict stability condition must be satisfied:
+    </p>
+    <div class="formula-box">
+      \[
+      Fo \leq \frac{1}{2}
+      \]
+    </div>
+    <p>
+      Violation of this leads to instability and non-physical oscillations in temperature results.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⚖️ Explicit vs Implicit Stability</h2>
+    <ul class="future_tch_points">
+      <li>
+        <strong>Explicit Scheme:</strong> Requires very small time steps to maintain stability. Very fast but unstable for large \( \Delta t \).
+      </li>
+      <li>
+        <strong>Implicit Scheme:</strong> Unconditionally stable. You can use large \( \Delta t \) without numerical instability, but it requires solving a system of equations.
+      </li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📊 Amplification Factor Analysis</h2>
+    <p>
+      Stability can also be analyzed by checking the **amplification factor** \( G \). For a stable solution, the magnitude must satisfy:
+    </p>
+    <div class="formula-box">
+      \[
+      |G| \leq 1
+      \]
+    </div>
+    <p>
+      If \( |G| > 1 \), numerical errors grow exponentially with time, leading to divergence.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Practical Tips for Stable Simulation</h2>
+    <ul class="future_tch_points">
+      <li>Use a fine mesh in regions with steep gradients</li>
+      <li>Choose \( \Delta t \) based on stability limits for explicit methods</li>
+      <li>Use implicit methods for large time scales or long simulations</li>
+      <li>Validate results against analytical or benchmark data</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏭 Applications</h2>
+    <ul class="future_tch_points">
+      <li>Transient heat flow in aerospace insulation systems</li>
+      <li>Cooling of electronic circuits over time</li>
+      <li>Time-dependent furnace heating problems</li>
+      <li>Geothermal temperature profiles over years</li>
+    </ul>
+  </div>
+
+</body>
+</html>

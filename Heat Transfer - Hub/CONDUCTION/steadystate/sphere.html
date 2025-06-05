@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spherical Coordinates: Heat Conduction</title>
+  <link rel="stylesheet" href="subtopic.css" />
+  <style>
+    canvas {
+      background: #111;
+      display: block;
+      margin: 30px auto;
+      border: 2px solid #555;
+      border-radius: 10px;
+    }
+    code {
+      background: #222;
+      color: #f8f8f8;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🌐 Spherical Coordinates: Heat Conduction</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Full Derivation in Spherical Coordinates</h2>
+    <p>This derivation explains steady-state heat conduction in spherical coordinates without internal heat generation. It is useful in applications like thermal insulation of spherical tanks or planetary thermal models.</p>
+
+    <h3>Step 1: Consider a Spherical Shell</h3>
+    <p>Let the inner radius be <code>r</code>, and thickness be <code>dr</code>. The surface area of the shell is <code>A = 4πr²</code>.</p>
+
+    <h3>Step 2: Apply Fourier’s Law</h3>
+    <p>Heat flux in the radial direction:</p>
+    <code>q_r = -k * (dT/dr)</code><br>
+    <p>Total heat flow through the spherical surface:</p>
+    <code>Q_r = q_r * A = -k * (dT/dr) * 4πr²</code>
+
+    <h3>Step 3: Energy Conservation</h3>
+    <p>Net heat entering the shell volume:</p>
+    <code>dQ = Q_r - Q_{r+dr}</code><br>
+    <code>Q_{r+dr} ≈ Q_r + (dQ_r/dr) * dr</code><br>
+    <code>dQ = - (dQ_r/dr) * dr</code>
+
+    <h3>Step 4: Substitute Q_r</h3>
+    <p>Differentiate:</p>
+    <code>Q_r = -k * 4πr² * (dT/dr)</code><br>
+    <code>dQ_r/dr = -k * 4π * [2r * (dT/dr) + r² * (d²T/dr²)]</code><br>
+    <code>dQ = k * 4π * [2r * (dT/dr) + r² * (d²T/dr²)] * dr</code>
+
+    <h3>Step 5: Steady-State Assumption</h3>
+    <p>Under steady-state with no heat generation:</p>
+    <code>(1/r²) * d/dr (r² * dT/dr) = 0</code>
+
+    <h3>Step 6: Solve the Differential Equation</h3>
+    <code>d/dr (r² * dT/dr) = 0</code><br>
+    <code>r² * dT/dr = C₁</code><br>
+    <code>dT/dr = C₁ / r²</code><br>
+    <code>T(r) = -C₁ / r + C₂</code>
+
+    <h3>Step 7: Apply Boundary Conditions</h3>
+    <p>Let <code>T₁</code> at <code>r₁</code> and <code>T₂</code> at <code>r₂</code>:</p>
+    <code>T₁ = -C₁/r₁ + C₂</code><br>
+    <code>T₂ = -C₁/r₂ + C₂</code><br>
+    <p>Solve for constants and substitute back.</p>
+
+    <h3>Heat Transfer Rate</h3>
+    <code>q = 4πk * (T₁ - T₂) / [(1/r₁) - (1/r₂)]</code>
+  </div>
+  
+
+  <canvas id="sphereCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("sphereCanvas");
+    const ctx = canvas.getContext("2d");
+    let angle = 0;
+
+    function drawSphere() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 100;
+
+      // Outer sphere (hotter)
+      const gradient = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, radius);
+      gradient.addColorStop(0, "#ff3300");
+      gradient.addColorStop(1, "#000000");
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Rotation lines
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        for (let j = 0; j <= Math.PI * 2; j += 0.1) {
+          const x = centerX + Math.cos(j) * radius * Math.cos(angle + i);
+          const y = centerY + Math.sin(j) * radius * Math.sin(angle + i);
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      angle += 0.01;
+      requestAnimationFrame(drawSphere);
+    }
+
+    drawSphere();
+  </script>
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📖 Theoretical Concepts of Heat Transfer in Spherical Coordinates</h2>
+    <p>
+      In heat transfer, the <strong>spherical coordinate system</strong> is used when the geometry of the problem is spherical—like planets, spherical containers, or reactor cores. The three coordinates are:
+    </p>
+    <ul class="future_tch_points">
+      <li><strong>r</strong>: Radial distance from the center</li>
+      <li><strong>θ</strong>: Polar angle (from the vertical axis)</li>
+      <li><strong>φ</strong>: Azimuthal angle (around the horizontal plane)</li>
+    </ul>
+  
+    <p>
+      For radial heat conduction (no angular dependence), only <code>r</code> is relevant. This simplifies the 3D heat conduction equation to a 1D radial form:
+    </p>
+    <code>
+      \[
+      \frac{1}{r^2} \frac{d}{dr} \left( r^2 \frac{dT}{dr} \right) = 0
+      \]
+    </code>
+  
+    <p>
+      This equation tells us how temperature varies along the radius of a sphere in steady-state. When we solve it with boundary conditions at two radial positions, we get:
+    </p>
+    <code>
+      \[
+      T(r) = -\frac{C_1}{r} + C_2
+      \]
+    </code>
+  
+    <p>
+      Here, <code>C₁</code> and <code>C₂</code> are constants determined by known temperatures at specific radii. This solution helps engineers design insulation or predict how temperature changes inside spherical objects.
+    </p>
+  
+    <h3>🌍 Real-World Examples</h3>
+    <ul class="future_tch_points">
+      <li>Thermal modeling of the Earth's core and mantle</li>
+      <li>Design of spherical pressure vessels and cryogenic tanks</li>
+      <li>Temperature distribution in spherical satellites and probes</li>
+      <li>Medical applications, such as thermal ablation of spherical tumors</li>
+    </ul>
+  </div>
+  
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Introduction to Spherical Coordinates in Heat Transfer</h2>
+    <p>
+      Spherical coordinates are a natural choice for analyzing heat conduction problems where geometry is centered around a point — such as spheres, domes, or spherical shells.
+    </p>
+    <p>
+      In spherical coordinates, a point is defined by three parameters:
+      <ul class="future_tch_points">
+        <li><strong>r</strong>: the radial distance from the origin (center of the sphere)</li>
+        <li><strong>θ</strong> (theta): the polar angle (from the z-axis)</li>
+        <li><strong>φ</strong> (phi): the azimuthal angle (around the z-axis)</li>
+      </ul>
+    </p>
+    <h3 class="conduction_all_subtopics">📌 Real-world Applications</h3>
+    <ul class="future_tch_points">
+      <li>Thermal protection systems of re-entry capsules or spacecraft</li>
+      <li>Heat transfer in spherical reactors and fuel pellets</li>
+      <li>Thermal insulation in spherical tanks and cryogenic vessels</li>
+      <li>Planetary heat distribution models (like Earth or Mars)</li>
+    </ul>
+  
+    <h2 class="conduction_all_subtopics">🧠 Key Assumptions in Spherical Heat Conduction</h2>
+    <ul class="future_tch_points">
+      <li>Heat conduction is radial only (1D in r)</li>
+      <li>Material is isotropic and homogeneous</li>
+      <li>Steady-state conduction (temperature does not vary with time)</li>
+      <li>No internal heat generation in the spherical shell</li>
+    </ul>
+  
+    <h2 class="conduction_all_subtopics">🧮 Full Derivation in Spherical Coordinates</h2>
+    <p>This derivation explains steady-state heat conduction in spherical coordinates without internal heat generation. It is useful in applications like thermal insulation of spherical tanks or planetary thermal models.</p>
+  
+    <!-- Keep your previous derivation here as-is -->
+  </div>
+  
+</body>
+</html>

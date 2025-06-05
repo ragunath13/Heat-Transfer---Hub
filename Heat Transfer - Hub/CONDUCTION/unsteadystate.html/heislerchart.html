@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 📊 Heisler Charts </title>
+    <link rel="stylesheet" href="subtopic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <h1 class="conduction_heading">📊 Heisler Charts Made Simple</h1>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🧊 What Happens Inside a Cooling Object?</h2>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <!-- Simple animated temperature gradient -->
+            <div style="width: 300px; height: 100px; background: linear-gradient(to right, #ff0000, #ff9900); margin: 0 auto; border-radius: 10px; position: relative; overflow: hidden;">
+                <div id="coolingBar" style="width: 100%; height: 100%; background: linear-gradient(to right, #ff0000, #ff9900);"></div>
+                <div style="position: absolute; top: 10px; left: 10px; color: white; font-family: 'Audiowide';">Hot</div>
+                <div style="position: absolute; top: 10px; right: 10px; color: white; font-family: 'Audiowide';">Cool</div>
+            </div>
+        </div>
+        
+        <p>When an object cools:</p>
+        <ul class="future_tch_points">
+            <li>Surface cools first</li>
+            <li>Center stays warmer longer</li>
+            <li>Temperature varies through the thickness</li>
+        </ul>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📐 The Two Key Numbers</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+            <div style="width: 45%; min-width: 250px; margin: 10px;">
+                <div style="background: #222; padding: 15px; border-radius: 10px;">
+                    <h3 style="color:#ff5a01">Biot Number (Bi)</h3>
+                    <p>Compares:</p>
+                    <ul style="color:#d3d3d3; padding-left: 20px;">
+                        <li>Heat transfer at surface</li>
+                        <li>Heat conduction inside</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Bi < 0.1</strong>: Uniform temperature<br>
+                    <strong>Bi > 0.1</strong>: Needs Heisler charts</p>
+                </div>
+            </div>
+            
+            <div style="width: 45%; min-width: 250px; margin: 10px;">
+                <div style="background: #222; padding: 15px; border-radius: 10px;">
+                    <h3 style="color:#4568DC">Fourier Number (Fo)</h3>
+                    <p>Measures:</p>
+                    <ul style="color:#d3d3d3; padding-left: 20px;">
+                        <li>How long cooling has occurred</li>
+                        <li>Relative to object size</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Fo = 0</strong>: Just started<br>
+                    <strong>Fo > 1</strong>: Significant cooling</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🔍 When to Use Heisler Charts</h2>
+        <ul class="future_tch_points">
+            <li>Biot number is greater than 0.1</li>
+            <li>1D transient heat conduction dominates</li>
+            <li>Geometry is slab, cylinder, or sphere</li>
+            <li>Material properties are constant</li>
+        </ul>
+    </div>
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🧠 Tips for Reading Heisler Charts Accurately</h2>
+        <ul class="future_tch_points">
+            <li>Use a straightedge to follow axis lines</li>
+            <li>Mark your Biot number curve carefully</li>
+            <li>Log-log or semi-log scales are common — read axes correctly!</li>
+            <li>Double-check your θ value on the vertical axis</li>
+        </ul>
+    </div>
+    
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📚 Quick Summary</h2>
+        <table style="width: 100%; max-width: 600px; margin: 0 auto; border-collapse: collapse; background-color: #111; color: #d3d3d3; border-radius: 10px; overflow: hidden;">
+            <thead>
+                <tr style="background-color: #222;">
+                    <th style="padding: 10px; border-bottom: 2px solid #333;">Parameter</th>
+                    <th style="padding: 10px; border-bottom: 2px solid #333;">Meaning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #333;">Biot Number (Bi)</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #333;">Ratio of internal to surface resistance</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #333;">Fourier Number (Fo)</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #333;">Dimensionless time for heat diffusion</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">θ₀/θᵢ</td>
+                    <td style="padding: 10px;">Temperature ratio from chart</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📈 How to Use Heisler Charts</h2>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <div style="display: inline-block; width: 300px; height: 200px; background: #222; border-radius: 10px; position: relative;">
+                <!-- Simplified chart representation -->
+                <div style="position: absolute; bottom: 20px; left: 30px; width: 240px; height: 150px; border-left: 2px solid #4568DC; border-bottom: 2px solid #4568DC;">
+                    <div id="chartLine" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; border-top: 2px solid #ff5a01; border-radius: 10px;"></div>
+                    <div style="position: absolute; bottom: -20px; left: 0; width: 100%; text-align: center; color: #d3d3d3;">Fo</div>
+                    <div style="position: absolute; top: 0; left: -30px; transform: rotate(-90deg); transform-origin: left top; color: #d3d3d3;">θ₀/θᵢ</div>
+                </div>
+            </div>
+        </div>
+        
+        <ol class="future_tch_points">
+            <li>Calculate Bi and Fo for your problem</li>
+            <li>Find curve matching your Bi value</li>
+            <li>Read θ₀/θᵢ for your Fo value</li>
+            <li>Multiply to get actual temperature</li>
+        </ol>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🏭 Real-World Example</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center;">
+            <div style="width: 45%; min-width: 250px;">
+                <p><strong>Steel Plate:</strong></p>
+                <ul class="future_tch_points">
+                    <li>10cm thick</li>
+                    <li>Initial: 300°C</li>
+                    <li>Air: 25°C</li>
+                    <li>After 5 minutes</li>
+                </ul>
+            </div>
+            <div style="width: 45%; min-width: 250px;">
+                <p><strong>Solution Steps:</strong></p>
+                <ol class="future_tch_points">
+                    <li>Bi = 0.011 → Lumped capacitance</li>
+                    <li>θ = exp(-Bi×Fo)</li>
+                    <li>T = 25 + (300-25)×θ</li>
+                    <li>Answer: ≈94°C</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Simple temperature decay animation -->
+        <div style="text-align: center; margin-top: 20px;">
+            <div style="display: inline-block; width: 300px; height: 30px; background: #222; border-radius: 15px; overflow: hidden;">
+                <div id="tempDecay" style="width: 100%; height: 100%; background: linear-gradient(to right, #ff0000, #ff5a01);"></div>
+            </div>
+            <p style="color:#d3d3d3; margin-top: 5px;">Temperature decreasing over time</p>
+        </div>
+    </div>
+
+    <script>
+        // Simple cooling animation
+        let coolingWidth = 100;
+        const coolingBar = document.getElementById('coolingBar');
+        const tempDecay = document.getElementById('tempDecay');
+        
+        function animateCooling() {
+            coolingWidth -= 0.5;
+            if (coolingWidth < 0) coolingWidth = 100;
+            
+            coolingBar.style.width = coolingWidth + '%';
+            coolingBar.style.background = `linear-gradient(to right, 
+                rgba(255, ${100 + coolingWidth/2}, 0, 0.8), 
+                rgba(255, 153, 0, 0.8)`;
+                
+            tempDecay.style.width = coolingWidth + '%';
+            tempDecay.style.background = `linear-gradient(to right, 
+                #ff0000, #ff5a01 ${coolingWidth}%, #222 ${coolingWidth}%)`;
+            
+            requestAnimationFrame(animateCooling);
+        }
+        
+        animateCooling();
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finite Difference Method in Heat Conduction</title>
+  <link rel="stylesheet" href="subtopic.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet" />
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🧮 Finite Difference Methods in Heat Conduction</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Introduction</h2>
+    <p>
+      Finite Difference Method (FDM) is a powerful numerical technique used to approximate solutions to differential equations,
+      especially useful for analyzing heat conduction problems where analytical solutions are difficult or impossible.
+    </p>
+    <p>
+      The heat conduction equation is replaced by discrete algebraic expressions over a grid of points, enabling computational
+      solutions through iterative or direct methods.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧾 Governing Equation</h2>
+    <p>The 1D steady-state conduction without heat generation is given by:</p>
+    <div class="formula-box">
+      \[
+      \frac{d^2T}{dx^2} = 0
+      \]
+    </div>
+
+    <p>Using the central difference approximation, this becomes:</p>
+    <div class="formula-box">
+      \[
+      \frac{T_{i+1} - 2T_i + T_{i-1}}{\Delta x^2} = 0
+      \]
+    </div>
+
+    <p>This equation forms the basis for calculating temperatures at interior nodes of a solid using a grid-based approach.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧮 Discretization and Node System</h2>
+    <p>
+      Consider a rod of length \( L \) divided into \( N \) nodes. Each node \( i \) represents a spatial location where
+      temperature \( T_i \) is calculated. With boundary temperatures known at the ends, the system of equations can be
+      solved to find intermediate values.
+    </p>
+    <p>
+      For example, if the boundary conditions are \( T_0 = 100^\circ C \) and \( T_4 = 50^\circ C \), then the temperatures
+      at internal nodes \( T_1, T_2, T_3 \) can be computed by solving a tridiagonal system.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">💡 Extension to Unsteady State</h2>
+    <p>For transient problems, the governing equation is:</p>
+    <div class="formula-box">
+      \[
+      \frac{\partial T}{\partial t} = \alpha \frac{\partial^2 T}{\partial x^2}
+      \]
+    </div>
+    <p>Using finite difference in time and space:</p>
+    <div class="formula-box">
+      \[
+      \frac{T_i^{n+1} - T_i^n}{\Delta t} = \alpha \frac{T_{i+1}^n - 2T_i^n + T_{i-1}^n}{\Delta x^2}
+      \]
+    </div>
+    <p>This explicit method updates temperature at each time step using previous values. Stability depends on the Fourier number \( Fo = \frac{\alpha \Delta t}{\Delta x^2} \).</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">⚙️ Key Concepts</h2>
+    <ul class="future_tch_points">
+      <li>Grid spacing (\( \Delta x \)) and time step (\( \Delta t \)) critically affect accuracy and stability</li>
+      <li>Explicit methods are easier to implement but conditionally stable</li>
+      <li>Implicit methods (like Crank-Nicolson) are unconditionally stable but require solving equations at each time step</li>
+      <li>Used extensively in simulations involving complex geometries and materials</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏭 Applications</h2>
+    <ul class="future_tch_points">
+      <li>Thermal simulations in automotive and aerospace design</li>
+      <li>Heat exchanger and furnace modeling</li>
+      <li>Electronic device cooling simulations</li>
+      <li>Energy modeling in building envelopes</li>
+    </ul>
+  </div>
+
+</body>
+</html>
