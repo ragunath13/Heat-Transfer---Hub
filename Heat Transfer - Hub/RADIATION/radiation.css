@@ -1,0 +1,391 @@
+/* ========== GLOBAL STYLES & VARIABLES ========== */
+:root {
+    --primary: #FF004F; /* Bright Pink/Red */
+    --primary-light: #FF2A68; /* Lighter Pink/Red */
+    --secondary: #FF8C00; /* Dark Orange */
+    --secondary-light: #FFA500; /* Bright Orange */
+    --dark: #000000; /* Pure black for stark contrast */
+    --dark-gray: #0D0D0D; /* Very dark gray, almost black */
+    --medium-gray: #1A1A1A; /* Slightly lighter dark gray */
+    --light-gray: #E0E0E0; /* Off-white for subtle contrast */
+    --white: #FFFFFF; /* Pure white */
+    --text: #b7b8b8; /* Light gray for body text */
+
+    /* Themed Gradients */
+    --radiation: linear-gradient(135deg, var(--primary), var(--primary-light), #FF416C); /* Red-pink gradient */
+
+    /* Glassmorphism */
+    --glass: rgba(0, 0, 0, 0.3); /* Semi-transparent black for glass effect */
+    --glass-border: rgba(255, 38, 38, 0.2); /* Faint red border for glass elements */
+
+    /* Shadows & Text Shadows */
+    --shadow: 0 8px 32px rgba(255, 0, 0, 0.15); /* Subtle red-tinted shadow */
+    --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger text shadow for readability on light backgrounds */
+}
+
+/* Universal box-sizing for consistent layout */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Rajdhani', 'Audiowide', sans-serif; /* Primary and fallback fonts */
+    color: var(--text);
+    line-height: 1.6;
+    background-color: var(--dark); /* Pure black background */
+    /* Subtle radial gradients for background visual interest */
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255, 0, 79, 0.03) 0%, transparent 20%),
+        radial-gradient(circle at 80% 70%, rgba(255, 140, 0, 0.03) 0%, transparent 20%);
+}
+
+/* ========== TYPOGRAPHY ========== */
+h1, h2, h3, h4 {
+    font-weight: 700; /* Bold headings */
+    line-height: 1.2;
+    font-family: 'Audiowide', cursive; /* Specific font for headings */
+}
+
+h1 {
+    font-size: clamp(2.5rem, 8vw, 4rem); /* Responsive font size for H1 */
+}
+
+/* H2 and H3 sizes are not explicitly defined in the provided code,
+   but they would inherit from the general h-tag styling or could be added here. */
+h2 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+}
+
+h3 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+
+p {
+    font-size: clamp(1rem, 2vw, 1.2rem); /* Responsive font size for paragraphs */
+    color: rgba(255, 255, 255, 0.8); /* Slightly transparent white for paragraphs */
+}
+
+/* ========== HEADER & NAVIGATION ========== */
+.radiation_heading {
+    background: var(--radiation); /* Uses the defined radiation gradient */
+    font-size: clamp(2rem, 6vw, 3.5rem); /* Responsive font size */
+    color: var(--dark); /* Text color contrasting with the gradient */
+    text-align: center;
+    padding: 2rem;
+    margin: 1rem auto;
+    border-radius: 1rem;
+    box-shadow: var(--shadow); /* Themed shadow */
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1); /* Smooth transition for hover */
+    max-width: 90%;
+    font-weight: 1000; /* Extra bold font weight */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for depth */
+}
+
+.radiation_heading:hover {
+    transform: translateY(-5px) scale(1.02); /* Lift and slight enlarge on hover */
+    box-shadow: 0 20px 40px rgba(255, 0, 79, 0.4); /* Enhanced shadow on hover */
+}
+
+.taskbar {
+    width: 100%;
+    padding: 1rem;
+    background: var(--glass); /* Glassmorphism background */
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.taskbar ul {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    gap: 0.5rem; /* Space between list items */
+    list-style: none; /* Removes bullet points */
+    text-decoration: none  ;
+}
+
+.taskbar li {
+    display: inline-block;
+    color: var(--primary);
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+    margin: 0.25rem;
+    background: var(--glass); /* Glassmorphism background */
+    border-radius: 50px; /* Pill-shaped buttons */
+    border: 1px solid var(--glass-border); /* Themed glass border */
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); /* Smooth hover transition */
+    text-decoration: none ;
+}
+
+.taskbar li:hover {
+    background: var(--primary); /* Solid primary color on hover */
+    color: var(--dark); /* Dark text on hover for contrast */
+    transform: translateY(-3px); /* Slight lift on hover */
+    box-shadow: 0 10px 20px rgba(255, 0, 79, 0.3); /* Themed shadow on hover */
+    text-decoration: none  ;
+}
+
+/* ========== CONTENT STYLES ========== */
+.fatc { /* "Fact" or "Feature At a Glance" styled box */
+    background: var(--dark-gray);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: var(--primary); /* Primary theme color for text */
+    font-weight: bold;
+    text-align: center;
+    padding: 2rem;
+    margin: 1.5rem auto;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(255, 50, 50, 0.3); /* Red glow shadow */
+    border: 1px solid rgba(255, 0, 79, 0.5); /* Primary themed border */
+    max-width: 90%;
+    transition: all 0.3s ease;
+}
+
+.fatc:hover {
+    transform: translateY(-5px); /* Lift on hover */
+    box-shadow: 0 15px 30px rgba(255, 0, 79, 0.4); /* Enhanced shadow on hover */
+}
+
+.def { /* "Definition" style box */
+    background: var(--dark-gray);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: var(--text);
+    font-weight: 500;
+    text-align: center;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 1rem;
+    border: 1px solid var(--medium-gray); /* Subtle border */
+    max-width: 90%;
+}
+
+.indus_ { /* "Industry" or similar category card */
+    background: linear-gradient(135deg, rgba(255, 0, 79, 0.5), rgba(255, 140, 0, 0.3), rgba(255, 204, 0, 0.2)); /* Multi-color gradient */
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: var(--white);
+    font-weight: 600;
+    padding: 1.5rem;
+    margin: 1rem;
+    text-align: center;
+    border-radius: 1rem;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    display: inline-block; /* Allows side-by-side display */
+}
+
+.indus_:hover {
+    transform: translateY(-5px); /* Lift on hover */
+    box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3); /* Themed shadow on hover */
+}
+
+/* ========== BUTTON STYLES ========== */
+.radiation_sbt { /* "Radiation Subtopic" button */
+    background: linear-gradient(135deg, rgba(255, 0, 79, 0.7), rgba(255, 42, 104, 0.6), rgba(255, 100, 100, 0.5)); /* Red-pink gradient */
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: var(--white);
+    font-weight: 600;
+    padding: 1.5rem 2rem;
+    margin: 1rem;
+    text-align: center;
+    border-radius: 2rem; /* More rounded corners */
+    border: 2px solid var(--primary); /* Strong primary colored border */
+    text-shadow: var(--text-shadow);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: inline-block;
+    text-decoration: none; /* No underline for links */
+}
+
+.radiation_sbt:hover {
+    background: linear-gradient(135deg, rgba(255, 80, 120, 0.8), rgba(255, 0, 79, 0.7)); /* Adjusted gradient on hover */
+    transform: translateY(-5px) scale(1.05); /* Lift and slight enlarge on hover */
+    box-shadow: 0 15px 30px rgba(255, 0, 79, 0.4); /* Enhanced shadow on hover */
+}
+
+.radiation_all_subtopics { /* "All Subtopics" button */
+    background: linear-gradient(135deg, var(--primary), var(--primary-light)); /* Primary themed gradient */
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: var(--white);
+    font-weight: 600;
+    padding: 1.5rem 2.5rem;
+    margin: 1rem;
+    text-align: center;
+    border-radius: 3rem; /* Very rounded corners */
+    text-shadow: var(--text-shadow);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: inline-block;
+    text-decoration: none; /* No underline for links */
+}
+
+.radiation_all_subtopics:hover {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary)); /* Flipped gradient on hover */
+    transform: translateY(-5px) scale(1.05); /* Lift and slight enlarge on hover */
+    box-shadow: 0 15px 30px rgba(255, 0, 79, 0.4); /* Enhanced shadow on hover */
+    color: var(--dark); /* Dark text on hover for high contrast */
+}
+
+/* ========== CARD STYLES ========== */
+.future_tch_points { /* "Future Tech Points" card */
+    background: linear-gradient(135deg, rgba(255, 0, 79, 0.5), rgba(255, 140, 0, 0.3), rgba(255, 204, 0, 0.2)); /* Multi-color gradient */
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--white);
+    font-weight: 500;
+    padding: 1.5rem;
+    margin: 1rem;
+    text-align: center;
+    border-radius: 1rem;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.future_tch_points:hover {
+    transform: translateY(-5px); /* Lift on hover */
+    box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3); /* Themed shadow on hover */
+    background: linear-gradient(135deg, rgba(255, 0, 79, 0.6), rgba(255, 140, 0, 0.4), rgba(255, 204, 0, 0.3)); /* Slightly stronger gradient on hover */
+}
+
+.glass-card { /* General glassmorphism card */
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px); /* Blur effect for glassmorphism */
+    -webkit-backdrop-filter: blur(10px); /* Vendor prefix for Safari */
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin: 1rem;
+    transition: all 0.4s ease;
+}
+
+.glass-card:hover {
+    transform: scale(1.02); /* Slightly enlarge on hover */
+    box-shadow: 0 20px 30px rgba(255, 0, 79, 0.3); /* Themed shadow on hover */
+}
+
+/* ========== FOOTER ========== */
+footer {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
+    background: var(--dark-gray);
+    border-top: 1px solid var(--glass-border); /* Themed border for separation */
+}
+
+footer p {
+    margin: 0.5rem 0;
+    color: var(--text);
+}
+
+footer a {
+    color: var(--primary); /* Primary theme color for links */
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--primary-light); /* Lighter primary color on hover */
+}
+
+/* ========== RESPONSIVE ADJUSTMENTS ========== */
+@media (max-width: 768px) {
+    .taskbar li {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Adjust padding and margin for key elements on smaller screens */
+    .radiation_heading, .fatc, .def {
+        padding: 1.5rem;
+        margin: 1rem auto;
+    }
+    
+    /* Buttons become block-level and wider on small screens */
+    .radiation_sbt, .radiation_all_subtopics {
+        padding: 1rem 1.5rem;
+        margin: 0.5rem;
+        display: block;
+        width: 90%; /* Take up most of the width */
+    }
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 79, 0.4); } /* Start with no shadow */
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 79, 0); } /* Expand and fade out */
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 79, 0); } /* Return to no shadow */
+}
+
+.pulse-effect {
+    animation: pulse 2s infinite; /* Apply the pulse animation infinitely */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease forwards; /* Fade in animation */
+}
+
+/* Pseudo-elements for floating background gradients */
+body::before, body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; /* Place behind content */
+    pointer-events: none; /* Allows clicks to pass through */
+}
+
+body::before {
+    background: radial-gradient(circle at 20% 30%, rgba(255, 0, 79, 0.03), transparent 70%); /* Primary themed gradient */
+    animation: floatBg1 30s linear infinite; /* Long, slow float animation */
+}
+
+body::after {
+    background: radial-gradient(circle at 80% 70%, rgba(255, 140, 0, 0.03), transparent 70%); /* Secondary themed gradient */
+    animation: floatBg2 40s linear infinite; /* Another slow float animation */
+}
+
+@keyframes floatBg1 {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(10px, 15px); }
+    100% { transform: translate(0, 0); }
+}
+
+@keyframes floatBg2 {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-10px, -20px); }
+    100% { transform: translate(0, 0); }
+}
+
+.scroll-reveal { /* Class for elements that fade in on scroll */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-reveal.visible { /* State when element is visible */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.study_btn {
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: var(--primary);
+    padding: 1rem 2rem;
+    margin: 1rem;
+    background: var(--glass);
+    border-radius: 50px;
+    border: 1px solid var(--primary);
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-decoration: none;;
+}
+
+.study_btn:hover {
+    background: var(--primary);
+    color: var(--dark);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 180, 216, 0.3);
+}
