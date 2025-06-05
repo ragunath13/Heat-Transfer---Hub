@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thermal Resistance Networks</title>
+  <link rel="stylesheet" href="subtopic.css" />
+</head>
+<body>
+  <h1 class="conduction_heading">🔥 Thermal Resistance Networks: Series & Parallel</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Introduction to Thermal Resistance</h2>
+    <p>Thermal resistance is a property of materials that opposes heat flow, similar to electrical resistance in a circuit. It is the ratio of temperature difference to heat flow rate.</p>
+    <p>Thermal resistance is calculated as:</p>
+    <code>R<sub>th</sub> = ΔT / Q</code>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li><strong>ΔT</strong> is the temperature difference across the material (in °C or K)</li>
+      <li><strong>Q</strong> is the heat transfer rate (in Watts)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔗 Series Thermal Resistance</h2>
+    <p>When multiple layers of materials are in series (one after another), the total thermal resistance is the sum of individual resistances:</p>
+    <code>R<sub>total</sub> = R₁ + R₂ + R₃ + ... + R<sub>n</sub></code>
+    <p>This configuration is typical in composite walls with different materials layered sequentially.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔀 Parallel Thermal Resistance</h2>
+    <p>When heat can flow through multiple paths simultaneously, the resistances are in parallel. The total thermal resistance is given by:</p>
+    <code>1 / R<sub>total</sub> = 1/R₁ + 1/R₂ + 1/R₃ + ... + 1/R<sub>n</sub></code>
+    <p>This is common in wall constructions with bricks and insulation laid side by side.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧪 Real-World Applications</h2>
+    <ul class="future_tch_points">
+      <li>Multi-layer insulation in spacecraft and cryogenics.</li>
+      <li>Building walls composed of wood, insulation, and drywall.</li>
+      <li>Heat sinks with thermal paste and interface layers.</li>
+      <li>Electronic component cooling through layered materials.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Derivation Example (Series)</h2>
+    <p>For one-dimensional steady-state conduction through multiple layers:</p>
+    <code>R = L / (k * A)</code>
+    <p>So, for materials 1, 2, and 3 in series:</p>
+    <code>R<sub>total</sub> = L₁/(k₁A) + L₂/(k₂A) + L₃/(k₃A)</code>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧠 Key Concepts Recap</h2>
+    <ul class="future_tch_points">
+      <li>Series resistance adds directly, like stacking resistors.</li>
+      <li>Parallel resistance reduces total resistance, like branching paths.</li>
+      <li>Lower thermal resistance means better heat transfer.</li>
+      <li>Units: °C/W or K/W.</li>
+    </ul>
+  </div>
+
+  <canvas id="seriesCanvas" width="400" height="300"></canvas>
+  
+  <script>
+    const canvas = document.getElementById("seriesCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Define the layers
+    let layers = [
+      { x: 50, color: '#ff3300' },
+      { x: 150, color: '#ffaa00' },
+      { x: 250, color: '#44ff44' }
+    ];
+
+    // Heat flow settings
+    let heatFlow = 0;
+    let startTime = null;
+    const animationDuration = 3000; // Total animation duration in ms (3 seconds)
+    const totalDistance = canvas.width - 50; // Distance to cover (from start to end)
+
+    function drawSeriesNetwork(timestamp) {
+      if (!startTime) startTime = timestamp; // Initialize start time
+      const elapsedTime = timestamp - startTime;
+
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw the layers
+      layers.forEach((p, index) => {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, 120, 80, 60);
+        ctx.strokeRect(p.x, 120, 80, 60);
+        ctx.fillStyle = "#fff";
+        ctx.font = "18px Courier New";
+        ctx.fillText("Layer " + (index + 1), p.x + 20, 150);
+      });
+
+      // Draw the heat flow point
+      ctx.fillStyle = "#ff0000";
+      ctx.beginPath();
+      ctx.arc(heatFlow, 150, 10, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Move the heat flow point from start to end
+      let progress = elapsedTime / animationDuration;
+      if (progress < 1) {
+        heatFlow = 50 + (progress * totalDistance);
+        requestAnimationFrame(drawSeriesNetwork);
+      } else {
+        // Reset the animation to restart
+        heatFlow = 50 + totalDistance;
+        startTime = null; // Reset start time to restart animation
+        setTimeout(() => requestAnimationFrame(drawSeriesNetwork), 1000); // Restart after 1 second
+      }
+      
+      // Draw the heat flow direction
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "18px Courier New";
+      ctx.fillText("Heat Flow →", 10, 100);
+    }
+
+    drawSeriesNetwork();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Composite Wall System in Conduction</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="subtopic.css" rel="stylesheet">
+</head>
+<body>
+
+    <h1 class="conduction_heading">🔥 Composite Wall System in Conduction</h1>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🏗️ Understanding Composite Walls</h2>
+        <p>Composite walls are structures made of multiple materials with different thermal properties. They're everywhere around us:</p>
+        
+        <ul class="future_tch_points">
+            <li><strong>Your House Walls</strong>: Drywall + insulation + brick</li>
+            <li><strong>Oven Doors</strong>: Glass + air gap + metal</li>
+            <li><strong>Spacecraft</strong>: Ceramic tiles + metal alloys</li>
+        </ul>
+        
+        <canvas id="compositeCanvas" width="800" height="400"></canvas>
+        
+        <p class="fatc">Why use multiple materials? Each material serves a purpose - strength, insulation, or protection!</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🧩 The Three Key Concepts</h2>
+        <p>To understand composite walls, you need to know these fundamentals:</p>
+        
+        <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+            <div style="width: 30%; min-width: 250px; margin: 10px;">
+                <h3 style="color:#f86f3d">1. Thermal Conductivity (k)</h3>
+                <p>How easily heat flows through a material. Metals have high k, insulation has low k.</p>
+            </div>
+            <div style="width: 30%; min-width: 250px; margin: 10px;">
+                <h3 style="color:#f86f3d">2. Thermal Resistance (R)</h3>
+                <p>R = thickness/(k × area). Like electrical resistance but for heat!</p>
+            </div>
+            <div style="width: 30%; min-width: 250px; margin: 10px;">
+                <h3 style="color:#f86f3d">3. Steady-State Heat Flow</h3>
+                <p>Heat in = Heat out (like water flowing through pipes at constant rate).</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📝 Step-by-Step Derivation (Made Easy!)</h2>
+        
+        <div class="derivation-step">
+            <h3>Step 1: The Basic Law</h3>
+            <p>Fourier's Law tells us heat flow (q) depends on:</p>
+            <code>q = -k × A × (ΔT/Δx)</code>
+            <p>Where:<br>
+            k = thermal conductivity<br>
+            A = cross-sectional area<br>
+            ΔT = temperature difference<br>
+            Δx = thickness</p>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>Step 2: Define Thermal Resistance</h3>
+            <p>We rearrange Fourier's Law to look like Ohm's Law (V=IR):</p>
+            <code>q = ΔT/R</code>
+            <p>Where R = Δx/(k×A) → "Thermal Resistance"</p>
+            <p>Think of R like friction against heat flow!</p>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>Step 3: For Multiple Layers</h3>
+            <p>In series (one after another), resistances add up:</p>
+            <code>R<sub>total</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + ...</code>
+            <p>So heat flow becomes:</p>
+            <code>q = (T<sub>hot</sub> - T<sub>cold</sub>)/(R<sub>1</sub> + R<sub>2</sub> + ...)</code>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>Step 4: Calculate Interface Temperatures</h3>
+            <p>Temperature drops at each layer (like voltage drops in circuits):</p>
+            <code>T<sub>1</sub> = T<sub>hot</sub> - q×R<sub>1</sub></code><br>
+            <code>T<sub>2</sub> = T<sub>1</sub> - q×R<sub>2</sub></code>
+            <p>And so on...</p>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>Step 5: Real-World Example</h3>
+            <p>Wall with brick (10cm, k=0.7) and insulation (5cm, k=0.04):</p>
+            <code>R<sub>brick</sub> = 0.1/(0.7×1) = 0.143 K/W</code><br>
+            <code>R<sub>insul</sub> = 0.05/(0.04×1) = 1.25 K/W</code><br>
+            <code>q = (20°C - (-5°C))/(0.143 + 1.25) = 17.9 W</code>
+        </div>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🌡️ Visualizing Temperature Changes</h2>
+        <p>Let's see how temperature changes through different materials:</p>
+        
+        <div style="text-align: center; margin: 20px;">
+            <img src="https://i.imgur.com/JrQq3Wl.png" alt="Temperature profile graph" style="max-width: 100%; border-radius: 10px; box-shadow: 0 0 15px rgba(255,165,0,0.5);">
+            <p style="font-size: 18px; color: #aaa;">Notice the steep drop in insulation (high resistance) versus gentle drop in brick!</p>
+        </div>
+        
+        <ul class="future_tch_points">
+            <li><strong>Good Conductors</strong>: Small temperature drop (metal)</li>
+            <li><strong>Insulators</strong>: Large temperature drop (foam, air)</li>
+            <li><strong>Interface</strong>: Temperature is always continuous</li>
+        </ul>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">💡 Practical Tips for Engineers</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+            <div style="width: 48%; min-width: 300px; margin-bottom: 20px;">
+                <h3 style="color:#4568DC">Do's</h3>
+                <ul class="future_tch_points">
+                    <li>Put insulation on the cold side in refrigeration</li>
+                    <li>Use thermal breaks in metal structures</li>
+                    <li>Consider moisture resistance in materials</li>
+                </ul>
+            </div>
+            <div style="width: 48%; min-width: 300px;">
+                <h3 style="color:#ff5a01">Don'ts</h3>
+                <ul class="future_tch_points">
+                    <li>Don't ignore thermal bridging</li>
+                    <li>Don't compress insulation materials</li>
+                    <li>Don't forget expansion gaps</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🔍 Advanced Concepts</h2>
+        <p>For students who want to go deeper:</p>
+        
+        <div class="derivation-step">
+            <h3>Parallel Heat Flow Paths</h3>
+            <p>Some walls have parallel materials (like studs in a wall):</p>
+            <code>1/R<sub>total</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + ...</code>
+            <p>Calculate each path separately then combine!</p>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>Transient (Time-Dependent) Analysis</h3>
+            <p>When temperatures change over time:</p>
+            <code>∂T/∂t = α·(∂²T/∂x²)</code>
+            <p>Where α = thermal diffusivity (k/ρc<sub>p</sub>)</p>
+        </div>
+    </div>
+
+    <script>
+        // [Previous animation code remains exactly the same]
+        const canvas = document.getElementById('compositeCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const layers = [
+            { width: 150, color: '#8B4513', k: 0.7, name: 'Brick' },
+            { width: 100, color: '#ADD8E6', k: 0.04, name: 'Insulation' },
+            { width: 50, color: '#D3D3D3', k: 1.1, name: 'Concrete' }
+        ];
+        
+        let heatWavePos = 0;
+        let tempHot = 300;
+        let tempCold = 50;
+        let particles = [];
+        
+        function drawCompositeWall() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            let xPos = 100;
+            layers.forEach(layer => {
+                ctx.fillStyle = layer.color;
+                ctx.fillRect(xPos, 100, layer.width, 200);
+                
+                ctx.fillStyle = '#FFF';
+                ctx.font = '16px Audiowide';
+                ctx.textAlign = 'center';
+                ctx.fillText(layer.name, xPos + layer.width/2, 330);
+                ctx.fillText(`k = ${layer.k} W/mK`, xPos + layer.width/2, 350);
+                
+                xPos += layer.width;
+            });
+            
+            ctx.fillStyle = '#FF6347';
+            ctx.font = '20px Audiowide';
+            ctx.fillText(`${tempHot}°C`, 70, 150);
+            ctx.fillStyle = '#1E90FF';
+            ctx.fillText(`${tempCold}°C`, xPos + 30, 150);
+            
+            ctx.strokeStyle = '#FF4500';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(80, 200);
+            ctx.lineTo(xPos + 20, 200);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(xPos + 20, 200);
+            ctx.lineTo(xPos + 10, 195);
+            ctx.lineTo(xPos + 10, 205);
+            ctx.closePath();
+            ctx.fillStyle = '#FF4500';
+            ctx.fill();
+            
+            drawHeatWaves();
+            drawTemperatureParticles();
+            
+            heatWavePos += 0.5;
+            if (heatWavePos > 20) heatWavePos = 0;
+            
+            requestAnimationFrame(drawCompositeWall);
+        }
+        
+        function drawHeatWaves() {
+            let xPos = 100;
+            const totalWidth = layers.reduce((sum, layer) => sum + layer.width, 0);
+            
+            for (let x = 0; x < totalWidth; x += 10) {
+                const amplitude = 5 + Math.sin((x + heatWavePos) * 0.1) * 3;
+                ctx.strokeStyle = `rgba(255, ${100 + amplitude * 10}, 0, 0.7)`;
+                ctx.beginPath();
+                ctx.arc(xPos + x, 90, amplitude, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+        
+        function drawTemperatureParticles() {
+            if (Math.random() < 0.2) {
+                particles.push({
+                    x: 100,
+                    y: 100 + Math.random() * 200,
+                    vx: 1 + Math.random() * 2,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    life: 100 + Math.random() * 100,
+                    color: `rgb(255, ${100 + Math.floor(Math.random() * 155)}, 0)`
+                });
+            }
+            
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                if (p.life <= 0 || p.x > 100 + layers.reduce((sum, layer) => sum + layer.width, 0)) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        
+        drawCompositeWall();
+    </script>
+</body>
+</html>

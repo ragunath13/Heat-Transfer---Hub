@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nanoscale Conduction</title>
+  <link rel="stylesheet" href="subtopic.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+
+  <!-- MathJax for equations -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">⚛️ Nanoscale Conduction</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Introduction</h2>
+    <p>
+      Nanoscale conduction refers to heat transfer that occurs at scales where classical Fourier's law breaks down due to quantum and size-dependent effects. This typically happens when characteristic lengths are on the order of nanometers (1–100 nm), such as in nanowires, thin films, and carbon nanotubes.
+    </p>
+    <p>
+      At such scales, heat carriers (phonons, electrons) experience boundary scattering and ballistic transport, requiring new models for heat conduction.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧪 Limitations of Fourier's Law</h2>
+    <p>
+      Classical Fourier’s Law assumes diffusive transport, which breaks down when:
+    </p>
+    <ul class="future_tch_points">
+      <li>Mean free path of heat carriers \( \lambda \) is comparable to system length \( L \).</li>
+      <li>Scattering events are infrequent and boundary scattering dominates.</li>
+      <li>Time scales of interest are shorter than phonon relaxation time.</li>
+    </ul>
+
+    <p>
+      In such cases, Fourier’s law:
+    </p>
+    <div class="formula-box">
+      \[
+      q = -k \nabla T
+      \]
+    </div>
+    <p>fails to accurately describe the heat flux \( q \).</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Ballistic vs Diffusive Conduction</h2>
+    <p>
+      In diffusive transport, heat carriers undergo frequent collisions and follow Fourier’s law. In ballistic transport (common in nanoscale systems), carriers travel without scattering, leading to non-local heat transfer:
+    </p>
+
+    <div class="formula-box">
+      \[
+      q = \frac{1}{L} \int_{0}^{L} k_{\text{eff}}(x) \left(-\frac{dT}{dx}\right) dx
+      \]
+    </div>
+
+    <p>
+      Here, \( k_{\text{eff}} \) is position-dependent and reflects local material behavior and transport regime.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧠 Models for Nanoscale Conduction</h2>
+    <ul class="future_tch_points">
+      <li>Phonon Boltzmann Transport Equation (BTE)</li>
+      <li>Non-Equilibrium Molecular Dynamics (NEMD)</li>
+      <li>Effective Medium Approximations (EMA)</li>
+      <li>Landauer Approach for ballistic channels</li>
+    </ul>
+
+    <p>
+      These models incorporate quantum effects, phonon dispersion, and mean free path distributions to provide accurate thermal predictions.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧊 Thermal Conductivity Reduction</h2>
+    <p>
+      In nanostructures, thermal conductivity is reduced due to:
+    </p>
+    <ul class="future_tch_points">
+      <li>Boundary and interface scattering</li>
+      <li>Confinement of phonon modes</li>
+      <li>Phonon localization and interference</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏭 Applications</h2>
+    <ul class="future_tch_points">
+      <li>Thermal interface materials in microelectronics</li>
+      <li>Thermoelectric energy conversion using nanowires and quantum dots</li>
+      <li>Heat management in semiconductor devices and MEMS/NEMS</li>
+      <li>Design of ultra-low thermal conductivity materials for insulation</li>
+    </ul>
+  </div>
+
+</body>
+</html>

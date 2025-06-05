@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="subtopic.css"> 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fourier’s Law - 1D Heat Conduction</title>
+</head>
+<body>
+  <section class="fourier_section">
+    <h2 class="conduction_heading">📐 Fourier’s Law in One-Dimensional Heat Conduction</h2>
+
+    <div class="def">
+      <h3 class="conduction_all_subtopics">Understanding Fourier's Law</h3>
+      <p>Fourier's Law describes the conduction of heat in terms of temperature gradients. In a one-dimensional system, it is expressed as:</p>
+      <code>q = -k * dT/dx</code>
+      <p>where:</p>
+      <ul class="future_tch_points">
+        <li><strong>q</strong> = heat flux (W/m²)</li>
+        <li><strong>k</strong> = thermal conductivity (W/m·K)</li>
+        <li><strong>dT/dx</strong> = temperature gradient (K/m)</li>
+      </ul>
+      <p>This equation was first introduced by Joseph Fourier and forms the basis of classical heat conduction theory.</p>
+    </div>
+
+    <div class="def">
+      <h3 class="conduction_all_subtopics">Physical Significance</h3>
+      <p>Fourier's law explains that heat flows from regions of high temperature to regions of low temperature. The negative sign signifies this natural direction of heat flow. Thermal conductivity <strong>k</strong> is a material property indicating how well a substance conducts heat.</p>
+      <p>According to Yunus A. Çengel, "The rate of heat conduction through a medium is proportional to the negative gradient in the temperature and to the area."</p>
+    </div>
+
+    <div class="fatc">
+      <h3 class="conduction_all_subtopics">Applications in Engineering</h3>
+      <ul class="future_tch_points">
+        <li>📦 Thermal insulation design in buildings and spacecraft.</li>
+        <li>💻 Heat sinks in electronics to prevent overheating.</li>
+        <li>🏭 Design of heat exchangers and industrial furnaces.</li>
+        <li>🧪 Material selection for temperature-sensitive processes.</li>
+      </ul>
+    </div>
+
+    <div class="references">
+      <h2>📚 References</h2>
+      <ul>
+        <li>Joseph Fourier, <em>Théorie analytique de la chaleur</em>, 1822.</li>
+        <li>H.S. Carslaw & J.C. Jaeger, <em>Conduction of Heat in Solids</em>, Oxford University Press.</li>
+        <li>Yunus A. Çengel, <em>Heat and Mass Transfer: Fundamentals and Applications</em>, McGraw-Hill.</li>
+        <li>Rajendra Karwa, <em>Heat and Mass Transfer</em>, Springer Singapore.</li>
+      </ul>
+    </div>
+    <div class="def">
+      <h3 class="conduction_all_subtopics">Detailed View: One-Dimensional Heat Conduction</h3>
+      <p>One-dimensional heat conduction assumes that temperature varies only in one spatial direction, typically along the length of a solid. This simplification is valid in systems where the heat transfer in other directions is negligible or symmetry conditions apply.</p>
+    
+      <h4>📌 Assumptions in 1D Heat Conduction:</h4>
+      <ul class="future_tch_points">
+        <li>Temperature changes only along one coordinate axis (e.g., the x-axis).</li>
+        <li>Thermal properties are constant and uniform.</li>
+        <li>No internal heat generation (unless otherwise specified).</li>
+        <li>Steady-state (∂T/∂t = 0) or transient (∂T/∂t ≠ 0) depending on the analysis.</li>
+      </ul>
+    
+      <h4>🧮 Governing Equation (Steady-State):</h4>
+      <code>d²T/dx² = 0</code>
+      <p>This results in a linear temperature profile for materials with constant thermal conductivity and no internal heat sources.</p>
+    
+      <h4>🧮 Governing Equation (Transient Case):</h4>
+      <code>∂T/∂t = α ∂²T/∂x²</code>
+      <p>This partial differential equation requires initial and boundary conditions for solution, often solved analytically (e.g., separation of variables) or numerically (e.g., finite difference method).</p>
+    
+      <h4>🔧 Common Real-World Examples:</h4>
+      <ul class="future_tch_points">
+        <li>Heat conduction through a wall or slab.</li>
+        <li>Cooling of a metal rod after heating one end.</li>
+        <li>Insulated pipes where radial heat loss is negligible.</li>
+        <li>Electronic chips dissipating heat along a fin.</li>
+      </ul>
+    
+      <p>Understanding 1D heat conduction helps build the foundation for solving complex heat transfer problems in 2D and 3D systems.</p>
+    </div>
+
+    <div class="model3d">
+      <h2>🎥 Realistic Heat Flow in 1D Rod (Animated)</h2>
+      <p>This model visualizes heat flowing through a 1D rod, with the red region indicating higher temperature and blue representing cooler zones. The gradient shifts dynamically.</p>
+      <canvas id="barCanvas" width="800" height="200"></canvas>
+    </div>
+
+    <div class="def">
+      <h3 class="conduction_all_subtopics">Extended Concepts</h3>
+      <p>In real-world applications, Fourier’s law extends to multidimensional cases and transient conditions, resulting in the general heat conduction equation:</p>
+      <code>∂T/∂t = α (∂²T/∂x²)</code>
+      <p>Here, <strong>α</strong> is the thermal diffusivity. This equation is used to predict temperature variation over time and space in conductive media.</p>
+    </div>
+  </section>
+
+
+  <script>
+    const canvas = document.getElementById('barCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const barCount = 100;
+    const barWidth = width / barCount;
+    let time = 0;
+
+    function drawBars() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < barCount; i++) {
+        const x = i * barWidth;
+        const heat = Math.sin((i / 6) - time) * 0.5 + 0.5;
+        const barHeight = heat * height * 0.8;
+        const y = height - barHeight;
+
+        // 3D-like color gradient
+        const red = Math.floor(255 * heat);
+        const blue = 255 - red;
+        const gradient = ctx.createLinearGradient(x, y, x, y + barHeight);
+        gradient.addColorStop(0, `rgb(${red}, 0, ${blue})`);
+        gradient.addColorStop(1, `rgb(${red * 0.6}, 0, ${blue * 0.6})`);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, barWidth * 0.9, barHeight);
+      }
+      time += 0.05;
+      requestAnimationFrame(drawBars);
+    }
+
+    drawBars();
+  </script>
+</body>
+</html>

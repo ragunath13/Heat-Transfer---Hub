@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🔥 Temperature Profile with Internal Generation</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+
+  <!-- MathJax for rendering formulas -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🔥 Temperature Profile with Internal Heat Generation</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Governing Equation</h2>
+    <p>
+      For a solid generating heat internally under steady-state conditions (1D, no convection), the heat conduction equation becomes:
+    </p>
+
+    <div class="formula-box">
+      \[
+      \frac{d^2T}{dx^2} + \frac{\dot{q}}{k} = 0
+      \]
+    </div>
+
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li>\( T(x) \): Temperature at distance \( x \) from the center (K)</li>
+      <li>\( \dot{q} \): Heat generation rate per unit volume (W/m³)</li>
+      <li>\( k \): Thermal conductivity of the material (W/m·K)</li>
+      <li>\( x \): Distance along the rod or slab (m)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧮 General Solution</h2>
+    <p>Integrating the differential equation twice, we get:</p>
+
+    <div class="formula-box">
+      \[
+      T(x) = -\frac{\dot{q}}{2k}x^2 + C_1x + C_2
+      \]
+    </div>
+
+    <p>\( C_1 \) and \( C_2 \) are integration constants found using boundary conditions.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Final Temperature Profile (Plane Wall)</h2>
+    <p>For a wall of half-thickness \( L \), with both surfaces held at temperature \( T_s \), the temperature distribution becomes:</p>
+
+    <div class="formula-box">
+      \[
+      T(x) = T_s + \frac{\dot{q}}{2k}(L^2 - x^2)
+      \]
+    </div>
+
+    <p>This parabolic profile indicates that the temperature is highest at the center and lowest at the surfaces.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🌡️ Maximum Temperature at Center</h2>
+    <p>At the center \( (x = 0) \), the maximum temperature is:</p>
+
+    <div class="formula-box">
+      \[
+      T_{\text{max}} = T_s + \frac{\dot{q}L^2}{2k}
+      \]
+    </div>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🏭 Real-World Applications</h2>
+    <ul class="future_tch_points">
+      <li>Nuclear fuel rods where fission generates heat internally</li>
+      <li>Electric wires carrying current (Joule heating)</li>
+      <li>Semiconductors under high power load</li>
+      <li>Chemical reactors with exothermic reactions</li>
+    </ul>
+  </div>
+
+</body>
+</html>

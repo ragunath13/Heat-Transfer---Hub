@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Generation in Rods, Wires & Nuclear Fuel Rods</title>
+    <link rel="stylesheet" href="subtopic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+    <!-- MathJax CDN -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+</head>
+<body>
+    <h1 class="conduction_heading">📊 Heat Generation in Rods, Wires & Nuclear Fuel Rods</h1>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🔹 Heat Generation Concept</h2>
+        <p>Heat generation occurs within a material due to internal sources, which can include:</p>
+        <ul class="future_tch_points">
+            <li><strong>Electrical Resistance Heating:</strong> Heat generated in wires when an electrical current passes through them.</li>
+            <li><strong>Nuclear Fission:</strong> Heat generated inside nuclear fuel rods due to the fission reactions of nuclear fuel.</li>
+            <li><strong>Chemical Reactions:</strong> Exothermic reactions (e.g., combustion) that release heat.</li>
+        </ul>
+        
+        <p>The rate of heat generation per unit volume within a material is given by:</p>
+
+        <div style="background:#111; padding:10px; border-radius:10px; color:#ff5a01; font-family:'Rajdhani'; text-align:center;">
+            $$ q'' = \frac{Q}{V} $$ 
+        </div>
+
+        <p style="color: #ddd;">Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>q''</strong> = Rate of heat generation per unit volume (W/m³)</li>
+            <li><strong>Q</strong> = Total heat generated (W)</li>
+            <li><strong>V</strong> = Volume of the material (m³)</li>
+        </ul>
+        
+        <p>For example, in a resistive heating system, the electrical power loss converts into heat inside the wire.</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📐 Governing Equations</h2>
+        <p>The general equation describing the temperature distribution in a material due to internal heat generation is:</p>
+
+        <div style="background:#111; padding:10px; border-radius:10px; color:#03dac6; font-family:'Rajdhani'; text-align:center;">
+            $$ \frac{d^2 T}{dx^2} = -\frac{q''}{k} $$ 
+        </div>
+
+        <p style="color: #ddd;">Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>T(x)</strong> = Temperature as a function of position (m)</li>
+            <li><strong>q''</strong> = Heat generation rate per unit volume (W/m³)</li>
+            <li><strong>k</strong> = Thermal conductivity (W/m·K)</li>
+            <li><strong>x</strong> = Position within the material (m)</li>
+        </ul>
+
+        <p>For steady-state conditions, where temperature does not change with time, the temperature profile inside a rod can be described by:</p>
+
+        <div style="background:#111; padding:10px; border-radius:10px; color:#ff5a01; font-family:'Rajdhani'; text-align:center;">
+            $$ T(x) = T_0 + \frac{q''}{2k} (L^2 - x^2) $$ 
+        </div>
+
+        <p style="color: #ddd;">Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>T₀</strong> = Temperature at the center or reference point</li>
+            <li><strong>L</strong> = Half of the length of the rod (m)</li>
+            <li><strong>x</strong> = Position along the length of the rod (m)</li>
+        </ul>
+        
+        <p>This equation models the temperature distribution across a rod subjected to uniform heat generation, assuming no heat loss at the ends.</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📉 Heat Generation in Nuclear Fuel Rods</h2>
+        <p>In nuclear reactors, fuel rods undergo a nuclear fission process that generates heat. The heat generation rate per unit volume in the fuel rod is dependent on:</p>
+        <ul class="future_tch_points">
+            <li>The nuclear power density (P), which varies depending on the fuel composition, power output, and burn-up time.</li>
+            <li>Thermal conductivity (k) of the rod material, which governs how heat spreads through the rod.</li>
+            <li>The geometry of the rod, including its radius and length.</li>
+        </ul>
+
+        <p>The heat generation in nuclear fuel rods can be expressed as:</p>
+
+        <div style="background:#111; padding:10px; border-radius:10px; color:#03dac6; font-family:'Rajdhani'; text-align:center;">
+            $$ q'' = \frac{P}{V} $$ 
+        </div>
+
+        <p>Where:</p>
+        <ul class="future_tch_points">
+            <li><strong>q''</strong> = Heat generation per unit volume (W/m³)</li>
+            <li><strong>P</strong> = Total power generated in the reactor (W)</li>
+            <li><strong>V</strong> = Volume of the fuel rod (m³)</li>
+        </ul>
+
+        <p>In the reactor, the temperature distribution across the nuclear fuel rod is crucial for efficient heat removal and to avoid overheating, which could lead to material damage or failure.</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">⚙️ Practical Applications</h2>
+        <p>Heat generation in rods, wires, and nuclear fuel rods has several practical applications:</p>
+        <ul class="future_tch_points">
+            <li><strong>Electrical Wires:</strong> In power transmission, electrical resistance generates heat in wires. Understanding this helps optimize wire thickness and insulation to prevent overheating.</li>
+            <li><strong>Nuclear Reactors:</strong> In nuclear reactors, understanding heat generation in fuel rods is essential for efficient energy production and managing temperature to avoid overheating.</li>
+            <li><strong>Heat Sinks:</strong> In many electronic systems, heat sinks are used to dissipate the heat generated by components like transistors and processors, which often involve similar principles of heat conduction.</li>
+            <li><strong>Spacecraft:</strong> In space exploration, materials such as wires and fuel rods in spacecraft must be managed to prevent overheating, ensuring the reliability of all systems.</li>
+        </ul>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📊 Graphical Representation</h2>
+        <p>The heat distribution along a rod subjected to internal heat generation can be represented graphically. In this example, we see the typical temperature profile inside a rod:</p>
+        
+        <div style="width: 80%; margin: 0 auto; padding: 20px;">
+            <!-- Example of a placeholder graph -->
+            <img src="https://via.placeholder.com/600x400.png?text=Temperature+Distribution+in+Rod+Graph" alt="Temperature Distribution in Rod Graph" style="width:100%; border-radius: 10px;">
+        </div>
+
+        <p>This graph illustrates how the temperature rises from the center of the rod outward, with the highest temperature at the center. The temperature decreases towards the surface due to heat conduction.</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">📏 Example Calculation</h2>
+        <p>Consider a copper rod with a length of <strong>1 meter</strong> and a diameter of <strong>2 cm</strong>, subjected to a heat generation rate of <strong>5000 W/m³</strong>. The thermal conductivity of copper is <strong>400 W/m·K</strong>. Calculate the temperature at the center of the rod (x = 0).</p>
+        
+        <p>The equation for the temperature at the center is:</p>
+        
+        <div style="background:#111; padding:10px; border-radius:10px; color:#ff5a01; font-family:'Rajdhani'; text-align:center;">
+            $$ T(x) = T_0 + \frac{q''}{2k} (L^2 - x^2) $$ 
+        </div>
+
+        <p>Substitute the given values into the formula:</p>
+        
+        <ul class="future_tch_points">
+            <li><strong>q'' = 5000 W/m³</strong></li>
+            <li><strong>k = 400 W/m·K</strong></li>
+            <li><strong>L = 0.5 m (half the length of the rod)</strong></li>
+            <li><strong>T₀ = 25°C (ambient temperature)</strong></li>
+        </ul>
+
+        <p>Now, solve for the temperature at the center of the rod:</p>
+
+        <p style="background:#111; padding:10px; border-radius:10px; color:#03dac6; font-family:'Rajdhani';">
+            $$ T(0) = 25 + \frac{5000}{2 \times 400} (0.5^2) $$ 
+        </p>
+
+        <p>After calculating, you'll find the temperature at the center of the rod.</p>
+    </div>
+
+</body>
+</html>

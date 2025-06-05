@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumped Capacitance Method</title>
+    <link rel="stylesheet" href="subtopic.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <h1 class="conduction_heading">⚡ Lumped Capacitance Method Explained</h1>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🍵 Coffee Cup Analogy</h2>
+        <p>Imagine your morning coffee cooling on the counter. The Lumped Capacitance Method is like assuming:</p>
+        
+        <ul class="future_tch_points">
+            <li>The entire cup of coffee is at one uniform temperature (no hot spots)</li>
+            <li>It cools evenly throughout (not just at the surface)</li>
+            <li>The cooling rate depends on the temperature difference with the room</li>
+        </ul>
+        
+        <p class="fatc">This "perfect mixing" assumption works well for small objects that conduct heat quickly!</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🔍 When Can We Use This Method?</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center;">
+            <div style="width: 45%; min-width: 300px;">
+                <h3 style="color:#f86f3d">Biot Number Test</h3>
+                <p>The magic number that tells us if this method is valid:</p>
+                <code>Bi = hL<sub>c</sub>/k</code>
+                <p>Where:<br>
+                h = convection coefficient (how well air cools)<br>
+                L<sub>c</sub> = characteristic length (size)<br>
+                k = thermal conductivity (how well material conducts heat)</p>
+                
+                <div style="background: #222; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                    <p style="color:#ff5a01">If Bi < 0.1 → Use Lumped Capacitance</p>
+                    <p style="color:#4568DC">If Bi > 0.1 → Need more complex analysis</p>
+                </div>
+            </div>
+            
+           
+        </div>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">⏳ Time Constant Explained</h2>
+        
+        <p>The thermal time constant (τ) tells us how quickly the object responds:</p>
+        <code style="font-size: 24px; display: block; text-align: center; margin: 15px 0;">τ = ρc<sub>p</sub>V/hA</code>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 20px;">
+            <div style="width: 30%; min-width: 250px; margin: 10px;">
+                <h3 style="color:#4568DC">ρc<sub>p</sub>V</h3>
+                <p>Thermal "capacity" - how much heat energy the object stores</p>
+            </div>
+            <div style="width: 30%; min-width: 250px; margin: 10px;">
+                <h3 style="color:#4568DC">hA</h3>
+                <p>Thermal "conductance" - how easily heat leaves the surface</p>
+            </div>
+            <div style="width: 30%; min-width: 250px; margin: 10px;">
+                <h3 style="color:#4568DC">τ</h3>
+                <p>Time for temperature difference to reduce to 37% (1/e) of initial value</p>
+            </div>
+        </div>
+        
+        <canvas id="tauChart" style="width:100%; max-width:800px; height:400px; margin:20px auto;"></canvas>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🧮 The Math Made Simple</h2>
+        
+        <div class="derivation-step">
+            <h3>1. Energy Balance</h3>
+            <p>Heat lost by object = Heat gained by surroundings</p>
+            <code>-m c<sub>p</sub> dT/dt = h A (T - T<sub>∞</sub>)</code>
+            <p>Where m is mass and c<sub>p</sub> is specific heat</p>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>2. Rewrite in Terms of θ</h3>
+            <p>Define θ = (T - T<sub>∞</sub>)/(T<sub>i</sub> - T<sub>∞</sub>)</p>
+            <p>This makes θ range from 1 (initial) to 0 (final)</p>
+            <code>dθ/dt = -(h A/ρ V c<sub>p</sub>) θ</code>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>3. Solve the Differential Equation</h3>
+            <p>This is a simple exponential decay equation:</p>
+            <code>θ(t) = e<sup>-t/τ</sup></code>
+            <p>Where τ = ρ V c<sub>p</sub>/h A is our time constant</p>
+        </div>
+        
+        <div class="derivation-step">
+            <h3>4. Final Temperature Equation</h3>
+            <code style="font-size: 24px;">T(t) = T<sub>∞</sub> + (T<sub>i</sub> - T<sub>∞</sub>) e<sup>-t/τ</sup></code>
+            <p>This tells us the temperature at any time t!</p>
+        </div>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">🎮 Interactive Simulator</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center;">
+            <div style="width: 45%; min-width: 300px;">
+                <div style="margin-bottom: 20px;">
+                    <label style="color:#d3d3d3; display: block;">Initial Temp (T<sub>i</sub>): 
+                        <input type="range" id="tiSlider" min="0" max="200" value="100" style="width:100%;">
+                        <span id="tiValue" style="color:#ff5a01">100</span>°C
+                    </label>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="color:#d3d3d3; display: block;">Fluid Temp (T<sub>∞</sub>): 
+                        <input type="range" id="tinfSlider" min="0" max="100" value="25" style="width:100%;">
+                        <span id="tinfValue" style="color:#4568DC">25</span>°C
+                    </label>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="color:#d3d3d3; display: block;">Time Constant (τ): 
+                        <input type="range" id="tauSlider" min="1" max="30" value="10" style="width:100%;">
+                        <span id="tauValue" style="color:#ecd54d">10</span> seconds
+                    </label>
+                </div>
+                
+                <div style="background: #222; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <p>At t = <span id="tauDisplay">10</span>s:</p>
+                    <p>Temperature will be <span id="tempAtTau" style="color:#ff5a01">63.7</span>°C</p>
+                    <p>(37% of initial difference remaining)</p>
+                </div>
+            </div>
+            
+            <div style="width: 45%; min-width: 300px;">
+                <canvas id="interactiveChart" style="width:100%; height:350px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">💡 Practical Examples</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+            <div style="width: 48%; min-width: 300px; margin-bottom: 20px;">
+                <h3 style="color:#f86f3d">Small Metal Parts</h3>
+                <ul class="future_tch_points">
+                    <li>Ball bearings cooling after heat treatment</li>
+                    <li>Electronic components heating during operation</li>
+                    <li>Jewelry pieces during casting processes</li>
+                </ul>
+            </div>
+            <div style="width: 48%; min-width: 300px;">
+                <h3 style="color:#f86f3d">Everyday Objects</h3>
+                <ul class="future_tch_points">
+                    <li>Thermometer responding to temperature changes</li>
+                    <li>Hot coffee cup cooling on a desk</li>
+                    <li>Light bulb filament cooling after being turned off</li>
+                </ul>
+            </div>
+        </div>
+        
+        <p class="fatc">Remember: This method doesn't work for large objects like building walls or large metal plates!</p>
+    </div>
+
+    <div class="def">
+        <h2 class="conduction_all_subtopics">⚠️ Common Mistakes to Avoid</h2>
+        
+        <ul class="future_tch_points">
+            <li><strong>Ignoring Biot Number</strong>: Always check Bi < 0.1 first</li>
+            <li><strong>Wrong Characteristic Length</strong>: Use V/A for simple shapes</li>
+            <li><strong>Assuming Constant h</strong>: Convection coefficient may change with temperature</li>
+            <li><strong>Neglecting Radiation</strong>: For high temperatures, radiation may be significant</li>
+        </ul>
+    </div>
+
+    <script>
+        // Time constant explanation chart
+        const tauCtx = document.getElementById('tauChart').getContext('2d');
+        const tauChart = new Chart(tauCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 61}, (_, i) => i),
+                datasets: [{
+                    label: 'Temperature Difference (θ)',
+                    data: Array.from({length: 61}, (_, i) => Math.exp(-i/10)),
+                    borderColor: '#ff5a01',
+                    borderWidth: 3,
+                    fill: false
+                }, {
+                    label: 'Time Constant (τ)',
+                    data: [{x:10,y:0}, {x:10,y:0.37}],
+                    borderColor: '#4568DC',
+                    borderWidth: 2,
+                    borderDash: [5,5],
+                    pointRadius: 5,
+                    pointBackgroundColor: '#4568DC',
+                    fill: false
+                }, {
+                    label: '37% of initial difference',
+                    data: [{x:0,y:0.37}, {x:10,y:0.37}],
+                    borderColor: '#ecd54d',
+                    borderWidth: 2,
+                    borderDash: [5,5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Time (seconds)', color: '#d3d3d3' },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#d3d3d3' }
+                    },
+                    y: {
+                        title: { display: true, text: 'θ = (T-T∞)/(Ti-T∞)', color: '#d3d3d3' },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#d3d3d3' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#d3d3d3', font: { family: 'Audiowide' } }
+                    },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 0.37,
+                                yMax: 0.37,
+                                borderColor: '#ecd54d',
+                                borderWidth: 2,
+                                borderDash: [5,5]
+                            },
+                            line2: {
+                                type: 'line',
+                                xMin: 10,
+                                xMax: 10,
+                                borderColor: '#4568DC',
+                                borderWidth: 2,
+                                borderDash: [5,5]
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Interactive chart
+        const ictx = document.getElementById('interactiveChart').getContext('2d');
+        const interactiveChart = new Chart(ictx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 61}, (_, i) => i),
+                datasets: [{
+                    label: 'Temperature',
+                    data: Array.from({length: 61}, (_, i) => 25 + 75 * Math.exp(-i/10)),
+                    borderColor: '#4568DC',
+                    backgroundColor: 'rgba(69, 104, 220, 0.1)',
+                    borderWidth: 3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Time (s)', color: '#d3d3d3' },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#d3d3d3' }
+                    },
+                    y: {
+                        title: { display: true, text: 'T (°C)', color: '#d3d3d3' },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#d3d3d3' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#d3d3d3', font: { family: 'Audiowide' } }
+                    }
+                }
+            }
+        });
+
+        // Slider controls
+        const tiSlider = document.getElementById('tiSlider');
+        const tinfSlider = document.getElementById('tinfSlider');
+        const tauSlider = document.getElementById('tauSlider');
+        const tiValue = document.getElementById('tiValue');
+        const tinfValue = document.getElementById('tinfValue');
+        const tauValue = document.getElementById('tauValue');
+        const tauDisplay = document.getElementById('tauDisplay');
+        const tempAtTau = document.getElementById('tempAtTau');
+
+        function updateChart() {
+            const Ti = parseFloat(tiSlider.value);
+            const Tinf = parseFloat(tinfSlider.value);
+            const tau = parseFloat(tauSlider.value);
+            
+            const newData = Array.from({length: 61}, (_, i) => Tinf + (Ti - Tinf) * Math.exp(-i/tau));
+            interactiveChart.data.datasets[0].data = newData;
+            interactiveChart.update();
+            
+            tiValue.textContent = Ti;
+            tinfValue.textContent = Tinf;
+            tauValue.textContent = tau;
+            tauDisplay.textContent = tau;
+            
+            // Calculate temperature at t = tau
+            const temp = Tinf + (Ti - Tinf) * Math.exp(-1);
+            tempAtTau.textContent = temp.toFixed(1);
+        }
+
+        tiSlider.addEventListener('input', updateChart);
+        tinfSlider.addEventListener('input', updateChart);
+        tauSlider.addEventListener('input', updateChart);
+        
+        // Initialize
+        updateChart();
+    </script>
+</body>
+</html>

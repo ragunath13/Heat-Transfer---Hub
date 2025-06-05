@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plane Wall 1D Conduction</title>
+  <link rel="stylesheet" href="subtopic.css" />
+  <style>
+    canvas {
+      background: #111;
+      display: block;
+      margin: 30px auto;
+      border: 2px solid #555;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="conduction_heading">📏 Plane Wall 1-Dimensional Conduction</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔍 Concept Overview</h2>
+    <p>One-dimensional heat conduction refers to the flow of thermal energy along one axis (usually the x-axis). This simplification applies when temperature changes only in that direction, and variations in the other two directions are negligible. It is one of the most fundamental concepts in heat transfer.</p>
+    <p>In a plane wall scenario, this means heat travels across the wall thickness only, not along its height or width. The wall's material and environmental conditions influence the rate of heat transfer significantly.</p>
+    <p>This model simplifies complex heat flow problems into manageable calculations, making it extremely useful in engineering applications such as wall insulation design and heat sink evaluation.</p>
+  </div>
+
+  
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Governing Equation & Derivation</h2>
+    <p>The 1D steady-state conduction through a plane wall (no heat generation) is governed by:</p>
+    <code>q_x = -k * dT/dx</code>
+    <p>Integrating from x = 0 (T = T<sub>1</sub>) to x = L (T = T<sub>2</sub>):</p>
+    <code>q = k * A * (T<sub>1</sub> - T<sub>2</sub>) / L</code>
+    <ul class="future_tch_points">
+      <li><strong>q:</strong> Heat transfer rate (W)</li>
+      <li><strong>k:</strong> Thermal conductivity (W/m·K)</li>
+      <li><strong>A:</strong> Cross-sectional area (m²)</li>
+      <li><strong>L:</strong> Wall thickness (m)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🎞️ Animation: Heat Flow Across Wall</h2>
+    <canvas id="heatCanvas" width="800" height="100"></canvas>
+    <script>
+      const canvas = document.getElementById("heatCanvas");
+      const ctx = canvas.getContext("2d");
+      const particles = [];
+
+      class Particle {
+        constructor() {
+          this.x = 0;
+          this.y = 50 + Math.random() * 10 - 5;
+          this.radius = 6;
+          this.speed = 1 + Math.random() * 2;
+          this.color = `hsl(${Math.random() * 30 + 10}, 100%, 50%)`;
+        }
+
+        update() {
+          this.x += this.speed;
+          if (this.x > canvas.width) this.x = 0;
+        }
+
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < 40; i++) particles.push(new Particle());
+
+      function drawGradientWall() {
+        const grd = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        grd.addColorStop(0, "red");
+        grd.addColorStop(1, "blue");
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 40, canvas.width, 20);
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGradientWall();
+        for (const p of particles) {
+          p.update();
+          p.draw();
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
+    </script>
+    <p>This animation simulates heat particles moving from the hot side (left, red) to the cold side (right, blue) of a wall. The gradient strip represents the temperature drop across the wall — a visual representation of one-dimensional conduction.</p>
+  </div>
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🌀 Animation 2: Energy Spreading Inside the Wall</h2>
+    <canvas id="wallCanvas" width="800" height="150"></canvas>
+    <script>
+      const wallCanvas = document.getElementById("wallCanvas");
+      const wallCtx = wallCanvas.getContext("2d");
+      const particles2 = [];
+  
+      class WallParticle {
+        constructor() {
+          this.x = Math.random() * wallCanvas.width;
+          this.y = 60 + Math.random() * 30;
+          this.radius = 4;
+          this.speedX = (Math.random() - 0.5) * 2;
+          this.speedY = (Math.random() - 0.5) * 2;
+          this.energy = this.x / wallCanvas.width; // simulate energy based on x
+        }
+  
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+  
+          // Bounce within the wall
+          if (this.x < 0 || this.x > wallCanvas.width) this.speedX *= -1;
+          if (this.y < 60 || this.y > 90) this.speedY *= -1;
+        }
+  
+        draw() {
+          const color = `hsl(${(1 - this.x / wallCanvas.width) * 240}, 100%, 60%)`;
+          wallCtx.fillStyle = color;
+          wallCtx.beginPath();
+          wallCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          wallCtx.fill();
+        }
+      }
+  
+      for (let i = 0; i < 60; i++) {
+        particles2.push(new WallParticle());
+      }
+  
+      function drawWallBackground() {
+        const grd = wallCtx.createLinearGradient(0, 0, wallCanvas.width, 0);
+        grd.addColorStop(0, "red");
+        grd.addColorStop(1, "blue");
+        wallCtx.fillStyle = grd;
+        wallCtx.fillRect(0, 60, wallCanvas.width, 30);
+      }
+  
+      function animateWallParticles() {
+        wallCtx.clearRect(0, 0, wallCanvas.width, wallCanvas.height);
+        drawWallBackground();
+        for (const p of particles2) {
+          p.update();
+          p.draw();
+        }
+        requestAnimationFrame(animateWallParticles);
+      }
+  
+      animateWallParticles();
+    </script>
+    <p>This animation shows how particles inside the wall bounce around and spread their energy, gradually moving from the high-energy (hot) region to the low-energy (cold) region. This simulates microscopic energy transfer that defines conduction.</p>
+  </div>
+  
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Assumptions of 1D Conduction</h2>
+    <ul class="future_tch_points">
+      <li>Heat flows in one direction (typically x-axis)</li>
+      <li>Thermal conductivity is uniform</li>
+      <li>Steady-state (no temperature change with time)</li>
+      <li>No internal heat generation</li>
+      <li>Isotropic material (properties same in all directions)</li>
+      <li>Negligible radiation and convection losses through other surfaces</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🌡️ Real-Life Applications</h2>
+    <ul class="future_tch_points">
+      <li>Heat loss through house walls in cold climates</li>
+      <li>Thermal shielding in spacecraft structures</li>
+      <li>Flat wall of an electric oven</li>
+      <li>Wall of an engine compartment</li>
+      <li>Multilayer insulation systems in cryogenic storage</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧠 Intuitive Understanding</h2>
+    <p>Think of heat as water flowing through a sponge. In 1D conduction, the sponge only lets water flow from left to right — no spreading upward or downward. That’s how heat moves through a plane wall when we simplify the model.</p>
+    <p>This helps us analyze and predict how fast or how much heat travels through a wall, making it essential in energy efficiency designs.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📚 Summary</h2>
+    <p>1D conduction in a plane wall is the simplest yet most powerful model in thermal engineering. It enables accurate prediction of heat loss and design optimization in many everyday systems, from buildings to electronics.</p>
+  </div>
+
+</body>
+</html>

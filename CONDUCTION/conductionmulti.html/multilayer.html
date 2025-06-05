@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Series Conduction Through Layered Materials</title>
+  <link rel="stylesheet" href="subtopic.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+  
+  <!-- MathJax for rendering math equations -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async 
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <h1 class="conduction_heading">🧱 Series Conduction Through Layered Materials</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Concept Overview</h2>
+    <p>
+      When heat flows through multiple solid layers placed in series (e.g., walls, insulations), the total thermal resistance is the sum of each individual layer’s resistance. This model is widely used in building insulation, furnaces, and electronic packaging.
+    </p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📐 Thermal Resistance of a Single Layer</h2>
+    <div class="formula-box">
+      \[
+      R = \frac{L}{kA}
+      \]
+    </div>
+    <ul class="future_tch_points">
+      <li>\( R \): Thermal resistance (K/W)</li>
+      <li>\( L \): Thickness of the material (m)</li>
+      <li>\( k \): Thermal conductivity (W/m·K)</li>
+      <li>\( A \): Cross-sectional area perpendicular to heat flow (m²)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔗 Total Resistance in Series</h2>
+    <p>
+      For multiple layers in series, the total thermal resistance is:
+    </p>
+    <div class="formula-box">
+      \[
+      R_{\text{total}} = R_1 + R_2 + R_3 + \dots + R_n
+      \]
+    </div>
+    <p>
+      Or, in terms of material properties:
+    </p>
+    <div class="formula-box">
+      \[
+      R_{\text{total}} = \sum_{i=1}^{n} \frac{L_i}{k_i A}
+      \]
+    </div>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🔥 Heat Transfer Rate</h2>
+    <p>
+      Once total resistance is known, the heat transfer rate is given by:
+    </p>
+    <div class="formula-box">
+      \[
+      Q = \frac{T_{\text{hot}} - T_{\text{cold}}}{R_{\text{total}}}
+      \]
+    </div>
+    <ul class="future_tch_points">
+      <li>\( Q \): Heat transfer rate (W)</li>
+      <li>\( T_{\text{hot}}, T_{\text{cold}} \): Temperatures on either side (K)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📊 Temperature Drop Across Each Layer</h2>
+    <p>
+      The temperature drop across any individual layer is:
+    </p>
+    <div class="formula-box">
+      \[
+      \Delta T_i = Q \cdot R_i
+      \]
+    </div>
+    <p>This helps in knowing how much each material contributes to thermal resistance.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🛠️ Applications</h2>
+    <ul class="future_tch_points">
+      <li>Insulation of building walls and roofs</li>
+      <li>Thermal shields in spacecraft and satellites</li>
+      <li>Heat exchangers with composite walls</li>
+      <li>Multi-layer PCBs and microchips</li>
+    </ul>
+  </div>
+
+</body>
+</html>

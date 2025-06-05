@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vector Form of Fourier’s Law - 3D Heat Reflux</title>
+  <link rel="stylesheet" href="subtopic.css">
+</head>
+<body>
+  <h1 class="conduction_heading">📐 Vector Form of Fourier’s Law - 3D Heat Reflux</h1>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">Mathematical Expression</h2>
+    <p>In three dimensions, Fourier’s Law is expressed in vector form as:</p>
+    <p><code>q = −k∇T</code></p>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li><strong>q⃗</strong>: Heat flux vector (W/m²), indicates both the direction and rate of heat flow.</li>
+      <li><strong>k</strong>: Thermal conductivity (W/m·K), a measure of a material’s ability to conduct heat.</li>
+      <li><strong>∇T</strong>: Gradient of temperature, indicating change in temperature with position.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🧭 Cartesian Form in 3D Coordinates</h2>
+    <p>In a Cartesian coordinate system (x, y, z), the equation is expanded as:</p>
+    <p><code>q⃗ = -k (∂T/∂x î + ∂T/∂y ĵ + ∂T/∂z k̂)</code></p>
+    <p>This form explicitly shows how the heat flux vector has components along each axis. Each partial derivative represents how temperature changes along that direction.</p>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📘 Extended Concepts</h2>
+    <p>In anisotropic materials, thermal conductivity varies with direction. Thus, the scalar <code>k</code> becomes a tensor <code>K</code>, and the law is written as:</p>
+    <p><code>q = −k∇T</code></p>
+    <p>Where:</p>
+    <ul class="future_tch_points">
+      <li><strong>K</strong>: A second-order thermal conductivity tensor, used to model directional behavior.</li>
+    </ul>
+    <p>The general 3D transient heat conduction (diffusion) equation is given by:</p>
+    <p><code>∂T/∂t = α ∇²T</code></p>
+    <p>With thermal diffusivity <code>α = k / (ρ cₚ)</code>, where:</p>
+    <ul class="future_tch_points">
+      <li><strong>ρ</strong>: Density (kg/m³)</li>
+      <li><strong>cₚ</strong>: Specific heat at constant pressure (J/kg·K)</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📖 Additional Reference Notes and Definitions</h2>
+    <ul class="future_tch_points">
+      <li><strong>Heat Flux Vector:</strong> Represents the rate and direction of heat flow at a point. It’s a crucial quantity in analyzing thermal energy transport in multidimensional domains.</li>
+      <li><strong>Temperature Gradient:</strong> Refers to the spatial rate of change of temperature. In vector form, it points in the direction of maximum temperature increase and its magnitude indicates how fast the temperature is changing.</li>
+      <li><strong>Thermal Conductivity Tensor:</strong> Captures how different materials may conduct heat differently in various directions. It’s essential for materials like composites, crystalline solids, and geological formations.</li>
+      <li><strong>Fourier’s Law in 3D:</strong> Forms the basis for numerical simulation tools such as FDM (Finite Difference Method), FEM (Finite Element Method), and CFD (Computational Fluid Dynamics) used in complex heat transfer problems.</li>
+      <li><strong>Engineering Note:</strong> In practical applications, understanding the vector nature of heat flux aids in accurate modeling and control in thermal management systems, such as heat exchangers, thermal insulation, and electronic cooling.</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">🌐 Applications</h2>
+    <ul class="future_tch_points">
+      <li>3D heat transfer in advanced electronic cooling systems</li>
+      <li>Thermal modeling of biological tissues in medical simulations</li>
+      <li>Geothermal and environmental heat flow predictions</li>
+      <li>Optimization of insulation in aerospace and automotive engineering</li>
+    </ul>
+  </div>
+
+  <div class="def">
+    <h2 class="conduction_all_subtopics">📚 References</h2>
+    <ul class="future_tch_points">
+      <li>Joseph Fourier, <em>Théorie analytique de la chaleur</em>, 1822</li>
+      <li>H.S. Carslaw & J.C. Jaeger, <em>Conduction of Heat in Solids</em>, Oxford University Press</li>
+      <li>Yunus A. Çengel, <em>Heat and Mass Transfer: Fundamentals and Applications</em>, McGraw-Hill</li>
+      <li>Frank P. Incropera et al., <em>Fundamentals of Heat and Mass Transfer</em>, Wiley</li>
+      <li>Rajendra Karwa, <em>Heat and Mass Transfer</em>, Springer</li>
+      <li>Adrian Bejan, <em>Convection Heat Transfer</em>, Wiley</li>
+      <li>Danforth R. & J.A. Liboff, <em>Introductory Transport Phenomena</em>, Wiley</li>
+    </ul>
+  </div>
+</body>
+</html>
