@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Radiation Exchange Between Black Surfaces</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+    <style>
+        /* Base styles: Ensuring a deep, consistent black background */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+            /* Default background for elements unless specified - slightly off-black for depth */
+            background-color: #0a0a0a;
+        }
+
+        body {
+            background-color: #000000; /* Pure black for the main page background */
+            font-family: 'Audiowide', cursive; /* Keeping the distinct, futuristic font */
+            color: #d3d3d3; /* A standard light grey for excellent readability on dark backgrounds */
+            line-height: 1.6; /* Improves readability of text blocks */
+            overflow-x: hidden; /* Prevent horizontal scroll on some subtle effects */
+        }
+
+        /* Main Heading: Bold and energetic, central to the radiation theme */
+        .main_heading {
+            background: linear-gradient(to right, #f40166, #ff2a68, #ff0000); /* Vibrant red/pink/orange gradient */
+            font-size: 50px; /* Consistent size for prominence */
+            font-family: 'Courier New', monospace; /* A classic techy font */
+            font-weight: 900; /* Extra bold for impact */
+            color: #000000; /* Black text creates strong contrast on the gradient */
+            text-align: center;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(255, 110, 110, 0.7); /* Stronger, more defined glowing red shadow */
+            margin: 30px auto; /* Centers the block and adds vertical spacing */
+            max-width: 90%; /* Ensures responsiveness and readability on larger screens */
+            will-change: box-shadow; /* Hint to browser for performance optimization */
+        }
+
+        /* General Paragraphs: Clean and readable, designed for content */
+        p {
+            font-size: 22px;
+            font-family: 'Audiowide', cursive;
+            text-align: center; /* Centered text within paragraphs */
+            padding: 20px;
+            margin: 25px auto; /* Centers the block and provides vertical spacing */
+            max-width: 80%; /* Limits paragraph width for better readability */
+            background-color: #1a1a1a; /* Slightly lighter charcoal for subtle visual distinction */
+            border-radius: 10px;
+            color: #b7b8b8; /* A muted grey for standard text */
+            box-shadow: 0 0 8px rgba(255, 42, 104, 0.1); /* Very subtle, understated red glow */
+            line-height: 1.7; /* Further improved readability */
+        }
+
+        /* Subtopic Headings: Consistent with the main radiation theme's subtopics */
+        .subtopics {
+            background-image: linear-gradient(58.2deg, rgba(255, 76, 10, 0.9) -3%, rgba(255, 0, 80, 0.8) 49.3%, rgba(255, 200, 0, 0.8) 97.7%); /* Intense, mixed-tone gradient */
+            font-size: 28px;
+            color: #ffffff;
+            font-family: 'Audiowide', cursive;
+            font-weight: bold;
+            padding: 25px 40px;
+            margin: 35px auto; /* Centered with generous spacing */
+            max-width: 80%;
+            text-align: center;
+            border-radius: 15px; /* Softer radius for a less rigid feel */
+            border: 2px solid #ff416c; /* A clear, vibrant red border */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease; /* All-encompassing smooth transition */
+            will-change: transform, box-shadow, background;
+            cursor: pointer;
+        }
+
+        .subtopics:hover {
+            transform: scale(1.03) translateY(-3px); /* More noticeable lift and scale */
+            background-image: linear-gradient(58.2deg, rgba(255, 0, 80, 0.95) -3%, rgba(255, 76, 10, 0.95) 49.3%, rgba(255, 200, 0, 0.95) 97.7%); /* Even more intense gradient on hover */
+            color: #000000; /* Black text for strong contrast on hover */
+            box-shadow: 0 0 45px rgba(255, 0, 80, 0.9); /* Enhanced, stronger glow on hover */
+        }
+
+        /* Definition Section: Standard content block with clear typography */
+        .def {
+            background-color: #111111; /* Consistent dark background */
+            font-family: 'Audiowide', cursive;
+            font-size: 22px; /* Consistent with general paragraphs */
+            color: #b7b8b8;
+            font-weight: normal; /* Standard weight for content, avoiding excessive boldness */
+            text-align: center;
+            padding: 30px;
+            margin: 35px auto; /* Centered block with consistent spacing */
+            max-width: 80%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 42, 104, 0.15); /* Subtle red glow */
+            line-height: 1.7; /* Improved readability */
+        }
+
+        /* Fact Section: Highlighted and impactful, drawing attention with electric energy */
+        .fact {
+            background-color: #0d0d0d; /* Slightly darker than other blocks for more emphasis */
+            font-size: 34px;
+            color: #00e0ff; /* A vibrant, electric cyan for a striking highlight */
+            font-weight: 900;
+            font-family: 'Rajdhani', sans-serif; /* A bold, modern sans-serif */
+            text-align: center;
+            padding: 40px; /* Generous padding for emphasis */
+            margin: 35px auto; /* Centers the block */
+            max-width: 85%; /* Ensures good presentation on various screen sizes */
+            border-radius: 12px;
+            box-shadow: 0 0 35px rgba(0, 224, 255, 0.8); /* Intense, bright cyan glow for "energy" */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth interaction on hover */
+            will-change: transform, box-shadow; /* Hint to browser for performance optimization */
+        }
+
+        .fact:hover {
+            transform: scale(1.02); /* Slight scale on hover for a dynamic feel */
+            box-shadow: 0 0 50px rgba(0, 224, 255, 1); /* Even brighter, stronger glow on hover */
+        }
+
+        /* Tech Points List: Professional styling with custom glowing bullets */
+        .tech_points {
+            list-style-type: none; /* Removes default bullet points */
+            padding: 25px; /* Ample internal spacing */
+            margin: 30px auto; /* Centers the block horizontally, adds vertical spacing */
+            max-width: 85%; /* Ensures readability on large screens, responsive on small */
+            background-color: #1a1a1a; /* A deep charcoal for subtle depth against pure black */
+            border-radius: 12px; /* Softly rounded corners for a modern feel */
+            box-shadow: 0 0 20px rgba(255, 0, 80, 0.15); /* A subtle, outward glow matching the radiation theme */
+            color: #dadada; /* Light grey text for excellent contrast */
+            font-family: 'Audiowide', cursive;
+            font-size: 20px;
+            text-align: left; /* Best for list readability */
+            line-height: 1.5; /* Improves text readability */
+        }
+
+        .tech_points li {
+            padding: 15px 0; /* Vertical padding for each list item */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* A very subtle, transparent line separator */
+            position: relative; /* Necessary for positioning the custom bullet point */
+            padding-left: 35px; /* Creates space for the custom bullet */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+        }
+
+        .tech_points li:last-child {
+            border-bottom: none; /* No separator for the very last item */
+        }
+
+        /* Custom glowing bullet point for each list item */
+        .tech_points li::before {
+            content: ''; /* Required for pseudo-elements */
+            position: absolute;
+            left: 0; /* Aligns to the left of the padding-left */
+            top: 50%;
+            transform: translateY(-50%); /* Vertically centers the bullet */
+            width: 10px; /* Size of the bullet */
+            height: 10px;
+            border-radius: 50%; /* Makes it a perfect circle */
+            background: linear-gradient(45deg, #00e0ff, #0072ff); /* A cool, vibrant electric cyan gradient */
+            box-shadow: 0 0 12px rgba(0, 224, 255, 0.8); /* A strong, matching glow around the bullet */
+        }
+
+        .tech_points li:hover {
+            background-color: #1a1a1a; /* Slightly lighter black on hover for subtle interaction */
+            transform: translateX(5px); /* A subtle slide-right effect on hover */
+        }
+
+        /* Net Radiation Exchange specific visualizations */
+        .net-radiation-visual-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px auto;
+            max-width: 90%;
+            background: #111111;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 42, 104, 0.15); /* Subtle red glow for visual containers */
+            position: relative;
+        }
+
+        .radiation-exchange-diagram {
+            width: 90%;
+            max-width: 700px;
+            height: 300px;
+            background-color: #0d0d0d;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .black-surface {
+            width: 150px;
+            height: 150px;
+            background-color: #000000; /* Pure black for blackbody */
+            border: 2px solid #555;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            color: #eee;
+            font-size: 20px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden; /* For glow effect */
+        }
+
+        .surface-label {
+            position: absolute;
+            top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .surface-temp {
+            position: absolute;
+            bottom: 10px;
+            font-size: 18px;
+            color: #ffcc00;
+        }
+
+        .radiation-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #ffcc00; /* Yellow for particles */
+            opacity: 0.8;
+            z-index: 5;
+            box-shadow: 0 0 5px #ffcc00;
+            animation: particle-flow linear infinite;
+        }
+
+        @keyframes particle-flow {
+            0% { transform: translate(var(--start-x), var(--start-y)); opacity: 0.8; }
+            100% { transform: translate(var(--end-x), var(--end-y)); opacity: 0; }
+        }
+
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 700px;
+            padding: 15px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.1);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #d3d3d3;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+        }
+
+        .control-slider {
+            width: 150px;
+            -webkit-appearance: none;
+            height: 8px;
+            background: linear-gradient(to right, #00e0ff, #ffcc00);
+            border-radius: 4px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            margin-top: 5px;
+        }
+
+        .control-slider:hover {
+            opacity: 1;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+        }
+
+        .control-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+        }
+
+        .current-value-display {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #ffcc00;
+            margin-top: 5px;
+        }
+
+        .result-display {
+            font-family: 'Courier New', monospace;
+            font-size: 28px;
+            color: #00e0ff;
+            text-shadow: 0 0 10px #00e0ff;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Application examples grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        .app-item {
+            background: #1a1a1a; /* Consistent dark background for app items */
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.1); /* Subtle blue glow */
+            cursor: pointer;
+        }
+
+        .app-item:hover {
+            transform: scale(1.03) translateY(-5px); /* Slight lift and scale */
+            background: #222222; /* Slightly lighter on hover */
+            box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4); /* More pronounced, lifted glow */
+        }
+
+        .app-icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00e0ff; /* Electric cyan for icons */
+            text-shadow: 0 0 10px rgba(0, 224, 255, 0.7); /* Glowing icon effect */
+        }
+
+        .app-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main_heading {
+                font-size: 40px;
+                padding: 30px;
+            }
+            .subtopics {
+                font-size: 22px;
+                padding: 12px 20px;
+            }
+            p, .def {
+                font-size: 18px;
+                padding: 15px;
+                margin: 20px auto;
+                max-width: 90%;
+            }
+            .fact {
+                font-size: 28px;
+                padding: 30px;
+            }
+            .tech_points {
+                font-size: 18px;
+                padding: 20px;
+            }
+            .tech_points li {
+                padding-left: 30px;
+            }
+            .tech_points li::before {
+                width: 8px;
+                height: 8px;
+            }
+            .radiation-exchange-diagram {
+                height: 250px;
+            }
+            .black-surface {
+                width: 120px;
+                height: 120px;
+                font-size: 18px;
+            }
+            .surface-label {
+                font-size: 20px;
+            }
+            .surface-temp {
+                font-size: 16px;
+            }
+            .radiation-particle {
+                width: 5px;
+                height: 5px;
+            }
+            .control-slider {
+                width: 120px;
+            }
+            .current-value-display {
+                font-size: 14px;
+            }
+            .result-display {
+                font-size: 24px;
+            }
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+            .app-icon {
+                font-size: 36px;
+            }
+            .app-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main_heading {
+                font-size: 32px;
+                padding: 20px;
+            }
+            .subtopics {
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+            p, .def {
+                font-size: 16px;
+                padding: 12px;
+                margin: 15px auto;
+            }
+            .fact {
+                font-size: 24px;
+                padding: 25px;
+            }
+            .tech_points {
+                font-size: 16px;
+                padding: 15px;
+            }
+            .tech_points li {
+                padding-left: 25px;
+            }
+            .tech_points li::before {
+                width: 6px;
+                height: 6px;
+            }
+            .radiation-exchange-diagram {
+                height: 200px;
+            }
+            .black-surface {
+                width: 100px;
+                height: 100px;
+                font-size: 16px;
+            }
+            .surface-label {
+                font-size: 18px;
+            }
+            .surface-temp {
+                font-size: 14px;
+            }
+            .radiation-particle {
+                width: 4px;
+                height: 4px;
+            }
+            .control-panel {
+                gap: 10px;
+                padding: 10px;
+            }
+            .control-slider {
+                width: 100px;
+            }
+            .current-value-display {
+                font-size: 12px;
+            }
+            .result-display {
+                font-size: 20px;
+            }
+            .app-icon {
+                font-size: 32px;
+            }
+            .app-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main_heading">Net Radiation Exchange Between Black Surfaces</div>
+
+    <div class="def">
+        <p>When two or more surfaces exchange thermal radiation, there is a **net** transfer of energy from the hotter surface(s) to the cooler surface(s). This net exchange is the difference between the radiation emitted by a surface and the radiation it absorbs from its surroundings.</p>
+        <p>For **black surfaces** (ideal blackbodies), the analysis is simplified because they perfectly absorb all incident radiation and emit radiation solely based on their temperature (Stefan-Boltzmann Law).</p>
+    </div>
+
+    <div class="subtopics">The Governing Equation</div>
+
+    <div class="def">
+        <p>The net rate of radiation heat exchange ($Q_{1 \leftrightarrow 2}$) between two black surfaces, $A_1$ and $A_2$, at absolute temperatures $T_1$ and $T_2$ respectively, is given by:</p>
+        <p>$Q_{1 \leftrightarrow 2} = A_1 F_{1 \to 2} \sigma (T_1^4 - T_2^4)$</p>
+        <p>Where:</p>
+        <ul class="tech_points">
+            <li>$Q_{1 \leftrightarrow 2}$: Net rate of radiation heat transfer from surface 1 to surface 2 (Watts).</li>
+            <li>$A_1$: Area of surface 1 (m$^2$).</li>
+            <li>$F_{1 \to 2}$: View factor from surface 1 to surface 2 (dimensionless).</li>
+            <li>$\sigma$: Stefan–Boltzmann constant ($5.670 \times 10^{-8} \text{ W/(m}^2 \cdot K^4)$).</li>
+            <li>$T_1$: Absolute temperature of surface 1 (K).</li>
+            <li>$T_2$: Absolute temperature of surface 2 (K).</li>
+        </ul>
+        <p>A positive $Q_{1 \leftrightarrow 2}$ indicates net heat transfer from surface 1 to surface 2, while a negative value indicates net transfer from surface 2 to surface 1.</p>
+    </div>
+
+    <div class="subtopics">Interactive Visualization of Net Exchange</div>
+
+    <div class="net-radiation-visual-container">
+        <h3>Heat Flow Between Two Black Surfaces</h3>
+        <div class="radiation-exchange-diagram" id="radiation-diagram">
+            <div class="black-surface" id="surface1">
+                <span class="surface-label">Surface 1</span>
+                <span class="surface-temp" id="temp1-display">T₁: 500 K</span>
+            </div>
+            <div class="black-surface" id="surface2">
+                <span class="surface-label">Surface 2</span>
+                <span class="surface-temp" id="temp2-display">T₂: 300 K</span>
+            </div>
+        </div>
+        <div class="control-panel">
+            <div class="control-group">
+                <label for="temp1-slider">Temperature 1 (K):</label>
+                <input type="range" id="temp1-slider" class="control-slider" min="100" max="1000" value="500">
+                <span id="temp1-value" class="current-value-display">500 K</span>
+            </div>
+            <div class="control-group">
+                <label for="temp2-slider">Temperature 2 (K):</label>
+                <input type="range" id="temp2-slider" class="control-slider" min="100" max="1000" value="300">
+                <span id="temp2-value" class="current-value-display">300 K</span>
+            </div>
+            <div class="control-group">
+                <label for="view-factor-slider">View Factor (F₁₂):</label>
+                <input type="range" id="view-factor-slider" class="control-slider" min="0.1" max="1.0" step="0.05" value="0.5">
+                <span id="view-factor-value" class="current-value-display">0.50</span>
+            </div>
+        </div>
+        <div class="result-display" id="net-heat-transfer-display">
+            Net Heat Transfer (Q₁₂): Calculating...
+        </div>
+        <p>Adjust the temperatures of Surface 1 and Surface 2, and the view factor between them. Observe how the net heat transfer changes, and how the "radiation particles" animate to show the direction and intensity of the net flow.</p>
+    </div>
+
+    <div class="fact">
+        DID YOU KNOW? Even if two black surfaces are at the same temperature, they still exchange radiation, but the net exchange is zero, as the emitted and absorbed radiation balance out!
+    </div>
+
+    <div class="subtopics">Implications and Applications</div>
+
+    <div class="def">
+        <ul class="tech_points">
+            <li><b>Thermal Insulation:</b> Understanding net radiation exchange helps design insulation materials and multi-layer shields to minimize heat transfer.</li>
+            <li><b>Furnace & Boiler Design:</b> Crucial for calculating heat absorption by tubes and walls from flames and hot gases.</li>
+            <li><b>Spacecraft Thermal Control:</b> Predicting heat gain from the sun and heat loss to deep space for satellite components.</li>
+            <li><b>Solar Energy Systems:</b> Calculating the efficiency of solar collectors by determining net radiation absorbed by the receiver.</li>
+            <li><b>Fire Safety:</b> Estimating radiant heat exposure on structures and personnel from fires.</li>
+        </ul>
+    </div>
+
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon">🔥</div>
+            <div class="app-title">Industrial Furnaces</div>
+            <p>Optimizing heat transfer to materials and minimizing energy loss.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🚀</div>
+            <div class="app-title">Spacecraft Radiators</div>
+            <p>Designing surfaces to efficiently radiate excess heat into space.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🏠</div>
+            <div class="app-title">Building Envelopes</div>
+            <p>Analyzing heat gain/loss through walls and roofs due to radiation.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">☀️</div>
+            <div class="app-title">Solar Collectors</div>
+            <p>Maximizing net absorption of solar radiation.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🧊</div>
+            <div class="app-title">Cryogenic Tanks</div>
+            <p>Minimizing heat ingress into super-cooled containers.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">💡</div>
+            <div class="app-title">High-Power Electronics</div>
+            <p>Managing heat dissipation from components via radiation.</p>
+        </div>
+    </div>
+
+    <script>
+        // Stefan-Boltzmann constant
+        const SIGMA = 5.670e-8; // W/(m^2 * K^4)
+
+        // Get elements
+        const temp1Slider = document.getElementById('temp1-slider');
+        const temp2Slider = document.getElementById('temp2-slider');
+        const viewFactorSlider = document.getElementById('view-factor-slider');
+        const temp1Display = document.getElementById('temp1-display');
+        const temp2Display = document.getElementById('temp2-display');
+        const viewFactorValueDisplay = document.getElementById('view-factor-value');
+        const netHeatTransferDisplay = document.getElementById('net-heat-transfer-display');
+        const radiationDiagram = document.getElementById('radiation-diagram');
+        const surface1Div = document.getElementById('surface1');
+        const surface2Div = document.getElementById('surface2');
+
+        // Initial surface areas (conceptual, in m^2 for calculation)
+        const A1 = 0.0225; // 150px x 150px -> 0.15m x 0.15m = 0.0225 m^2 (assuming 100px = 0.1m)
+
+        // Animation variables
+        let particles = [];
+        const maxParticles = 30; // Max number of particles to show
+        let animationInterval;
+
+        // Function to update the visualization and calculations
+        function updateVisualization() {
+            const T1 = parseFloat(temp1Slider.value);
+            const T2 = parseFloat(temp2Slider.value);
+            const F12 = parseFloat(viewFactorSlider.value);
+
+            // Update display values
+            temp1Display.textContent = `T₁: ${T1} K`;
+            temp2Display.textContent = `T₂: ${T2} K`;
+            viewFactorValueDisplay.textContent = F12.toFixed(2);
+
+            // Calculate emissive powers
+            const Eb1 = SIGMA * Math.pow(T1, 4);
+            const Eb2 = SIGMA * Math.pow(T2, 4);
+
+            // Calculate net heat transfer
+            const Q12 = A1 * F12 * (Eb1 - Eb2);
+
+            // Update net heat transfer display
+            netHeatTransferDisplay.textContent = `Net Heat Transfer (Q₁₂): ${Q12.toFixed(3)} W`;
+
+            // Adjust surface glow based on temperature
+            const maxTemp = 1000;
+            const minTemp = 100;
+
+            const glowIntensity1 = 10 + (T1 - minTemp) / (maxTemp - minTemp) * 40;
+            const glowColor1 = `rgba(255, ${Math.min(255, Math.floor(65 + (T1 - minTemp) / (maxTemp - minTemp) * 190))}, ${Math.min(255, Math.floor(108 + (T1 - minTemp) / (maxTemp - minTemp) * 147))}, 0.7)`;
+            surface1Div.style.boxShadow = `0 0 ${glowIntensity1}px ${glowColor1}`;
+
+            const glowIntensity2 = 10 + (T2 - minTemp) / (maxTemp - minTemp) * 40;
+            const glowColor2 = `rgba(255, ${Math.min(255, Math.floor(65 + (T2 - minTemp) / (maxTemp - minTemp) * 190))}, ${Math.min(255, Math.floor(108 + (T2 - minTemp) / (maxTemp - minTemp) * 147))}, 0.7)`;
+            surface2Div.style.boxShadow = `0 0 ${glowIntensity2}px ${glowColor2}`;
+
+            // Update particle animation
+            updateParticles(Q12);
+        }
+
+        // Function to manage particle animation
+        function updateParticles(netHeat) {
+            // Clear existing particles
+            particles.forEach(p => p.remove());
+            particles = [];
+
+            const diagramRect = radiationDiagram.getBoundingClientRect();
+            const s1Rect = surface1Div.getBoundingClientRect();
+            const s2Rect = surface2Div.getBoundingClientRect();
+
+            // Calculate relative positions within the diagram
+            const s1CenterX = (s1Rect.left + s1Rect.width / 2) - diagramRect.left;
+            const s1CenterY = (s1Rect.top + s1Rect.height / 2) - diagramRect.top;
+            const s2CenterX = (s2Rect.left + s2Rect.width / 2) - diagramRect.left;
+            const s2CenterY = (s2Rect.top + s2Rect.height / 2) - diagramRect.top;
+
+            // Determine particle flow direction and density based on net heat
+            let flowDirection = 0; // 0: no net flow, 1: S1->S2, -1: S2->S1
+            let particleCount = 0;
+
+            if (netHeat > 0.01) { // S1 is hotter, net flow S1 -> S2
+                flowDirection = 1;
+                particleCount = Math.min(maxParticles, Math.ceil(netHeat * 5)); // Scale particle count
+            } else if (netHeat < -0.01) { // S2 is hotter, net flow S2 -> S1
+                flowDirection = -1;
+                particleCount = Math.min(maxParticles, Math.ceil(Math.abs(netHeat) * 5)); // Scale particle count
+            } else {
+                // Near equilibrium, show minimal or balanced flow
+                particleCount = 5; // A few particles to show exchange still happens
+            }
+
+            // Create particles
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'radiation-particle';
+                radiationDiagram.appendChild(particle);
+                particles.push(particle);
+
+                let startX, startY, endX, endY;
+                let duration = 2 + Math.random() * 1; // Randomize duration
+
+                if (flowDirection === 1) { // S1 -> S2
+                    startX = s1CenterX + (Math.random() - 0.5) * s1Rect.width * 0.8;
+                    startY = s1CenterY + (Math.random() - 0.5) * s1Rect.height * 0.8;
+                    endX = s2CenterX + (Math.random() - 0.5) * s2Rect.width * 0.8;
+                    endY = s2CenterY + (Math.random() - 0.5) * s2Rect.height * 0.8;
+                } else if (flowDirection === -1) { // S2 -> S1
+                    startX = s2CenterX + (Math.random() - 0.5) * s2Rect.width * 0.8;
+                    startY = s2CenterY + (Math.random() - 0.5) * s2Rect.height * 0.8;
+                    endX = s1CenterX + (Math.random() - 0.5) * s1Rect.width * 0.8;
+                    endY = s1CenterY + (Math.random() - 0.5) * s1Rect.height * 0.8;
+                } else { // Balanced or negligible net flow, show random exchange
+                    if (Math.random() > 0.5) { // S1 to S2
+                        startX = s1CenterX + (Math.random() - 0.5) * s1Rect.width * 0.8;
+                        startY = s1CenterY + (Math.random() - 0.5) * s1Rect.height * 0.8;
+                        endX = s2CenterX + (Math.random() - 0.5) * s2Rect.width * 0.8;
+                        endY = s2CenterY + (Math.random() - 0.5) * s2Rect.height * 0.8;
+                    } else { // S2 to S1
+                        startX = s2CenterX + (Math.random() - 0.5) * s2Rect.width * 0.8;
+                        startY = s2CenterY + (Math.random() - 0.5) * s2Rect.height * 0.8;
+                        endX = s1CenterX + (Math.random() - 0.5) * s1Rect.width * 0.8;
+                        endY = s1CenterY + (Math.random() - 0.5) * s1Rect.height * 0.8;
+                    }
+                    duration = 3 + Math.random() * 1; // Longer duration for subtle exchange
+                }
+
+                // Set CSS variables for animation
+                particle.style.setProperty('--start-x', `${startX - s1CenterX}px`);
+                particle.style.setProperty('--start-y', `${startY - s1CenterY}px`);
+                particle.style.setProperty('--end-x', `${endX - s1CenterX}px`);
+                particle.style.setProperty('--end-y', `${endY - s1CenterY}px`);
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${Math.random() * duration}s`;
+                particle.style.left = `${s1CenterX - 3}px`; // Adjust for particle size
+                particle.style.top = `${s1CenterY - 3}px`; // Adjust for particle size
+            }
+        }
+
+        // Event listeners for sliders
+        temp1Slider.addEventListener('input', updateVisualization);
+        temp2Slider.addEventListener('input', updateVisualization);
+        viewFactorSlider.addEventListener('input', updateVisualization);
+
+        // Initial update on page load
+        document.addEventListener('DOMContentLoaded', updateVisualization);
+    </script>
+
+</body>
+</html>
