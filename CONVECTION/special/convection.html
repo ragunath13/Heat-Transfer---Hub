@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convection in Porous Media</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+    <style>
+        /* Base styles matching previous themes */
+        * {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            line-height: 1.6;
+        }
+
+        .main_heading {
+            background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+            font-size: 50px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        p, li {
+            font-size: 22px;
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .subtopics {
+            background: linear-gradient(to right, #B06AB3, #4568DC);
+            color: white;
+            font-size: 28px;
+            font-family: 'Audiowide', cursive;
+            padding: 15px 25px;
+            margin: 20px auto;
+            text-align: center;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: 0.4s;
+            max-width: 90%;
+        }
+
+        .subtopics:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to right, #00ffe1, #0162bd);
+            color: black;
+        }
+
+        .def, .fact, .application {
+            background-color: #111;
+            padding: 30px;
+            margin: 25px auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .fact {
+            color: #05eeff;
+            font-size: 34px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+        }
+
+        .tech_points {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+            font-size: 20px;
+            color: #dadada;
+            font-family: 'Audiowide', cursive;
+            font-weight: bold;
+            text-align: left;
+            border-radius: 10px;
+            max-width: 90%;
+        }
+
+        .tech_points li {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tech_points li:last-child {
+            border-bottom: none;
+        }
+
+        /* Porous Media specific styles */
+        .porous-media-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px auto;
+            max-width: 90%;
+            background: #111;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.1);
+            position: relative;
+        }
+
+        .porous-medium-visual {
+            width: 90%;
+            max-width: 600px;
+            height: 250px;
+            background-color: #333; /* Dark background for the medium */
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .matrix-element {
+            position: absolute;
+            background-color: #444;
+            border-radius: 50%; /* Spherical particles */
+            opacity: 0.8;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .fluid-flow-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(to right, #00ffd5, #00c6ff); /* Heat carrying fluid */
+            animation: porous-flow linear infinite;
+            opacity: 0;
+            z-index: 2;
+        }
+
+        @keyframes porous-flow {
+            0% { transform: translateX(-100px) translateY(0px); opacity: 0; }
+            10% { opacity: 1; }
+            50% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(calc(100% + 100px)) translateY(var(--y-offset)); opacity: 0; }
+        }
+
+        /* Application examples grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        .app-item {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .app-item:hover {
+            transform: scale(1.05);
+            background: #333;
+        }
+
+        .app-icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00c6ff;
+        }
+
+        .app-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main_heading {
+                font-size: 36px;
+                padding: 30px;
+            }
+            .subtopics {
+                font-size: 22px;
+                padding: 12px 20px;
+            }
+            p, li {
+                font-size: 18px;
+            }
+            .fact {
+                font-size: 28px;
+            }
+            .porous-medium-visual {
+                height: 200px;
+            }
+            .fluid-flow-particle {
+                width: 6px;
+                height: 6px;
+            }
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main_heading {
+                font-size: 28px;
+                padding: 20px;
+            }
+            .subtopics {
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+            p, li {
+                font-size: 16px;
+            }
+            .fact {
+                font-size: 24px;
+            }
+            .porous-medium-visual {
+                height: 150px;
+            }
+            .fluid-flow-particle {
+                width: 5px;
+                height: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main_heading">Convection in Porous Media</div>
+
+    <div class="def">
+        <p>Porous media refers to materials containing interconnected voids (pores) through which fluids can flow. Convection in porous media involves the combined effects of fluid flow and heat transfer within these intricate structures.</p>
+        <p>This phenomenon is crucial in many natural processes and engineering applications, from geothermal energy to chemical reactors.</p>
+    </div>
+
+    <div class="subtopics">The Porous Medium Structure</div>
+
+    <div class="porous-media-container">
+        <h3>Fluid Flow Through a Solid Matrix</h3>
+        <div class="porous-medium-visual" id="porousMediumVisual">
+            </div>
+        <p>A porous medium consists of a solid matrix (e.g., sand, rock, foam) and a void space (pores) filled with fluid. The fluid moves through these pores, carrying heat by convection.</p>
+        <p>The complexity of the pore structure significantly influences the fluid flow and heat transfer characteristics.</p>
+    </div>
+
+    <div class="subtopics">Governing Principles</div>
+
+    <div class="def">
+        <ul class="tech_points">
+            <li><b>Darcy's Law:</b> Describes the flow of fluid through a porous medium under a pressure gradient, assuming laminar flow conditions. It's analogous to Fourier's law for heat conduction or Ohm's law for electrical current.</li>
+            <p>$v = -\frac{K}{\mu} \nabla P$</p>
+            <li><b>Energy Equation for Porous Media:</b> A modified energy equation accounts for heat transfer within both the fluid and the solid matrix, often considering local thermal equilibrium or non-equilibrium.</li>
+        </ul>
+    </div>
+
+    <div class="subtopics">Key Dimensionless Parameters</div>
+
+    <div class="def">
+        <ul class="tech_points">
+            <li><b>Darcy Number (Da):</b> Represents the ratio of permeability of the porous medium to the square of a characteristic length. It indicates the relative importance of viscous forces to inertial forces.</li>
+            <p>$Da = \frac{K}{L^2}$</p>
+            <li><b>Peclet Number (Pe):</b> Ratio of convective heat transfer rate to conductive heat transfer rate. Indicates the dominance of convection over conduction.</li>
+            <p>$Pe = \frac{\rho c_p v L}{k_{eff}}$</p>
+            <li><b>Rayleigh Number (Ra):</b> For natural convection, it represents the ratio of buoyant forces to viscous and thermal diffusive forces. A critical Rayleigh number often signifies the onset of natural convection.</li>
+            <p>$Ra = \frac{g \beta (T_h - T_c) K L}{\nu \alpha_{eff}}$</p>
+        </ul>
+    </div>
+
+    <div class="fact">
+        DID YOU KNOW? The study of convection in porous media began in the early 20th century with applications in groundwater flow and oil reservoir engineering, but has expanded to diverse fields like biomedical engineering and fuel cells!
+    </div>
+
+    <div class="subtopics">Industrial & Natural Applications</div>
+
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon">🌍</div>
+            <div class="app-title">Geothermal Systems</div>
+            <p>Heat extraction from hot rock formations through circulating fluids.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">⛽</div>
+            <div class="app-title">Oil & Gas Reservoirs</div>
+            <p>Understanding fluid and heat transport for enhanced oil recovery.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🔋</div>
+            <div class="app-title">Fuel Cells & Batteries</div>
+            <p>Managing heat and mass transfer within porous electrodes.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🌡️</div>
+            <div class="app-title">Thermal Insulation</div>
+            <p>Designing porous materials for effective thermal barriers.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🧪</div>
+            <div class="app-title">Chemical Reactors</div>
+            <p>Optimizing heat transfer and reaction rates in catalytic beds.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">💧</div>
+            <div class="app-title">Groundwater Hydrology</div>
+            <p>Modeling contaminant transport and thermal plumes in aquifers.</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to create random matrix elements (solid particles)
+        function createMatrixElements(container, count) {
+            for (let i = 0; i < count; i++) {
+                const element = document.createElement('div');
+                element.className = 'matrix-element';
+                const size = 15 + Math.random() * 25; // Random size between 15px and 40px
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${Math.random() * 95}%`;
+                element.style.top = `${Math.random() * 95}%`;
+                container.appendChild(element);
+            }
+        }
+
+        // Function to create fluid flow particles
+        function createFluidFlowParticles(container, count) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'fluid-flow-particle';
+                particle.style.animationDuration = `${4 + Math.random() * 3}s`; // Random duration
+                particle.style.animationDelay = `${Math.random() * 5}s`; // Random delay
+                // Randomize vertical offset for flow path
+                particle.style.setProperty('--y-offset', `${Math.random() * 150 - 75}px`);
+                particle.style.top = `${50 + (Math.random() * 40 - 20)}%`; // Distribute vertically
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize visualizations on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const porousMediumVisual = document.getElementById('porousMediumVisual');
+            createMatrixElements(porousMediumVisual, 50); // Create 50 solid particles
+            createFluidFlowParticles(porousMediumVisual, 25); // Create 25 fluid particles
+        });
+    </script>
+
+</body>
+</html>

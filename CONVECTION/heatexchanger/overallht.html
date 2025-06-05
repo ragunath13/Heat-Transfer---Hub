@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overall Heat Transfer Coefficient (U)</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+    <style>
+        /* Base styles matching previous themes */
+        * {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            line-height: 1.6;
+        }
+
+        .u_heading {
+            background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+            font-size: 50px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        p, li {
+            font-size: 22px;
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .u_subtopics {
+            background: linear-gradient(to right, #B06AB3, #4568DC);
+            color: white;
+            font-size: 28px;
+            font-family: 'Audiowide', cursive;
+            padding: 15px 25px;
+            margin: 20px auto;
+            text-align: center;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: 0.4s;
+            max-width: 90%;
+        }
+
+        .u_subtopics:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to right, #00ffe1, #0162bd);
+            color: black;
+        }
+
+        .def, .fact, .application {
+            background-color: #111;
+            padding: 30px;
+            margin: 25px auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .fact {
+            color: #05eeff;
+            font-size: 34px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+        }
+
+        .tech_points {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+            font-size: 20px;
+            color: #dadada;
+            font-family: 'Audiowide', cursive;
+            font-weight: bold;
+            text-align: left;
+            border-radius: 10px;
+            max-width: 90%;
+        }
+
+        .tech_points li {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tech_points li:last-child {
+            border-bottom: none;
+        }
+
+        /* U-specific styles */
+        .u-visual-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px auto;
+            max-width: 90%;
+            background: #111;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.1);
+            position: relative; /* For absolute positioning of particles */
+        }
+
+        .resistance-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 250px;
+            position: relative;
+            margin-bottom: 30px;
+            overflow: hidden; /* Ensure particles don't overflow */
+        }
+
+        .fluid-zone, .wall-zone, .fouling-layer {
+            height: 150px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .fluid-zone {
+            width: 25%;
+            background: linear-gradient(to right, rgba(255, 65, 108, 0.3), rgba(255, 138, 138, 0.3)); /* Hot fluid */
+            border: 2px solid #ff416c;
+        }
+
+        .fluid-zone.cold {
+            background: linear-gradient(to right, rgba(0, 198, 255, 0.3), rgba(0, 114, 255, 0.3)); /* Cold fluid */
+            border: 2px solid #00c6ff;
+        }
+
+        .wall-zone {
+            width: 30%;
+            background: #333;
+            border: 2px solid #555;
+            margin: 0 5px;
+        }
+
+        .fouling-layer {
+            width: 5%;
+            background: rgba(176, 106, 179, 0.3); /* Fouling color */
+            border: 1px solid #B06AB3;
+            margin: 0 2px;
+            transition: opacity 0.5s;
+        }
+
+        .fouling-layer.hidden {
+            opacity: 0;
+        }
+
+        .resistance-label {
+            position: absolute;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            color: #00ffd5;
+            background-color: rgba(0,0,0,0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .label-hi { top: 20px; left: 10%; }
+        .label-rfi { top: 20px; left: 30%; }
+        .label-k { top: 20px; left: 45%; }
+        .label-rfo { top: 20px; right: 30%; }
+        .label-ho { top: 20px; right: 10%; }
+
+        /* Heat flow particles */
+        @keyframes heat-flow {
+            0% { transform: translateX(-100%); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(calc(100% + 20px)); opacity: 0; }
+        }
+
+        .heat-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            animation: heat-flow linear infinite;
+            top: 50%; /* Center vertically within the container */
+            transform: translateY(-50%);
+            left: 0; /* Start from left */
+        }
+
+        /* U value comparison chart */
+        .u-chart {
+            width: 100%;
+            max-width: 800px;
+            height: 300px;
+            position: relative;
+            margin: 30px auto;
+            background: #111;
+            border-radius: 10px;
+            overflow: hidden;
+            padding-bottom: 40px; /* Space for labels */
+        }
+
+        .u-chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 80px;
+            transition: height 1s ease-out;
+            border-radius: 5px 5px 0 0;
+            left: var(--bar-left);
+            background: var(--bar-gradient);
+        }
+
+        .u-chart-label {
+            position: absolute;
+            bottom: 10px;
+            width: 100px;
+            text-align: center;
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            left: var(--label-left);
+            transform: translateX(-50%);
+            font-size: 14px;
+        }
+
+        /* Application examples grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        .app-item {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .app-item:hover {
+            transform: scale(1.05);
+            background: #333;
+        }
+
+        .app-icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00c6ff;
+        }
+
+        .app-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .u_heading {
+                font-size: 36px;
+                padding: 30px;
+            }
+            .u_subtopics {
+                font-size: 22px;
+                padding: 12px 20px;
+            }
+            p, li {
+                font-size: 18px;
+            }
+            .fact {
+                font-size: 28px;
+            }
+            .fluid-zone, .wall-zone, .fouling-layer {
+                height: 100px;
+            }
+            .resistance-label {
+                font-size: 12px;
+                padding: 3px 6px;
+            }
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+            .u-chart-bar {
+                width: 60px;
+            }
+            .u-chart-label {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .u_heading {
+                font-size: 28px;
+                padding: 20px;
+            }
+            .u_subtopics {
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+            p, li {
+                font-size: 16px;
+            }
+            .fact {
+                font-size: 24px;
+            }
+            .fluid-zone, .wall-zone, .fouling-layer {
+                height: 80px;
+            }
+            .resistance-label {
+                font-size: 10px;
+                padding: 2px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="u_heading">Overall Heat Transfer Coefficient (U)</div>
+
+    <div class="def">
+        <p>The Overall Heat Transfer Coefficient ($U$) quantifies the rate of heat transfer through a composite barrier, such as a heat exchanger wall, considering all thermal resistances from one fluid to another.</p>
+        <p>It is a measure of the heat transfer efficiency of a heat exchanger and is crucial for its design and analysis.</p>
+    </div>
+
+    <div class="u_subtopics">Understanding the Components of U</div>
+
+    <div class="u-visual-container">
+        <h3>Thermal Resistances in a Heat Exchanger Wall</h3>
+        <div class="resistance-diagram" id="resistanceDiagram">
+            <div class="fluid-zone hot">Hot Fluid</div>
+            <div class="fouling-layer" id="foulingInner">Fouling</div>
+            <div class="wall-zone">Wall</div>
+            <div class="fouling-layer" id="foulingOuter">Fouling</div>
+            <div class="fluid-zone cold">Cold Fluid</div>
+
+            <div class="resistance-label label-hi">1/h<sub>i</sub></div>
+            <div class="resistance-label label-rfi">R<sub>f,i</sub></div>
+            <div class="resistance-label label-k">Δx/k</div>
+            <div class="resistance-label label-rfo">R<sub>f,o</sub></div>
+            <div class="resistance-label label-ho">1/h<sub>o</sub></div>
+        </div>
+        <p>Heat transfer involves resistances from convection ($1/h$), conduction ($\Delta x/k$), and fouling ($R_f$) on both sides of the wall. These resistances sum up to determine the overall heat transfer coefficient ($U$).</p>
+        <p>The formula for U is: $1/U = 1/h_i + R_{f,i} + \Delta x/k + R_{f,o} + 1/h_o$</p>
+    </div>
+
+    <div class="u_subtopics">Factors Influencing U Value</div>
+
+    <div class="def">
+        <ul class="tech_points">
+            <li><b>Fluid Properties:</b> Thermal conductivity, viscosity, and density of the fluids significantly impact convective heat transfer coefficients ($h$).</li>
+            <li><b>Flow Velocity:</b> Higher fluid velocities generally lead to higher convective coefficients ($h$) and thus higher U.</li>
+            <li><b>Material Properties:</b> The thermal conductivity ($k$) of the heat exchanger wall material directly affects conductive resistance ($\Delta x/k$).</li>
+            <li><b>Wall Thickness:</b> A thicker wall ($\Delta x$) increases conductive resistance, reducing U.</li>
+            <li><b>Fouling:</b> Accumulation of deposits on heat transfer surfaces creates additional thermal resistance ($R_f$), drastically reducing U over time.</li>
+            <li><b>Geometry:</b> The design and geometry of the heat exchanger (e.g., finned tubes, plate spacing) influence effective heat transfer area and flow patterns.</li>
+        </ul>
+    </div>
+
+    <div class="u_subtopics">Impact of Different Scenarios on U</div>
+
+    <div class="u-chart" id="uChart">
+        <div class="u-chart-bar" style="--bar-left: 15%; --bar-gradient: linear-gradient(to top, #00ffd5, #00c6ff);" id="cleanBar"></div>
+        <div class="u-chart-label" style="--label-left: 15%;">Clean, High k</div>
+
+        <div class="u-chart-bar" style="--bar-left: 40%; --bar-gradient: linear-gradient(to top, #ff416c, #ff8a8a);" id="fouledBar"></div>
+        <div class="u-chart-label" style="--label-left: 40%;">Fouled</div>
+
+        <div class="u-chart-bar" style="--bar-left: 65%; --bar-gradient: linear-gradient(to top, #B06AB3, #4568DC);" id="lowKBar"></div>
+        <div class="u-chart-label" style="--label-left: 65%;">Low k Material</div>
+
+        <div class="u-chart-bar" style="--bar-left: 90%; --bar-gradient: linear-gradient(to top, #0072ff, #00c6ff);" id="highVeloBar"></div>
+        <div class="u-chart-label" style="--label-left: 90%;">High Velocity</div>
+    </div>
+
+    <div class="fact">
+        DID YOU KNOW? A 1mm layer of common fouling can reduce the Overall Heat Transfer Coefficient (U) by as much as 30-50%, significantly impacting energy efficiency!
+    </div>
+
+    <div class="u_subtopics">Industrial Applications of U Value</div>
+
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon">❄️</div>
+            <div class="app-title">Refrigeration & AC</div>
+            <p>Optimizing condenser and evaporator U values for energy efficiency.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🧪</div>
+            <div class="app-title">Chemical Reactors</div>
+            <p>Controlling reaction temperatures through precise heat transfer, dependent on U.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">💡</div>
+            <div class="app-title">Power Generation</div>
+            <p>Designing efficient boilers and condensers to maximize power output.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🥛</div>
+            <div class="app-title">Food Processing</div>
+            <p>Ensuring rapid heating/cooling for pasteurization and sterilization.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🌊</div>
+            <div class="app-title">Desalination Plants</div>
+            <p>Efficient heat recovery and transfer in multi-effect distillation units.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🔥</div>
+            <div class="app-title">Furnaces & Boilers</div>
+            <p>Maximizing heat absorption by tubes to improve thermal efficiency.</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to create heat flow particles
+        function createHeatParticles(container, count, animationDuration, delayOffset) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'heat-particle';
+                // Randomize animation duration and delay for a more natural look
+                particle.style.animationDuration = `${animationDuration + Math.random() * 2}s`;
+                particle.style.animationDelay = `${delayOffset + Math.random() * 3}s`;
+                // Distribute particles vertically within the container
+                particle.style.top = `${10 + Math.random() * 80}%`;
+                container.appendChild(particle);
+            }
+        }
+
+        // Animate U value comparison bars
+        function animateUChartBars() {
+            // Set heights based on hypothetical U values (higher bar = higher U)
+            document.getElementById('cleanBar').style.height = '85%'; // High U
+            document.getElementById('fouledBar').style.height = '40%'; // Low U due to fouling
+            document.getElementById('lowKBar').style.height = '60%'; // Medium U due to low k material
+            document.getElementById('highVeloBar').style.height = '95%'; // Very high U due to high velocity
+        }
+
+        // Toggle fouling layers visibility (for demonstration)
+        function toggleFouling() {
+            const innerFouling = document.getElementById('foulingInner');
+            const outerFouling = document.getElementById('foulingOuter');
+            innerFouling.classList.toggle('hidden');
+            outerFouling.classList.toggle('hidden');
+        }
+
+
+        // Initialize visualizations on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const resistanceDiagram = document.getElementById('resistanceDiagram');
+
+            // Create heat particles for the overall heat flow
+            // These particles will animate across the entire diagram
+            createHeatParticles(resistanceDiagram, 30, 8, 0); // 30 particles, 8s animation, 0s delay offset
+
+            // Animate the U value comparison chart bars
+            animateUChartBars();
+
+            // Optional: Add a button to toggle fouling layers for demonstration
+            // (Not explicitly requested, but could be a nice interactive touch)
+            // const toggleButton = document.createElement('button');
+            // toggleButton.textContent = 'Toggle Fouling';
+            // toggleButton.style.cssText = `
+            //     padding: 10px 20px;
+            //     margin-top: 20px;
+            //     background: linear-gradient(to right, #00c6ff, #0072ff);
+            //     color: black;
+            //     border: none;
+            //     border-radius: 5px;
+            //     cursor: pointer;
+            //     font-family: 'Audiowide', cursive;
+            //     font-size: 18px;
+            //     transition: transform 0.3s;
+            // `;
+            // toggleButton.onmouseover = function() { this.style.transform = 'scale(1.05)'; };
+            // toggleButton.onmouseout = function() { this.style.transform = 'scale(1)'; };
+            // toggleButton.onclick = toggleFouling;
+            // document.querySelector('.u-visual-container').appendChild(toggleButton);
+        });
+    </script>
+
+</body>
+</html>

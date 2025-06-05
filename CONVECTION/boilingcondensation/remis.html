@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Boiling Regimes: Nucleate, Transition, Film</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+  <style>
+    /* Your existing CSS with minor additions */
+    * {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      box-sizing: border-box;
+    }
+    
+    .conduction_heading {
+      background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+      font-size: 50px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      margin: 30px auto;
+      max-width: 90%;
+    }
+    
+    p, li {
+      font-size: 22px;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+      margin: 10px 0;
+      line-height: 1.8;
+    }
+    
+    .conduction_all_subtopics {
+      background: linear-gradient(to right, #B06AB3, #4568DC);
+      color: white;
+      font-size: 28px;
+      font-family: 'Audiowide', cursive;
+      padding: 15px 25px;
+      margin: 20px auto;
+      text-align: center;
+      border-radius: 50px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      transition: 0.4s;
+      max-width: 90%;
+    }
+    
+    .conduction_all_subtopics:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #00ffe1, #0162bd);
+      color: black;
+    }
+    
+    .def, .fatc, .indus_ {
+      background-color: #111;
+      padding: 30px;
+      margin: 25px auto;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      max-width: 90%;
+    }
+    
+    .fatc {
+      color: #05eeff;
+      font-size: 34px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: bold;
+    }
+    
+    .future_tch_points {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px auto;
+      background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+      font-size: 20px;
+      color: #dadada;
+      font-family: 'Audiowide', cursive;
+      font-weight: bold;
+      text-align: left;
+      border-radius: 10px;
+      max-width: 90%;
+    }
+    
+    .future_tch_points li {
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .future_tch_points li:last-child {
+      border-bottom: none;
+    }
+    
+    code {
+      display: inline-block;
+      background: #222;
+      color: #f86f3d;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    
+    /* New additions for boiling regimes */
+    .boiling-regime {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 40px auto;
+      max-width: 95%;
+    }
+    
+    .regime-card {
+      width: 30%;
+      min-width: 300px;
+      margin: 15px;
+      background: #111;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 198, 255, 0.1);
+      transition: transform 0.3s;
+    }
+    
+    .regime-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 25px rgba(0, 198, 255, 0.3);
+    }
+    
+    .regime-header {
+      padding: 20px;
+      text-align: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      background: linear-gradient(to right, #0072ff, #00c6ff);
+      color: black;
+    }
+    
+    .regime-visual {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .nucleate-bubbles, .transition-bubbles, .film-vapor {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .regime-content {
+      padding: 20px;
+    }
+    
+    .heat-flux-curve {
+      width: 100%;
+      max-width: 800px;
+      margin: 40px auto;
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      position: relative;
+    }
+    
+    .curve-container {
+      width: 100%;
+      height: 400px;
+      position: relative;
+    }
+    
+    .curve-axis {
+      position: absolute;
+      background: #333;
+    }
+    
+    .curve-axis.x {
+      width: 100%;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+    }
+    
+    .curve-axis.y {
+      width: 2px;
+      height: 100%;
+      bottom: 0;
+      left: 50px;
+    }
+    
+    .curve-label {
+      position: absolute;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+    }
+    
+    .curve-region {
+      position: absolute;
+      height: 100%;
+      opacity: 0.1;
+    }
+    
+    .curve-line {
+      position: absolute;
+      width: 80%;
+      height: 2px;
+      background: #00ffd5;
+      left: 50px;
+      bottom: 0;
+      transform-origin: left center;
+    }
+    
+    .critical-point {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: #ff416c;
+      border-radius: 50%;
+      transform: translate(-50%, 50%);
+    }
+    
+    @keyframes bubble-rise {
+      0% { transform: translateY(200px) scale(0.3); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+    }
+    
+    .bubble {
+      position: absolute;
+      background: rgba(0, 198, 255, 0.7);
+      border-radius: 50%;
+      animation: bubble-rise linear infinite;
+    }
+    
+    @keyframes film-effect {
+      0% { background: rgba(255, 65, 108, 0.1); }
+      50% { background: rgba(255, 65, 108, 0.3); }
+      100% { background: rgba(255, 65, 108, 0.1); }
+    }
+    
+    .film-vapor {
+      animation: film-effect 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Boiling Regimes: Nucleate, Transition, Film</div>
+
+  <div class="def">
+    <p>Boiling occurs in distinct regimes as heat flux increases, each with unique characteristics and heat transfer mechanisms.</p>
+  </div>
+
+  <div class="conduction_all_subtopics">Three Primary Boiling Regimes</div>
+
+  <div class="boiling-regime">
+    <!-- Nucleate Boiling Card -->
+    <div class="regime-card">
+      <div class="regime-header" style="background: linear-gradient(to right, #00ffd5, #00c6ff);">NUCLEATE BOILING</div>
+      <div class="regime-visual">
+        <div class="nucleate-bubbles" id="nucleateBubbles"></div>
+      </div>
+      <div class="regime-content">
+        <ul class="future_tch_points">
+          <li>Individual bubbles form at nucleation sites</li>
+          <li>High heat transfer coefficients</li>
+          <li>Bubbles detach and rise through liquid</li>
+          <li>Optimal boiling regime</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Transition Boiling Card -->
+    <div class="regime-card">
+      <div class="regime-header" style="background: linear-gradient(to right, #ff416c, #ff8a8a);">TRANSITION BOILING</div>
+      <div class="regime-visual">
+        <div class="transition-bubbles" id="transitionBubbles"></div>
+      </div>
+      <div class="regime-content">
+        <ul class="future_tch_points">
+          <li>Unstable mixture of nucleate and film boiling</li>
+          <li>Partial vapor film coverage</li>
+          <li>Heat flux decreases with ΔT increase</li>
+          <li>Difficult to maintain steady-state</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Film Boiling Card -->
+    <div class="regime-card">
+      <div class="regime-header" style="background: linear-gradient(to right, #B06AB3, #4568DC);">FILM BOILING</div>
+      <div class="regime-visual">
+        <div class="film-vapor"></div>
+      </div>
+      <div class="regime-content">
+        <ul class="future_tch_points">
+          <li>Continuous vapor film blankets surface</li>
+          <li>Radiation becomes significant</li>
+          <li>Higher ΔT but lower heat transfer</li>
+          <li>Leidenfrost effect observed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="conduction_all_subtopics">Boiling Curve Characteristics</div>
+
+  <div class="heat-flux-curve">
+    <h3>Heat Flux vs Temperature Excess (ΔT)</h3>
+    <div class="curve-container">
+      <div class="curve-axis x"></div>
+      <div class="curve-axis y"></div>
+      
+      <div class="curve-label" style="bottom: -30px; left: 50%;">ΔT (Temperature Excess)</div>
+      <div class="curve-label" style="transform: rotate(-90deg); left: 10px; top: 50%;">Heat Flux</div>
+      
+      <div class="curve-region" style="background: #00c6ff; left: 60px; width: 120px;">
+        <div class="curve-label" style="bottom: 50%; left: 70px;">Natural Convection</div>
+      </div>
+      
+      <div class="curve-region" style="background: #00ffd5; left: 180px; width: 200px;">
+        <div class="curve-label" style="bottom: 60%; left: 200px;">Nucleate Boiling</div>
+      </div>
+      
+      <div class="curve-region" style="background: #ff416c; left: 380px; width: 150px;">
+        <div class="curve-label" style="bottom: 40%; left: 400px;">Transition</div>
+      </div>
+      
+      <div class="curve-region" style="background: #B06AB3; left: 530px; width: 250px;">
+        <div class="curve-label" style="bottom: 30%; left: 600px;">Film Boiling</div>
+      </div>
+      
+      <div class="curve-line" style="transform: rotate(15deg); bottom: 100px; width: 120px;"></div>
+      <div class="curve-line" style="transform: rotate(45deg); bottom: 100px; left: 180px; width: 200px;"></div>
+      <div class="curve-line" style="transform: rotate(-20deg); bottom: 180px; left: 380px; width: 150px;"></div>
+      <div class="curve-line" style="transform: rotate(10deg); bottom: 180px; left: 530px; width: 250px;"></div>
+      
+      <div class="critical-point" style="left: 380px; bottom: 180px;"></div>
+      <div class="curve-label" style="left: 380px; bottom: 220px;">Critical Heat Flux (CHF)</div>
+    </div>
+  </div>
+
+  <div class="def">
+    <h3>Key Concepts</h3>
+    <ul class="future_tch_points">
+      <li><strong>Critical Heat Flux (CHF):</strong> Peak heat flux in nucleate boiling before transition to film boiling</li>
+      <li><strong>Leidenfrost Point:</strong> Minimum heat flux in transition boiling</li>
+      <li><strong>Hysteresis:</strong> Different paths when increasing vs decreasing heat flux</li>
+    </ul>
+  </div>
+
+  <div class="fatc">
+    DID YOU KNOW? The critical heat flux for water at 1 atm is ~1 MW/m²!
+  </div>
+
+  <script>
+    // Create bubbles for nucleate boiling visualization
+    function createBubbles(container, count, color, sizeVariation, delayVariation) {
+      for (let i = 0; i < count; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.style.left = `${Math.random() * 100}%`;
+        bubble.style.width = `${10 + Math.random() * sizeVariation}px`;
+        bubble.style.height = bubble.style.width;
+        bubble.style.animationDuration = `${3 + Math.random() * delayVariation}s`;
+        bubble.style.animationDelay = `${Math.random() * 5}s`;
+        bubble.style.background = color;
+        container.appendChild(bubble);
+      }
+    }
+    
+    // Initialize visualizations
+    document.addEventListener('DOMContentLoaded', function() {
+      const nucleateContainer = document.getElementById('nucleateBubbles');
+      const transitionContainer = document.getElementById('transitionBubbles');
+      
+      // Create nucleate boiling bubbles (many small, fast bubbles)
+      createBubbles(nucleateContainer, 30, 'rgba(0, 198, 255, 0.7)', 15, 2);
+      
+      // Create transition boiling bubbles (fewer, larger, slower bubbles)
+      createBubbles(transitionContainer, 15, 'rgba(255, 65, 108, 0.7)', 25, 5);
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Heat Exchanger Flow Types: Parallel, Counter, Cross Flow</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+  <style>
+    /* Base styles matching previous themes */
+    * {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      box-sizing: border-box;
+    }
+    
+    .flow_heading {
+      background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+      font-size: 50px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      margin: 30px auto;
+      max-width: 90%;
+    }
+    
+    p, li {
+      font-size: 22px;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+      margin: 10px 0;
+      line-height: 1.8;
+    }
+    
+    .flow_subtopics {
+      background: linear-gradient(to right, #B06AB3, #4568DC);
+      color: white;
+      font-size: 28px;
+      font-family: 'Audiowide', cursive;
+      padding: 15px 25px;
+      margin: 20px auto;
+      text-align: center;
+      border-radius: 50px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      transition: 0.4s;
+      max-width: 90%;
+    }
+    
+    .flow_subtopics:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #00ffe1, #0162bd);
+      color: black;
+    }
+    
+    .def, .fact, .application {
+      background-color: #111;
+      padding: 30px;
+      margin: 25px auto;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      max-width: 90%;
+    }
+    
+    .fact {
+      color: #05eeff;
+      font-size: 34px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: bold;
+    }
+    
+    .tech_points {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px auto;
+      background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+      font-size: 20px;
+      color: #dadada;
+      font-family: 'Audiowide', cursive;
+      font-weight: bold;
+      text-align: left;
+      border-radius: 10px;
+      max-width: 90%;
+    }
+    
+    .tech_points li {
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .tech_points li:last-child {
+      border-bottom: none;
+    }
+    
+    /* Flow-specific styles */
+    .flow-types {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 40px auto;
+      max-width: 95%;
+    }
+    
+    .flow-card {
+      width: 30%;
+      min-width: 300px;
+      margin: 15px;
+      background: #111;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 198, 255, 0.1);
+      transition: transform 0.3s;
+    }
+    
+    .flow-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 25px rgba(0, 198, 255, 0.3);
+    }
+    
+    .flow-header {
+      padding: 20px;
+      text-align: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      color: black;
+    }
+    
+    .flow-visual {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid #333;
+    }
+    
+    .parallel-flow, .counter-flow, .cross-flow {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .flow-content {
+      padding: 20px;
+    }
+    
+    /* Temperature profile comparison */
+    .profile-comparison {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      position: relative;
+    }
+    
+    .profile-container {
+      width: 100%;
+      height: 400px;
+      position: relative;
+    }
+    
+    .profile-axis {
+      position: absolute;
+      background: #333;
+    }
+    
+    .profile-axis.x {
+      width: 90%;
+      height: 2px;
+      bottom: 50px;
+      left: 5%;
+    }
+    
+    .profile-axis.y {
+      width: 2px;
+      height: 80%;
+      bottom: 50px;
+      left: 5%;
+    }
+    
+    .profile-label {
+      position: absolute;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+      font-size: 16px;
+    }
+    
+    .profile-line {
+      position: absolute;
+      height: 2px;
+      background: #00ffd5;
+      transform-origin: left center;
+    }
+    
+    .hot-fluid {
+      background: #ff416c;
+    }
+    
+    .cold-fluid {
+      background: #00c6ff;
+    }
+    
+    /* Animation styles */
+    @keyframes flow-particle {
+      0% { transform: translateX(-20px) translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateX(calc(100% + 20px)) translateY(var(--y-offset)); opacity: 0; }
+    }
+    
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: flow-particle linear infinite;
+    }
+    
+    /* Efficiency comparison chart */
+    .efficiency-chart {
+      width: 100%;
+      height: 300px;
+      position: relative;
+      margin: 30px 0;
+      background: #111;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .chart-bar {
+      position: absolute;
+      bottom: 0;
+      width: 80px;
+      transition: height 1s;
+    }
+    
+    .bar-parallel {
+      left: 20%;
+      background: linear-gradient(to top, #00ffd5, #00c6ff);
+    }
+    
+    .bar-counter {
+      left: 45%;
+      background: linear-gradient(to top, #ff416c, #ff8a8a);
+    }
+    
+    .bar-cross {
+      left: 70%;
+      background: linear-gradient(to top, #B06AB3, #4568DC);
+    }
+    
+    .chart-label {
+      position: absolute;
+      bottom: -30px;
+      width: 100px;
+      text-align: center;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+    }
+    
+    /* Application examples grid */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 30px auto;
+      max-width: 90%;
+    }
+    
+    .app-item {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    
+    .app-item:hover {
+      transform: scale(1.05);
+      background: #333;
+    }
+    
+    .app-icon {
+      font-size: 40px;
+      text-align: center;
+      margin-bottom: 15px;
+      color: #00c6ff;
+    }
+    
+    .app-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 22px;
+      color: white;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="flow_heading">Heat Exchanger Flow Types: Parallel, Counter, Cross Flow</div>
+
+  <div class="def">
+    <p>Heat exchanger effectiveness depends on fluid flow arrangement, with each configuration offering distinct thermal performance characteristics and engineering trade-offs.</p>
+  </div>
+
+  <div class="flow_subtopics">Three Primary Flow Arrangements</div>
+
+  <div class="flow-types">
+    <!-- Parallel Flow Card -->
+    <div class="flow-card">
+      <div class="flow-header" style="background: linear-gradient(to right, #00ffd5, #00c6ff);">PARALLEL FLOW</div>
+      <div class="flow-visual">
+        <div class="parallel-flow" id="parallelFlow"></div>
+      </div>
+      <div class="flow-content">
+        <ul class="tech_points">
+          <li>Both fluids flow in the same direction</li>
+          <li>Large temperature difference at inlet</li>
+          <li>Low thermal stress on materials</li>
+          <li>Lower overall heat transfer efficiency</li>
+          <li>Exit temperatures approach each other</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Counter Flow Card -->
+    <div class="flow-card">
+      <div class="flow-header" style="background: linear-gradient(to right, #ff416c, #ff8a8a);">COUNTER FLOW</div>
+      <div class="flow-visual">
+        <div class="counter-flow" id="counterFlow"></div>
+      </div>
+      <div class="flow-content">
+        <ul class="tech_points">
+          <li>Fluids flow in opposite directions</li>
+          <li>Most efficient heat transfer</li>
+          <li>More uniform temperature difference</li>
+          <li>Can achieve closer temperature approaches</li>
+          <li>Higher thermal stress potential</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Cross Flow Card -->
+    <div class="flow-card">
+      <div class="flow-header" style="background: linear-gradient(to right, #B06AB3, #4568DC);">CROSS FLOW</div>
+      <div class="flow-visual">
+        <div class="cross-flow" id="crossFlow"></div>
+      </div>
+      <div class="flow-content">
+        <ul class="tech_points">
+          <li>Fluids flow perpendicular to each other</li>
+          <li>Common in air-to-fluid heat exchangers</li>
+          <li>Intermediate efficiency</li>
+          <li>Compact design possibilities</li>
+          <li>Used in radiators and HVAC systems</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow_subtopics">Temperature Profile Comparison</div>
+
+  <div class="profile-comparison">
+    <h3>Temperature Distribution Along Heat Exchanger Length</h3>
+    <div class="profile-container">
+      <div class="profile-axis x"></div>
+      <div class="profile-axis y"></div>
+      
+      <div class="profile-label" style="bottom: 30px; left: 50%;">Heat Exchanger Length</div>
+      <div class="profile-label" style="transform: rotate(-90deg); left: 20px; top: 50%;">Temperature</div>
+      
+      <!-- Parallel Flow Profile -->
+      <div class="profile-label" style="top: 20%; left: 20%; color: #00ffd5;">Parallel Flow</div>
+      <div class="profile-line hot-fluid" style="width: 200px; bottom: 150px; left: 100px; transform: rotate(-15deg);"></div>
+      <div class="profile-line cold-fluid" style="width: 200px; bottom: 100px; left: 100px; transform: rotate(-5deg);"></div>
+      
+      <!-- Counter Flow Profile -->
+      <div class="profile-label" style="top: 50%; left: 20%; color: #ff416c;">Counter Flow</div>
+      <div class="profile-line hot-fluid" style="width: 200px; bottom: 250px; left: 100px; transform: rotate(-15deg);"></div>
+      <div class="profile-line cold-fluid" style="width: 200px; bottom: 200px; left: 100px; transform: rotate(15deg);"></div>
+      
+      <!-- Cross Flow Profile -->
+      <div class="profile-label" style="top: 80%; left: 20%; color: #B06AB3;">Cross Flow</div>
+      <div class="profile-line hot-fluid" style="width: 200px; bottom: 350px; left: 100px; transform: rotate(-10deg);"></div>
+      <div class="profile-line cold-fluid" style="width: 200px; bottom: 300px; left: 100px; transform: rotate(5deg);"></div>
+    </div>
+  </div>
+
+  <div class="flow_subtopics">Relative Thermal Efficiency</div>
+
+  <div class="efficiency-chart" id="effChart">
+    <div class="chart-bar bar-parallel" id="parallelBar"></div>
+    <div class="chart-label" style="left: 20%;">Parallel</div>
+    <div class="chart-bar bar-counter" id="counterBar"></div>
+    <div class="chart-label" style="left: 45%;">Counter</div>
+    <div class="chart-bar bar-cross" id="crossBar"></div>
+    <div class="chart-label" style="left: 70%;">Cross</div>
+  </div>
+
+  <div class="fact">
+    DID YOU KNOW? Counter flow heat exchangers can achieve efficiencies up to 95%, compared to 50-70% for parallel flow!
+  </div>
+
+  <div class="flow_subtopics">Industrial Applications</div>
+
+  <div class="app-grid">
+    <div class="app-item">
+      <div class="app-icon">⚙️</div>
+      <div class="app-title">Shell-and-Tube</div>
+      <p>Counter flow in most designs for maximum efficiency in oil refineries</p>
+    </div>
+    <div class="app-item">
+      <div class="app-icon">🚗</div>
+      <div class="app-title">Automotive Radiators</div>
+      <p>Cross flow design for compact size and effective air cooling</p>
+    </div>
+    <div class="app-item">
+      <div class="app-icon">🏢</div>
+      <div class="app-title">HVAC Systems</div>
+      <p>Parallel flow in some economizers to limit heat transfer</p>
+    </div>
+    <div class="app-item">
+      <div class="app-icon">⚡</div>
+      <div class="app-title">Power Plants</div>
+      <p>Counter flow condensers for optimal thermal performance</p>
+    </div>
+    <div class="app-item">
+      <div class="app-icon">🛩️</div>
+      <div class="app-title">Aircraft Systems</div>
+      <p>Cross flow for compact air-to-air heat exchangers</p>
+    </div>
+    <div class="app-item">
+      <div class="app-icon">🏭</div>
+      <div class="app-title">Chemical Processing</div>
+      <p>Parallel flow when limiting heat transfer is desired</p>
+    </div>
+  </div>
+
+  <script>
+    // Create flow visualization particles
+    function createFlowParticles(container, count, color, direction, ySpread) {
+      for (let i = 0; i < count; i++) {
+        // Hot fluid particles
+        const particleHot = document.createElement('div');
+        particleHot.className = 'particle';
+        particleHot.style.background = color.hot;
+        particleHot.style.animationDuration = `${3 + Math.random() * 2}s`;
+        particleHot.style.animationDelay = `${Math.random() * 3}s`;
+        particleHot.style.setProperty('--y-offset', `${Math.random() * ySpread - ySpread/2}px`);
+        if (direction === 'reverse') {
+          particleHot.style.right = '0';
+          particleHot.style.animationName = 'flow-particle-reverse';
+        }
+        container.appendChild(particleHot);
+        
+        // Cold fluid particles
+        const particleCold = document.createElement('div');
+        particleCold.className = 'particle';
+        particleCold.style.background = color.cold;
+        particleCold.style.animationDuration = `${4 + Math.random() * 2}s`;
+        particleCold.style.animationDelay = `${Math.random() * 3}s`;
+        particleCold.style.setProperty('--y-offset', `${Math.random() * ySpread - ySpread/2}px`);
+        if (direction === 'reverse') {
+          particleCold.style.left = '0';
+        }
+        container.appendChild(particleCold);
+      }
+    }
+    
+    // Create cross flow particles
+    function createCrossFlowParticles(container) {
+      // Horizontal flow (typically hot fluid)
+      for (let i = 0; i < 15; i++) {
+        const particleH = document.createElement('div');
+        particleH.className = 'particle';
+        particleH.style.background = '#ff416c';
+        particleH.style.animationDuration = `${4 + Math.random() * 2}s`;
+        particleH.style.animationDelay = `${Math.random() * 3}s`;
+        particleH.style.setProperty('--y-offset', `${Math.random() * 40 - 20}px`);
+        particleH.style.top = `${30 + Math.random() * 40}%`;
+        container.appendChild(particleH);
+      }
+      
+      // Vertical flow (typically cold fluid - air)
+      for (let i = 0; i < 15; i++) {
+        const particleV = document.createElement('div');
+        particleV.className = 'particle';
+        particleV.style.background = '#00c6ff';
+        particleV.style.animationName = 'flow-particle-vertical';
+        particleV.style.animationDuration = `${5 + Math.random() * 3}s`;
+        particleV.style.animationDelay = `${Math.random() * 3}s`;
+        particleV.style.left = `${30 + Math.random() * 40}%`;
+        particleV.style.setProperty('--y-offset', '0');
+        container.appendChild(particleV);
+      }
+    }
+    
+    // Animate efficiency bars
+    function animateBars() {
+      document.getElementById('parallelBar').style.height = '50%';
+      document.getElementById('counterBar').style.height = '90%';
+      document.getElementById('crossBar').style.height = '70%';
+    }
+    
+    // Initialize visualizations
+    document.addEventListener('DOMContentLoaded', function() {
+      // Parallel flow (same direction)
+      createFlowParticles(
+        document.getElementById('parallelFlow'), 
+        20, 
+        { hot: '#ff416c', cold: '#00c6ff' },
+        'normal',
+        40
+      );
+      
+      // Counter flow (opposite directions)
+      createFlowParticles(
+        document.getElementById('counterFlow'), 
+        20, 
+        { hot: '#ff8a8a', cold: '#00ffd5' },
+        'reverse',
+        40
+      );
+      
+      // Cross flow
+      createCrossFlowParticles(document.getElementById('crossFlow'));
+      
+      // Animate the efficiency chart
+      animateBars();
+      
+      // Add vertical flow animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes flow-particle-vertical {
+          0% { transform: translateY(-20px); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(calc(100% + 20px)); opacity: 0; }
+        }
+        @keyframes flow-particle-reverse {
+          0% { transform: translateX(20px) translateY(0); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateX(calc(-100% - 20px)) translateY(var(--y-offset)); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    });
+  </script>
+
+</body>
+</html>

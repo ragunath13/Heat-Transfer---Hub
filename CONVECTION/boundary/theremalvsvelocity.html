@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Laminar vs Turbulent Boundary Layers</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    @keyframes laminar-flow {
+      0% { transform: translateX(-10px); }
+      100% { transform: translateX(100%); }
+    }
+
+    @keyframes turbulent-flow {
+      0% { transform: translateX(-10px) translateY(0); }
+      25% { transform: translateX(25%) translateY(-8px); }
+      50% { transform: translateX(50%) translateY(8px); }
+      75% { transform: translateX(75%) translateY(-8px); }
+      100% { transform: translateX(100%) translateY(0); }
+    }
+
+    @keyframes grow-boundary {
+      from { height: 10px; }
+      to { height: 80px; }
+    }
+
+    .flow-track {
+      position: relative;
+      height: 150px;
+      background: #1e1e1e;
+      margin: 30px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #444;
+    }
+
+    .flow-line {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #00bcd4;
+      border-radius: 50%;
+    }
+
+    .laminar .flow-line {
+      animation: laminar-flow 4s linear infinite;
+    }
+
+    .turbulent .flow-line {
+      animation: turbulent-flow 4s linear infinite;
+    }
+
+    .laminar .flow-line:nth-child(n) { top: calc(20px * var(--i)); animation-delay: calc(0.2s * var(--i)); }
+    .turbulent .flow-line:nth-child(n) { top: calc(20px * var(--i)); animation-delay: calc(0.2s * var(--i)); }
+
+    .boundary-layer-visual {
+      display: flex;
+      gap: 50px;
+      margin-top: 30px;
+      justify-content: center;
+    }
+
+    .boundary-column {
+      background: #1e1e1e;
+      padding: 20px;
+      border: 1px solid #444;
+      border-radius: 10px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .boundary-box {
+      position: relative;
+      height: 100px;
+      width: 100%;
+      background: #111;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .boundary-layer {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background: #00bcd4aa;
+      animation: grow-boundary 4s infinite alternate ease-in-out;
+    }
+
+    .vortex {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ff5722;
+      animation: turbulent-flow 4s linear infinite;
+    }
+
+    .vortex:nth-child(1) { top: 20px; left: 10px; animation-delay: 0s; }
+    .vortex:nth-child(2) { top: 60px; left: 30px; animation-delay: 0.5s; }
+    .vortex:nth-child(3) { top: 40px; left: 50px; animation-delay: 1s; }
+
+    .caption {
+      text-align: center;
+      font-style: italic;
+      margin-top: 10px;
+    }.comparison-table {
+  margin-top: 2rem;
+  overflow-x: auto;
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #FFFAFA; /* Snow white text */
+  background-color: rgba(255, 255, 255, 0.05); /* Slight contrast from background */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgb(164, 164, 164);
+}
+
+.comparison-table thead {
+  background-color: rgba(0, 255, 255, 0.1);
+}
+
+.comparison-table th {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #FFFAFA;
+}
+
+.comparison-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s ease;
+}body {
+  color: #FFFAFA !important;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Laminar vs Turbulent Boundary Layers</div>
+
+  <div class="hero-section">
+    <h1>Laminar and Turbulent Boundary Layer Behavior</h1>
+    <p>Understanding boundary layer behavior is essential in predicting heat and momentum transfer along surfaces in fluid flow. Let's explore the fundamental differences, mechanisms, and effects of laminar and turbulent boundary layers.</p>
+  </div>
+
+  <div class="def">
+    <h2>Nature of Flow</h2>
+    <ul class="future_tch_points">
+      <li><strong>Laminar:</strong> Fluid flows in smooth layers with little or no mixing.</li>
+      <li><strong>Turbulent:</strong> Flow is chaotic and involves mixing, swirls, and eddies.</li>
+    </ul>
+    <p>As fluid moves over a surface, a thin region forms where viscous effects dominate—this is the boundary layer. Depending on the Reynolds number, the flow within it can be either laminar or turbulent.</p>
+  </div>
+
+  <div class="def">
+    <h2>Dynamic Visualization</h2>
+    <div class="flow-track laminar">
+      <div class="flow-line" style="--i:1"></div>
+      <div class="flow-line" style="--i:2"></div>
+      <div class="flow-line" style="--i:3"></div>
+      <div class="flow-line" style="--i:4"></div>
+      <div class="flow-line" style="--i:5"></div>
+    </div>
+    <p class="caption">Laminar Flow: Smooth and orderly particle motion.</p>
+
+    <div class="flow-track turbulent">
+      <div class="flow-line" style="--i:1"></div>
+      <div class="flow-line" style="--i:2"></div>
+      <div class="flow-line" style="--i:3"></div>
+      <div class="flow-line" style="--i:4"></div>
+      <div class="flow-line" style="--i:5"></div>
+    </div>
+    <p class="caption">Turbulent Flow: Irregular motion with mixing and vortices.</p>
+  </div>
+
+  <div class="def">
+    <h2>Growth of Boundary Layers</h2>
+    <div class="boundary-layer-visual">
+      <div class="boundary-column">
+        <h3>Laminar</h3>
+        <div class="boundary-box">
+          <div class="boundary-layer" style="background: #00bcd4;"></div>
+        </div>
+        <p>Gradual, steady growth of the layer with distance from the leading edge.</p>
+      </div>
+      <div class="boundary-column">
+        <h3>Turbulent</h3>
+        <div class="boundary-box">
+          <div class="boundary-layer" style="background: #ff5722aa;"></div>
+          <div class="vortex"></div>
+          <div class="vortex"></div>
+          <div class="vortex"></div>
+        </div>
+        <p>Thicker and more energetic boundary layer due to mixing and eddies.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="key-concept">
+    <h3>Reynolds Number (Re)</h3>
+    <p>The Reynolds number determines flow regime:</p>
+    <code>Re = (ρ V L) / μ</code>
+    <p>Where:<br>
+      <strong>ρ</strong> = density, <strong>V</strong> = velocity, <strong>L</strong> = characteristic length, <strong>μ</strong> = viscosity
+    </p>
+    <p>
+      - Re &lt; 5×10<sup>5</sup>: Laminar (for flat plates)<br>
+      - Re &gt; 5×10<sup>5</sup>: Transition to turbulent
+    </p>
+  </div>
+
+  <div class="conduction_all_subtopics">Comparison Table</div>
+  <table class="comparison-table">
+    <tr>
+      <th>Feature</th>
+      <th>Laminar</th>
+      <th>Turbulent</th>
+    </tr>
+    <tr>
+      <td>Flow Structure</td>
+      <td>Smooth layers</td>
+      <td>Irregular, swirls</td>
+    </tr>
+    <tr>
+      <td>Velocity Profile</td>
+      <td>Parabolic shape</td>
+      <td>Flatter, steep near wall</td>
+    </tr>
+    <tr>
+      <td>Heat Transfer</td>
+      <td>Lower</td>
+      <td>Higher</td>
+    </tr>
+    <tr>
+      <td>Mixing</td>
+      <td>Minimal</td>
+      <td>Significant</td>
+    </tr>
+    <tr>
+      <td>Boundary Layer Thickness</td>
+      <td>Thinner</td>
+      <td>Thicker</td>
+    </tr>
+  </table>
+
+  <div class="def">
+    <h3>Transition Region</h3>
+    <p>Between purely laminar and turbulent states lies a <strong>transition zone</strong>, where small disturbances grow, and the flow eventually becomes fully turbulent.</p>
+    <ul class="future_tch_points">
+      <li>Occurs in a range of Reynolds numbers.</li>
+      <li>Highly sensitive to surface roughness and upstream flow conditions.</li>
+    </ul>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internal Flow: Pipe Flow (Entry Lengths)</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    /* Color Scheme */
+    :root {
+      --flow-blue: #40C4FF;
+      --boundary-orange: #FF8A65;
+      --drag-red: #FF5252;
+      --formula-dark: #111;
+      --formula-light: #f8f9fa;
+    }
+
+    /* Universal Styling */
+    * {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      box-sizing: border-box;
+    }
+
+    .conduction_heading {
+      background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+      font-size: 50px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      margin: 30px auto;
+    }
+
+    p, li {
+      font-size: 22px;
+      font-family: 'Audiowide', cursive;
+      color: #d3d3d3;
+      margin: 10px 0;
+      line-height: 1.8;
+    }
+
+    .conduction_all_subtopics {
+      background: linear-gradient(to right, #B06AB3, #4568DC);
+      color: white;
+      font-size: 28px;
+      font-family: 'Audiowide', cursive;
+      padding: 15px 25px;
+      margin: 20px auto;
+      text-align: center;
+      border-radius: 50px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      transition: 0.4s;
+    }
+
+    .conduction_all_subtopics:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #00ffe1, #0162bd);
+      color: black;
+    }
+
+    .def {
+      background-color: #111;
+      padding: 30px;
+      margin: 25px auto;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      text-align: center;
+    }
+
+    .fatc {
+      color: #05eeff;
+      font-size: 34px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: bold;
+    }
+
+    .future_tch_points {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px auto;
+      background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+      font-size: 20px;
+      color: #dadada;
+      font-family: 'Audiowide', cursive;
+      font-weight: bold;
+      text-align: left;
+      border-radius: 10px;
+      max-width: 90%;
+    }
+
+    .future_tch_points li {
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .future_tch_points li:last-child {
+      border-bottom: none;
+    }
+
+    code {
+      display: inline-block;
+      background: #222;
+      color: #f86f3d;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Internal Flow: Pipe Flow (Entry Lengths)</div>
+
+  <div class="def">
+    <p>
+      In the study of pipe flow, the term "entry length" refers to the distance from the entrance of a pipe to the point where the flow becomes fully developed, meaning both the velocity and temperature profiles are stable and no longer change with distance.
+    </p>
+    <p>
+      There are two types of entry lengths commonly discussed:
+    </p>
+    <ul class="future_tch_points">
+      <li><strong>Hydrodynamic Entry Length</strong>: The length required for the velocity profile to become fully developed.</li>
+      <li><strong>Thermal Entry Length</strong>: The length required for the temperature profile to become fully developed.</li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">Key Formulas</div>
+
+  <div class="def">
+    <p><strong>Hydrodynamic Entry Length Formula:</strong></p>
+    <p class="fatc">
+      <code>L<sub>h</sub> ≈ 0.05 × Re × D</code>
+    </p>
+    <p>
+      Where: <br>
+      <code>Re</code> = Reynolds number, <br>
+      <code>D</code> = diameter of the pipe.
+    </p>
+
+    <p><strong>Thermal Entry Length Formula:</strong></p>
+    <p class="fatc">
+      <code>L<sub>t</sub> ≈ 0.05 × Re × D × Pr<sup>1/3</sup></code>
+    </p>
+    <p>
+      Where: <br>
+      <code>Pr</code> = Prandtl number.
+    </p>
+  </div>
+
+  <div class="conduction_all_subtopics">Factors Influencing Entry Length</div>
+
+  <div class="def">
+    <ul class="future_tch_points">
+      <li><strong>Reynolds Number</strong>: The higher the Reynolds number, the shorter the entry length.</li>
+      <li><strong>Pipe Diameter</strong>: Larger pipe diameters result in longer entry lengths.</li>
+      <li><strong>Fluid Properties</strong>: The Prandtl number and viscosity of the fluid play a role in determining the thermal entry length.</li>
+    </ul>
+  </div>
+  <div class="content-section">
+  <h2 class="section-title">Understanding Entry Length in Pipe Flow</h2>
+  <p>The entry length in pipe flow is the distance required for the flow to fully develop from the inlet of the pipe. This development occurs due to the viscous forces acting on the fluid, leading to the formation of a fully developed velocity profile.</p>
+
+  <div class="entry-length-formula">
+    <h3>Formula for Entry Length</h3>
+    <p>The general formula to calculate the hydrodynamic entry length \( L_e \) for laminar flow is:</p>
+    <pre><code>L_e = 0.06 Re D</code></pre>
+    <p>Where:</p>
+    <ul>
+      <li><strong>Re</strong> = Reynolds number (dimensionless)</li>
+      <li><strong>D</strong> = Diameter of the pipe</li>
+    </ul>
+  </div>
+
+  <div class="flow-characteristics">
+    <h3>Flow Characteristics at Entry Length</h3>
+    <p>At the entry length, the velocity profile is not fully developed, which means that the fluid near the pipe wall moves more slowly than the fluid at the center due to viscous effects. As the flow moves further down the pipe, the velocity profile gradually develops into a parabolic shape for laminar flow or a flatter profile for turbulent flow.</p>
+    
+    <ul class="future_tch_points">
+      <li><strong>Laminar Flow:</strong> In laminar flow, the fluid moves in smooth, orderly layers, and the entry length is generally larger.</li>
+      <li><strong>Turbulent Flow:</strong> In turbulent flow, the fluid exhibits chaotic motion, and the entry length is shorter compared to laminar flow.</li>
+    </ul>
+  </div>
+
+  <div class="reynolds-number-explanation">
+    <h3>Reynolds Number and Its Importance</h3>
+    <p>The Reynolds number \( Re \) is a dimensionless quantity that helps determine the flow regime. It is defined as:</p>
+    <pre><code>Re = \frac{\rho u D}{\mu}</code></pre>
+    <p>Where:</p>
+    <ul>
+      <li><strong>\(\rho\)</strong> = Fluid density</li>
+      <li><strong>u</strong> = Mean velocity of the fluid</li>
+      <li><strong>D</strong> = Diameter of the pipe</li>
+      <li><strong>\(\mu\)</strong> = Dynamic viscosity of the fluid</li>
+    </ul>
+    <p>For \( Re < 2000 \), flow is laminar, and for \( Re > 4000 \), flow is turbulent. Between these values, the flow is in the transition regime.</p>
+  </div>
+</div>
+
+
+  <div class="conduction_all_subtopics">Practical Applications</div>
+
+  <div class="def">
+    <ul class="future_tch_points">
+      <li><strong>Cooling Systems</strong>: The concept of entry length is important for designing heat exchangers and cooling systems where the flow must be fully developed.</li>
+      <li><strong>Pipe Flow Analysis</strong>: Understanding entry lengths helps engineers predict the behavior of fluids as they travel through pipes in various industries.</li>
+    </ul>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Convective Heat Transfer: Formulas & Concepts</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    /* Vibrant Blue Color Palette */
+    :root {
+      --formula-blue: #00B4FF;
+      --formula-dark: #111;
+      --formula-light: #f8f9fa;
+    }
+    
+    /* Formula Styling - All Blue */
+    .formula {
+      color: var(--formula-blue);
+      font-weight: bold;
+    }
+    
+    /* Enhanced Formula Containers */
+    .formula-container {
+      background: rgba(0,0,0,0.4);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      text-align: center;
+      border-left: 4px solid var(--formula-blue);
+      box-shadow: 0 0 15px rgba(0, 180, 255, 0.3);
+      max-width: 800px;
+    }
+    
+    .formula-large {
+      font-size: 24px;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+    }
+    
+    .formula-legend {
+      margin-top: 15px;
+      font-size: 16px;
+      text-align: left;
+      padding-left: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .formula-legend span {
+      display: inline-block;
+      margin: 5px 15px;
+      white-space: nowrap;
+      color: var(--formula-light);
+    }
+    
+    /* Main Content Styling */
+    .conduction_heading {
+      background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+      font-size: 50px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      margin: 30px auto;
+    }
+    
+    .def {
+      background-color: var(--formula-dark);
+      padding: 30px;
+      margin: 25px auto;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      max-width: 800px;
+      color: var(--formula-light);
+    }
+    
+    .conduction_all_subtopics {
+      background: linear-gradient(to right, #00B4FF, #0083FF);
+      color: white;
+      font-size: 28px;
+      font-family: 'Audiowide', cursive;
+      padding: 15px 25px;
+      margin: 20px auto;
+      text-align: center;
+      border-radius: 50px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      transition: 0.4s;
+      max-width: 600px;
+    }
+    
+    .conduction_all_subtopics:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #00ffe1, #0162bd);
+      color: black;
+    }
+    
+    /* Card Layouts */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 30px auto;
+      max-width: 1200px;
+    }
+    
+    .concept-card {
+      background: rgba(0,180,255,0.05);
+      border-radius: 15px;
+      padding: 25px;
+      border-top: 4px solid var(--formula-blue);
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      color: var(--formula-light);
+    }
+    
+    .concept-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,180,255,0.2);
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+      animation: pulse 3s infinite;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .conduction_heading {
+        font-size: 36px;
+        padding: 30px;
+      }
+      
+      .formula-large {
+        font-size: 20px;
+      }
+      
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Ensure all math symbols are blue */
+    .math-symbol {
+      color: var(--formula-blue);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Convective Heat Transfer</div>
+
+  <div class="def">
+    <h2>Fundamental Equation</h2>
+    <div class="formula-container pulse-animation">
+      <div class="formula-large">
+        <span class="formula">q <span class="math-symbol">=</span> h · A · (T<sub>s</sub> <span class="math-symbol">-</span> T<sub>∞</sub>)</span>
+      </div>
+      <div class="formula-legend">
+        <span><span class="formula">q</span>: Heat transfer rate (W)</span>
+        <span><span class="formula">h</span>: Convective coefficient (W/m²K)</span>
+        <span><span class="formula">T<sub>s</sub></span>: Surface temperature (K)</span>
+        <span><span class="formula">T<sub>∞</sub></span>: Fluid temperature (K)</span>
+      </div>
+    </div>
+    <p>The convective heat transfer coefficient (<span class="formula">h</span>) quantifies how effectively heat transfers between a surface and moving fluid.</p>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Dimensionless Numbers
+  </div>
+
+  <div class="card-grid">
+    <div class="concept-card">
+      <h3>Nusselt Number</h3>
+      <div class="formula-container">
+        <div class="formula-large">
+          <span class="formula">Nu <span class="math-symbol">=</span> hL/k</span>
+        </div>
+        <p>Ratio of convective to conductive heat transfer</p>
+      </div>
+    </div>
+    
+    <div class="concept-card">
+      <h3>Prandtl Number</h3>
+      <div class="formula-container">
+        <div class="formula-large">
+          <span class="formula">Pr <span class="math-symbol">=</span> ν/α <span class="math-symbol">=</span> μc<sub>p</sub>/k</span>
+        </div>
+        <p>Ratio of momentum to thermal diffusivity</p>
+      </div>
+    </div>
+    
+    <div class="concept-card">
+      <h3>Reynolds Number</h3>
+      <div class="formula-container">
+        <div class="formula-large">
+          <span class="formula">Re <span class="math-symbol">=</span> ρvL/μ</span>
+        </div>
+        <p>Ratio of inertial to viscous forces</p>
+      </div>
+    </div>
+    
+    <div class="concept-card">
+      <h3>Grashof Number</h3>
+      <div class="formula-container">
+        <div class="formula-large">
+          <span class="formula">Gr <span class="math-symbol">=</span> gβΔTL³/ν²</span>
+        </div>
+        <p>Ratio of buoyancy to viscous forces</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Heat Transfer Correlations
+  </div>
+
+  <div class="def">
+    <h3>Natural Convection</h3>
+    <div class="formula-container">
+      <div class="formula-large">
+        <span class="formula">Nu <span class="math-symbol">=</span> C(Gr · Pr)<sup>n</sup></span>
+      </div>
+      <p>Where C and n depend on geometry and flow regime</p>
+    </div>
+    
+    <h3 style="margin-top: 40px;">Forced Convection</h3>
+    <div class="formula-container">
+      <div class="formula-large">
+        <span class="formula">Nu <span class="math-symbol">=</span> C Re<sup>m</sup> Pr<sup>n</sup></span>
+      </div>
+      <p>Where C, m, n depend on geometry and flow conditions</p>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Practical Values of h
+  </div>
+
+  <div class="card-grid">
+    <div class="concept-card">
+      <h3>Natural Convection</h3>
+      <ul>
+        <li>Air: <span class="formula">5-25 W/m²K</span></li>
+        <li>Water: <span class="formula">50-1000 W/m²K</span></li>
+      </ul>
+    </div>
+    
+    <div class="concept-card">
+      <h3>Forced Convection</h3>
+      <ul>
+        <li>Air: <span class="formula">25-250 W/m²K</span></li>
+        <li>Water: <span class="formula">100-15000 W/m²K</span></li>
+      </ul>
+    </div>
+    
+    <div class="concept-card">
+      <h3>Boiling</h3>
+      <ul>
+        <li>Water: <span class="formula">2500-100000 W/m²K</span></li>
+      </ul>
+    </div>
+    
+    <div class="concept-card">
+      <h3>Condensation</h3>
+      <ul>
+        <li>Steam: <span class="formula">4000-100000 W/m²K</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">
+    Physical Interpretation
+  </div>
+
+  <div class="def">
+    <div class="formula-container">
+      <div class="formula-large">
+        <span class="formula">h <span class="math-symbol">=</span> 100 W/m²K</span>
+      </div>
+      <p style="text-align: center; margin-top: 15px; color: var(--formula-light);">
+        Means: For each <span class="formula">1 m²</span> of surface area and <span class="formula">1K</span> temperature difference,<br>
+        <span class="formula">100 Joules</span> of heat transfer occurs every <span class="formula">second</span>
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>

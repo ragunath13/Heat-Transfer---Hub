@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finite Difference Approach for Heat Transfer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+    <style>
+        /* Base styles matching previous themes */
+        * {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            line-height: 1.6;
+        }
+
+        .main_heading {
+            background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+            font-size: 50px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        p, li {
+            font-size: 22px;
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .subtopics {
+            background: linear-gradient(to right, #B06AB3, #4568DC);
+            color: white;
+            font-size: 28px;
+            font-family: 'Audiowide', cursive;
+            padding: 15px 25px;
+            margin: 20px auto;
+            text-align: center;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: 0.4s;
+            max-width: 90%;
+        }
+
+        .subtopics:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to right, #00ffe1, #0162bd);
+            color: black;
+        }
+
+        .def, .fact, .application {
+            background-color: #111;
+            padding: 30px;
+            margin: 25px auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .fact {
+            color: #05eeff;
+            font-size: 34px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+        }
+
+        .tech_points {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+            font-size: 20px;
+            color: #dadada;
+            font-family: 'Audiowide', cursive;
+            font-weight: bold;
+            text-align: left;
+            border-radius: 10px;
+            max-width: 90%;
+        }
+
+        .tech_points li {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tech_points li:last-child {
+            border-bottom: none;
+        }
+
+        /* FDM specific styles */
+        .fdm-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px auto;
+            max-width: 90%;
+            background: #111;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.1);
+            position: relative;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5x5 grid */
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5px;
+            width: 300px; /* Fixed width for visual clarity */
+            height: 300px; /* Fixed height for visual clarity */
+            background-color: #222;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .grid-node {
+            width: 100%;
+            height: 100%;
+            background-color: #444;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            color: #ccc;
+            transition: background-color 0.5s ease;
+        }
+
+        .grid-node.center {
+            background-color: #00ffd5; /* Highlight center node */
+            color: black;
+            font-weight: bold;
+            box-shadow: 0 0 10px #00ffd5;
+        }
+
+        .grid-node.neighbor {
+            background-color: #00c6ff; /* Highlight neighbors */
+            color: black;
+            font-weight: bold;
+        }
+
+        .grid-node.hot {
+            background-color: #ff416c; /* For conceptual temperature animation */
+            color: white;
+        }
+        .grid-node.cold {
+            background-color: #0072ff; /* For conceptual temperature animation */
+            color: white;
+        }
+
+        /* Application examples grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        .app-item {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .app-item:hover {
+            transform: scale(1.05);
+            background: #333;
+        }
+
+        .app-icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00c6ff;
+        }
+
+        .app-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main_heading {
+                font-size: 36px;
+                padding: 30px;
+            }
+            .subtopics {
+                font-size: 22px;
+                padding: 12px 20px;
+            }
+            p, li {
+                font-size: 18px;
+            }
+            .fact {
+                font-size: 28px;
+            }
+            .grid-container {
+                width: 250px;
+                height: 250px;
+            }
+            .grid-node {
+                font-size: 12px;
+            }
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main_heading {
+                font-size: 28px;
+                padding: 20px;
+            }
+            .subtopics {
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+            p, li {
+                font-size: 16px;
+            }
+            .fact {
+                font-size: 24px;
+            }
+            .grid-container {
+                width: 200px;
+                height: 200px;
+                gap: 3px;
+            }
+            .grid-node {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main_heading">Finite Difference Approach for Heat Transfer</div>
+
+    <div class="def">
+        <p>The Finite Difference Method (FDM) is a numerical technique used to approximate the solutions of differential equations by replacing derivatives with finite difference approximations. In heat transfer, it's widely used to solve complex conduction and convection problems.</p>
+        <p>It allows us to analyze temperature distributions in geometries and boundary conditions that are difficult or impossible to solve analytically.</p>
+    </div>
+
+    <div class="subtopics">Discretization of the Domain</div>
+
+    <div class="fdm-container">
+        <h3>Breaking Down the Continuous into Discrete</h3>
+        <div class="grid-container" id="fdmGrid">
+            </div>
+        <p>The first step in FDM is to discretize the continuous physical domain into a finite number of points or nodes. The temperature at each node is then treated as an unknown variable.</p>
+        <p>The distance between these nodes, $\Delta x$, $\Delta y$, etc., determines the resolution of the approximation.</p>
+    </div>
+
+    <div class="subtopics">Derivation of Finite Difference Equations</div>
+
+    <div class="def">
+        <p>Derivatives in the governing heat transfer equations (e.g., Fourier's Law, Heat Equation) are approximated using Taylor series expansions. For example, a second derivative in 1D steady-state conduction can be approximated as:</p>
+        <p>$\frac{d^2T}{dx^2} \approx \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2}$</p>
+        <p>Applying this to the 1D steady-state heat conduction equation without heat generation ($\frac{d^2T}{dx^2} = 0$), the finite difference equation for node $i$ becomes:</p>
+        <p>$T_{i-1} - 2T_i + T_{i+1} = 0$</p>
+        <p>This simplifies to: $T_i = \frac{T_{i-1} + T_{i+1}}{2}$, indicating that the temperature at a node is the average of its neighbors in steady-state 1D conduction.</p>
+    </div>
+
+    <div class="subtopics">Types of Schemes: Explicit vs. Implicit</div>
+
+    <div class="def">
+        <ul class="tech_points">
+            <li><b>Explicit Scheme:</b>
+                <ul>
+                    <li>Calculates temperature at a future time step ($t + \Delta t$) directly using temperatures from the current time step ($t$).</li>
+                    <li>Simpler to implement.</li>
+                    <li>Conditionally stable: requires small time steps ($\Delta t$) to prevent oscillations and ensure accuracy.</li>
+                </ul>
+            </li>
+            <li><b>Implicit Scheme:</b>
+                <ul>
+                    <li>Calculates temperatures at a future time step ($t + \Delta t$) using a system of equations involving temperatures at both current and future time steps.</li>
+                    <li>More complex to implement (requires solving a system of linear equations).</li>
+                    <li>Unconditionally stable: allows for larger time steps, making it suitable for long-duration transient problems.</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="fact">
+        DID YOU KNOW? The Finite Difference Method is one of the oldest and most intuitive numerical techniques for solving differential equations, dating back to the early 20th century!
+    </div>
+
+    <div class="subtopics">Industrial Applications of FDM</div>
+
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon">💻</div>
+            <div class="app-title">Computational Fluid Dynamics (CFD)</div>
+            <p>Simulating fluid flow and heat transfer in complex geometries (e.g., aerodynamics, pipe flow).</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">💡</div>
+            <div class="app-title">Electronic Cooling</div>
+            <p>Predicting temperature distribution in circuit boards and electronic components to prevent overheating.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🏭</div>
+            <div class="app-title">Process Engineering</div>
+            <p>Analyzing heat exchangers, furnaces, and reactors for optimal design and operation.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🏗️</div>
+            <div class="app-title">Building Thermal Analysis</div>
+            <p>Modeling heat transfer through walls, roofs, and windows for energy efficiency studies.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🚀</div>
+            <div class="app-title">Aerospace Engineering</div>
+            <p>Thermal management of spacecraft, re-entry vehicles, and jet engine components.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🧊</div>
+            <div class="app-title">Refrigeration Systems</div>
+            <p>Designing efficient refrigeration cycles and components by modeling heat transfer.</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to create the grid nodes
+        function createGrid(rows, cols) {
+            const gridContainer = document.getElementById('fdmGrid');
+            gridContainer.innerHTML = ''; // Clear existing nodes
+            gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            gridContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const node = document.createElement('div');
+                    node.className = 'grid-node';
+                    node.id = `node-${r}-${c}`; // Assign unique ID
+                    gridContainer.appendChild(node);
+                }
+            }
+        }
+
+        // Function to highlight a central node and its immediate neighbors
+        function highlightStencil(rows, cols) {
+            const centerRow = Math.floor(rows / 2);
+            const centerCol = Math.floor(cols / 2);
+
+            // Clear previous highlights
+            document.querySelectorAll('.grid-node').forEach(node => {
+                node.classList.remove('center', 'neighbor');
+                node.textContent = ''; // Clear text
+            });
+
+            // Highlight center node
+            const centerNode = document.getElementById(`node-${centerRow}-${centerCol}`);
+            if (centerNode) {
+                centerNode.classList.add('center');
+                centerNode.textContent = 'T_i';
+            }
+
+            // Highlight neighbors (up, down, left, right)
+            const neighbors = [
+                { r: centerRow - 1, c: centerCol, text: 'T_N' }, // North
+                { r: centerRow + 1, c: centerCol, text: 'T_S' }, // South
+                { r: centerRow, c: centerCol - 1, text: 'T_W' }, // West
+                { r: centerRow, c: centerCol + 1, text: 'T_E' }  // East
+            ];
+
+            neighbors.forEach(coord => {
+                if (coord.r >= 0 && coord.r < rows && coord.c >= 0 && coord.c < cols) {
+                    const neighborNode = document.getElementById(`node-${coord.r}-${coord.c}`);
+                    if (neighborNode) {
+                        neighborNode.classList.add('neighbor');
+                        neighborNode.textContent = coord.text;
+                    }
+                }
+            });
+        }
+
+        // Conceptual animation of heat propagation (very simplified)
+        function animateHeatPropagation(rows, cols) {
+            const nodes = document.querySelectorAll('.grid-node');
+            let animationStep = 0;
+            const maxSteps = 10;
+
+            setInterval(() => {
+                // Reset all nodes
+                nodes.forEach(node => {
+                    node.classList.remove('hot', 'cold');
+                });
+
+                // Apply conceptual temperature based on animation step
+                nodes.forEach((node, index) => {
+                    const row = Math.floor(index / cols);
+                    const col = index % cols;
+
+                    // Simple radial propagation for visualization
+                    const distance = Math.sqrt(Math.pow(row - rows / 2, 2) + Math.pow(col - cols / 2, 2));
+                    const intensity = Math.sin((distance / (rows / 2) * Math.PI) - (animationStep * 0.5)) + 1; // Wave effect
+
+                    if (intensity > 1.5) {
+                        node.classList.add('hot');
+                    } else if (intensity < 0.5) {
+                        node.classList.add('cold');
+                    }
+                });
+
+                animationStep = (animationStep + 1) % maxSteps;
+            }, 500); // Update every 500ms
+        }
+
+
+        // Initialize visualizations on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = 5;
+            const cols = 5;
+            createGrid(rows, cols);
+            highlightStencil(rows, cols);
+            animateHeatPropagation(rows, cols); // Start the conceptual animation
+        });
+    </script>
+
+</body>
+</html>

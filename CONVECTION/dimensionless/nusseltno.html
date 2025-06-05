@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nusselt Number in Heat Transfer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="subtopic.css">
+
+  <style>
+    :root {
+      --nusselt-blue: #64B5F6;
+      --heat-red: #EF5350;
+      --flow-green: #81C784;
+      --bg-dark: #111;
+      --text-light: #f8f9fa;
+    }
+
+    .nusselt-container {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 30px;
+      border-radius: 15px;
+      margin: 30px auto;
+      max-width: 800px;
+      border-left: 5px solid var(--nusselt-blue);
+    }
+
+    .nusselt-formula {
+      color: var(--nusselt-blue);
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+    }
+
+    .heat-term {
+      color: var(--heat-red);
+    }
+
+    .flow-term {
+      color: var(--flow-green);
+    }
+
+    .visual-box {
+      height: 200px;
+      background: linear-gradient(to right, rgba(129,199,132,0.3), rgba(100,181,246,0.4), rgba(239,83,80,0.3));
+      border-radius: 10px;
+      margin: 25px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      animation: moveParticle 12s linear infinite;
+    }
+
+    @keyframes moveParticle {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(40px, -30px); }
+      50% { transform: translate(80px, 20px); }
+      75% { transform: translate(140px, -10px); }
+      100% { transform: translate(200px, 0); }
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 40px auto;
+    }
+
+    .property-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .property-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Nusselt Number in Heat Transfer</div>
+
+  <div class="nusselt-container">
+    <h2>What is the Nusselt Number?</h2>
+    <p>The Nusselt Number (<span class="nusselt-formula">Nu</span>) is a dimensionless number representing the ratio of convective to conductive heat transfer across a fluid boundary:</p>
+
+    <div style="background: rgba(100,181,246,0.1); padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+      <p class="nusselt-formula" style="font-size: 24px;">Nu = h·L / k</p>
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <span style="margin: 0 15px;"><span class="nusselt-formula">h</span>: Convective heat transfer coefficient (W/m²·K)</span>
+        <span style="margin: 0 15px;"><span class="nusselt-formula">L</span>: Characteristic length (m)</span>
+        <span style="margin: 0 15px;"><span class="nusselt-formula">k</span>: Thermal conductivity (W/m·K)</span>
+      </div>
+    </div>
+
+    <div class="visual-box" id="nusseltVisual">
+      <!-- Animated particles added by JS -->
+    </div>
+
+    <h3>Physical Meaning:</h3>
+    <ul>
+      <li>If <span class="nusselt-formula">Nu = 1</span>, heat transfer is purely by conduction</li>
+      <li>If <span class="nusselt-formula">Nu &gt; 1</span>, convection enhances heat transfer</li>
+      <li>Higher Nusselt numbers indicate more efficient convective transfer</li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">Correlations and Flow Types</div>
+
+  <div class="comparison-grid">
+    <div class="property-card" style="border-top: 4px solid var(--flow-green);">
+      <h3><span class="flow-term">Laminar Flow</span></h3>
+      <ul>
+        <li>Smooth flow layers, lower <span class="nusselt-formula">Nu</span></li>
+        <li>Typical correlation: Nu = 3.66 (constant wall temp, fully developed)</li>
+        <li>Dominated by conduction at the boundary</li>
+      </ul>
+    </div>
+
+    <div class="property-card" style="border-top: 4px solid var(--nusselt-blue);">
+      <h3><span class="nusselt-formula">Transition</span></h3>
+      <ul>
+        <li>Unstable flow behavior</li>
+        <li><span class="nusselt-formula">Nu</span> increases as convection becomes dominant</li>
+        <li>Correlation depends on Re and Pr</li>
+      </ul>
+    </div>
+
+    <div class="property-card" style="border-top: 4px solid var(--heat-red);">
+      <h3><span class="heat-term">Turbulent Flow</span></h3>
+      <ul>
+        <li>High velocity, chaotic mixing</li>
+        <li>Greatly enhances convection: <span class="nusselt-formula">Nu ≫ 1</span></li>
+        <li>Example correlation: Nu = 0.023·Re<sup>0.8</sup>·Pr<sup>0.3</sup></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="nusselt-container">
+    <h2>What is the Nusselt Number?</h2>
+    <p>The Nusselt Number (<span class="nusselt-formula">Nu</span>) is a dimensionless parameter that quantifies the enhancement of heat transfer through a fluid layer as a result of convection compared to conduction alone. It is one of the key nondimensional groups in convective heat transfer analysis.</p>
+  
+    <div style="background: rgba(100,181,246,0.1); padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+      <p class="nusselt-formula" style="font-size: 24px;">Nu = h·L / k</p>
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <span style="margin: 0 15px;"><span class="nusselt-formula">h</span>: Convective heat transfer coefficient (W/m²·K)</span>
+        <span style="margin: 0 15px;"><span class="nusselt-formula">L</span>: Characteristic length (m)</span>
+        <span style="margin: 0 15px;"><span class="nusselt-formula">k</span>: Thermal conductivity (W/m·K)</span>
+      </div>
+    </div>
+  
+    <h3>Physical Meaning:</h3>
+    <ul>
+      <li>If <span class="nusselt-formula">Nu = 1</span>, heat transfer is by pure conduction — as if the fluid were stationary.</li>
+      <li>If <span class="nusselt-formula">Nu &gt; 1</span>, convection enhances the transfer by mixing and fluid motion.</li>
+      <li>A larger Nusselt number indicates more effective convection and thinner thermal boundary layers.</li>
+    </ul>
+  
+    <h3>Why is Nusselt Number Important?</h3>
+    <ul>
+      <li>It helps engineers evaluate and design efficient heat exchangers, pipe flows, and cooling systems.</li>
+      <li>Nu bridges theoretical analysis and experimental data by correlating it with other dimensionless numbers like Reynolds (Re) and Prandtl (Pr).</li>
+      <li>In forced convection, empirical correlations relate Nu to <span class="nusselt-formula">Re</span> and <span class="nusselt-formula">Pr</span>, while in natural convection, Nu is linked to <span class="nusselt-formula">Gr</span> and <span class="nusselt-formula">Pr</span>.</li>
+    </ul>
+  
+    <h3>Applications:</h3>
+    <ul>
+      <li><strong>Heat exchangers:</strong> Used to predict performance and optimize fin or tube arrangements.</li>
+      <li><strong>Electronics cooling:</strong> Determines whether forced convection is needed or natural convection suffices.</li>
+      <li><strong>Industrial processing:</strong> Helps in reactor design, HVAC systems, and turbine cooling.</li>
+      <li><strong>Biomedical devices:</strong> Critical in devices like thermal sensors and microfluidic systems.</li>
+    </ul>
+  
+    <div class="visual-box" id="nusseltVisual"></div>
+  </div>
+  
+
+  <div class="conduction_all_subtopics">Example Calculation</div>
+
+  <div style="max-width: 800px; margin: 30px auto; background: rgba(0,0,0,0.2); padding: 25px; border-radius: 15px;">
+    <h3>Calculating Nu for Water in a Pipe</h3>
+    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Courier New'; margin: 15px 0;">
+      <p>h = 500 W/m²·K</p>
+      <p>L = 0.02 m</p>
+      <p>k = 0.6 W/m·K</p>
+      <p class="nusselt-formula">Nu = (500 × 0.02) / 0.6 ≈ 16.67</p>
+    </div>
+    <p>This <span class="nusselt-formula">Nu ≈ 17</span> shows enhanced heat transfer due to convection.</p>
+  </div>
+
+  <script>
+    // Visualization for Nusselt number
+    function createNusseltVisual() {
+      const container = document.getElementById('nusseltVisual');
+
+      for (let i = 0; i < 25; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.background = 'radial-gradient(circle, var(--nusselt-blue), #0D47A1)';
+        p.style.left = `${Math.random() * 90}%`;
+        p.style.top = `${Math.random() * 90}%`;
+        p.style.animationDelay = `${Math.random() * 6}s`;
+        p.style.animationDuration = `${8 + Math.random() * 10}s`;
+        container.appendChild(p);
+      }
+    }
+
+    createNusseltVisual();
+  </script>
+
+</body>
+</html>

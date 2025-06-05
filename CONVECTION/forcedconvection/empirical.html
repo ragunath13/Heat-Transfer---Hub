@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dittus-Boelter Equation & Empirical Correlations</title>
+  <link rel="stylesheet" href="subtopic.css">
+  <style>
+    :root {
+      --empirical-blue: #00BCD4;
+      --correlation-yellow: #FFEB3B;
+      --highlight-green: #76FF03;
+      --formula-dark: #111;
+      --formula-light: #f8f9fa;
+    }
+
+    .empirical-formula {
+      color: var(--empirical-blue);
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+    }
+
+    .correlation-note {
+      color: var(--correlation-yellow);
+    }
+
+    .correlation-container {
+      background: var(--formula-dark);
+      color: var(--formula-light);
+      padding: 30px;
+      border-radius: 15px;
+      margin: 30px auto;
+      max-width: 800px;
+      border-left: 5px solid var(--empirical-blue);
+    }
+
+    .formula-highlight {
+      background: rgba(0,188,212,0.15);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .animated-glow {
+      animation: glow 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 10px var(--empirical-blue);
+      }
+      to {
+        box-shadow: 0 0 20px var(--highlight-green);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conduction_heading">Dittus-Boelter Equation & Empirical Correlations</div>
+
+  <div class="correlation-container">
+    <h2>Overview</h2>
+    <p>The <strong>Dittus-Boelter Equation</strong> is an empirical correlation used to estimate the convective heat transfer coefficient in turbulent internal flow:</p>
+    
+    <div class="formula-highlight animated-glow">
+      <p class="empirical-formula">Nu = 0.023 · Re<sup>0.8</sup> · Pr<sup>n</sup></p>
+      <p class="correlation-note">n = 0.4 for heating (fluid is being heated)<br>n = 0.3 for cooling (fluid is being cooled)</p>
+    </div>
+
+    <p>Valid for:</p>
+    <ul>
+      <li>Turbulent flow: <span class="empirical-formula">Re > 10,000</span></li>
+      <li>Moderate Prandtl numbers: <span class="empirical-formula">0.7 &lt; Pr &lt; 160</span></li>
+      <li>Uniform wall heat flux or temperature</li>
+    </ul>
+  </div>
+
+  <div class="conduction_all_subtopics">Comparison with Other Correlations</div>
+
+  <div class="comparison-grid">
+    <div class="flow-card" style="border-top: 4px solid var(--empirical-blue);">
+      <h3>Dittus-Boelter</h3>
+      <ul>
+        <li>Simple and widely used</li>
+        <li>Good for smooth pipes</li>
+        <li>Valid for <span class="empirical-formula">Re &gt; 10⁴</span></li>
+      </ul>
+    </div>
+
+    <div class="flow-card" style="border-top: 4px solid #FF9800;">
+      <h3>Sieder-Tate</h3>
+      <ul>
+        <li>Includes viscosity variation</li>
+        <li>More accurate for variable properties</li>
+        <li><span class="empirical-formula">Nu = 0.027 · Re<sup>0.8</sup> · Pr<sup>1/3</sup> · (μ/μ<sub>w</sub>)<sup>0.14</sup></span></li>
+      </ul>
+    </div>
+
+    <div class="flow-card" style="border-top: 4px solid #E91E63;">
+      <h3>Gnielinski</h3>
+      <ul>
+        <li>Applicable to broader ranges</li>
+        <li>Based on <span class="empirical-formula">f</span> friction factor</li>
+        <li>Accurate but more complex</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="conduction_all_subtopics">Example Calculation</div>
+
+  <div class="correlation-container">
+    <h3>Water Heated in a Pipe</h3>
+    <p>Hot water flows at 2 m/s through a pipe of diameter 0.02 m. Properties at bulk temp:</p>
+    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Courier New'; margin: 15px 0;">
+      <p>ρ = 998 kg/m³, μ = 0.001 Pa·s</p>
+      <p>Pr = 5.8, k = 0.6 W/m·K</p>
+      <p class="empirical-formula">Re = (998 × 2 × 0.02) / 0.001 = 39,920</p>
+      <p class="empirical-formula">Nu = 0.023 × (39920)<sup>0.8</sup> × (5.8)<sup>0.4</sup> ≈ 144.2</p>
+      <p class="empirical-formula">h = Nu·k/D = 144.2 × 0.6 / 0.02 = 4326 W/m²·K</p>
+    </div>
+  </div>
+  <div class="flow-container">
+  <h2>Dittus-Boelter Equation</h2>
+  <p>The <span class="flow-formula">Dittus-Boelter</span> equation is an empirical correlation used to estimate the convective heat transfer coefficient in internal flow for fully developed turbulent conditions.</p>
+
+  <div style="background: rgba(255,138,101,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+    <h3>General Form:</h3>
+    <p class="flow-formula">Nu = 0.023 · Re<sup>0.8</sup> · Pr<sup>n</sup></p>
+    <ul>
+      <li>Use <span class="flow-formula">n = 0.4</span> for heating the fluid</li>
+      <li>Use <span class="flow-formula">n = 0.3</span> for cooling the fluid</li>
+    </ul>
+  </div>
+
+  <h3>Assumptions and Applicability:</h3>
+  <ul>
+    <li><span class="flow-formula">Re &gt; 10,000</span> (Turbulent flow)</li>
+    <li><span class="boundary-formula">0.7 ≤ Pr ≤ 160</span></li>
+    <li>Constant wall heat flux or wall temperature</li>
+    <li>Fluid properties are evaluated at bulk mean temperature</li>
+    <li>Smooth circular tubes</li>
+  </ul>
+
+  <div class="flow-visualization">
+    <div class="boundary-layer"></div>
+    <div style="position: absolute; top: 10px; left: 10px; color: white; font-family: 'Audiowide';">
+      Turbulent Tube Flow
+    </div>
+  </div>
+
+  <h3>Engineering Insight:</h3>
+  <p>The Dittus-Boelter equation is widely used due to its simplicity and reasonable accuracy for many engineering applications such as:</p>
+  <ul>
+    <li>Cooling of engine components with oil or water</li>
+    <li>Air conditioning and HVAC system design</li>
+    <li>Boiler and heat exchanger analysis</li>
+  </ul>
+
+  <div style="background: rgba(255,82,82,0.1); padding: 20px; border-radius: 10px;">
+    <h3>Example Calculation</h3>
+    <p>Water at 60°C flows through a pipe (D = 0.02 m) at 3 m/s. Estimate the heat transfer coefficient.</p>
+    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Courier New'; margin: 15px 0;">
+      <p>Properties: ρ = 983 kg/m³, μ = 4.67×10<sup>-4</sup> Pa·s, Pr = 3.98, k = 0.653 W/m·K</p>
+      <p class="flow-formula">Re = (983 × 3 × 0.02) / 4.67×10<sup>-4</sup> ≈ 126,112</p>
+      <p class="flow-formula">Nu = 0.023 × (126112)<sup>0.8</sup> × (3.98)<sup>0.4</sup> ≈ 241.8</p>
+      <p class="flow-formula">h = Nu·k/D = 241.8 × 0.653 / 0.02 ≈ 7,892 W/m²K</p>
+    </div>
+  </div>
+</div>
+
+
+  <div class="conduction_all_subtopics">Applications</div>
+
+  <div class="comparison-grid">
+    <div class="flow-card" style="border-top: 4px solid var(--empirical-blue);">
+      <h3>HVAC Design</h3>
+      <ul>
+        <li>Duct air flow heat transfer</li>
+        <li>Coil and pipe sizing</li>
+        <li>Energy efficiency estimation</li>
+      </ul>
+    </div>
+    <div class="flow-card" style="border-top: 4px solid #FFEB3B;">
+      <h3>Heat Exchangers</h3>
+      <ul>
+        <li>Tube-side convective heat transfer</li>
+        <li>Optimizing thermal performance</li>
+        <li>Designing compact exchangers</li>
+      </ul>
+    </div>
+    <div class="flow-card" style="border-top: 4px solid #FF5252;">
+      <h3>Process Industries</h3>
+      <ul>
+        <li>Heating/cooling in reactors</li>
+        <li>Piping systems for oil & gas</li>
+        <li>Food and pharma process control</li>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

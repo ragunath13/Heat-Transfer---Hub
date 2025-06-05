@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stability and Convergence in Numerical Methods</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Rajdhani|Courier+New">
+    <style>
+        /* Base styles matching previous themes */
+        * {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            line-height: 1.6;
+        }
+
+        .main_heading {
+            background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+            font-size: 50px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        p, li {
+            font-size: 22px;
+            font-family: 'Audiowide', cursive;
+            color: #d3d3d3;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .subtopics {
+            background: linear-gradient(to right, #B06AB3, #4568DC);
+            color: white;
+            font-size: 28px;
+            font-family: 'Audiowide', cursive;
+            padding: 15px 25px;
+            margin: 20px auto;
+            text-align: center;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: 0.4s;
+            max-width: 90%;
+        }
+
+        .subtopics:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to right, #00ffe1, #0162bd);
+            color: black;
+        }
+
+        .def, .fact, .application {
+            background-color: #111;
+            padding: 30px;
+            margin: 25px auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .fact {
+            color: #05eeff;
+            font-size: 34px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+        }
+
+        .tech_points {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+            font-size: 20px;
+            color: #dadada;
+            font-family: 'Audiowide', cursive;
+            font-weight: bold;
+            text-align: left;
+            border-radius: 10px;
+            max-width: 90%;
+        }
+
+        .tech_points li {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tech_points li:last-child {
+            border-bottom: none;
+        }
+
+        /* Stability/Convergence specific styles */
+        .concept-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px auto;
+            max-width: 90%;
+            background: #111;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.1);
+            position: relative;
+        }
+
+        .graph-container {
+            width: 90%;
+            max-width: 700px;
+            height: 300px;
+            background-color: #222;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+
+        .graph-axis {
+            position: absolute;
+            background: #555;
+        }
+        .graph-axis.x { width: calc(100% - 40px); height: 2px; bottom: 20px; left: 20px; }
+        .graph-axis.y { width: 2px; height: calc(100% - 40px); bottom: 20px; left: 20px; }
+
+        .graph-label-x {
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Rajdhani', sans-serif;
+            color: #d3d3d3;
+            font-size: 16px;
+        }
+        .graph-label-y {
+            position: absolute;
+            left: 0px;
+            top: 50%;
+            transform: rotate(-90deg) translateY(-50%);
+            transform-origin: left center;
+            font-family: 'Rajdhani', sans-serif;
+            color: #d3d3d3;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        .solution-line {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(to right, #00ffd5, #00c6ff);
+            transition: all 0.5s ease-out;
+            border-radius: 2px;
+        }
+        .solution-line.unstable {
+            background: linear-gradient(to right, #ff416c, #ff8a8a);
+        }
+        .solution-line.stable {
+            background: linear-gradient(to right, #00ffd5, #00c6ff);
+        }
+        .solution-line.converged {
+            background: linear-gradient(to right, #B06AB3, #4568DC);
+            z-index: 5; /* Bring to front for true solution */
+        }
+
+        /* Animation for stability */
+        @keyframes stable-oscillation {
+            0% { transform: translateY(0px) scaleX(1); }
+            50% { transform: translateY(-10px) scaleX(0.98); }
+            100% { transform: translateY(0px) scaleX(1); }
+        }
+        @keyframes unstable-explosion {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* Application examples grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 90%;
+        }
+
+        .app-item {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .app-item:hover {
+            transform: scale(1.05);
+            background: #333;
+        }
+
+        .app-icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00c6ff;
+        }
+
+        .app-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main_heading {
+                font-size: 36px;
+                padding: 30px;
+            }
+            .subtopics {
+                font-size: 22px;
+                padding: 12px 20px;
+            }
+            p, li {
+                font-size: 18px;
+            }
+            .fact {
+                font-size: 28px;
+            }
+            .graph-container {
+                height: 250px;
+            }
+            .graph-label-x, .graph-label-y {
+                font-size: 14px;
+            }
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main_heading {
+                font-size: 28px;
+                padding: 20px;
+            }
+            .subtopics {
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+            p, li {
+                font-size: 16px;
+            }
+            .fact {
+                font-size: 24px;
+            }
+            .graph-container {
+                height: 200px;
+            }
+            .graph-label-x, .graph-label-y {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main_heading">Stability and Convergence in Numerical Methods</div>
+
+    <div class="def">
+        <p>In computational heat transfer and other numerical simulations, <b>stability</b> and <b>convergence</b> are two fundamental concepts that determine the reliability and accuracy of a solution.</p>
+        <p>A numerical method must be both stable and convergent to yield meaningful results that approximate the true physical behavior.</p>
+    </div>
+
+    <div class="subtopics">Understanding Stability</div>
+
+    <div class="concept-container">
+        <h3>Stability: Preventing Error Growth</h3>
+        <div class="graph-container" id="stabilityGraph">
+            <div class="graph-axis x"></div>
+            <div class="graph-axis y"></div>
+            <div class="graph-label-x">Time Step / Iteration</div>
+            <div class="graph-label-y">Numerical Solution Value</div>
+
+            <div class="solution-line stable" id="stableLine" style="width: 80%; top: 40%; left: 10%;"></div>
+            <div class="solution-line unstable" id="unstableLine" style="width: 80%; top: 60%; left: 10%;"></div>
+        </div>
+        <p>A numerical method is <b>stable</b> if errors introduced during the computation (e.g., round-off errors) do not grow unboundedly as the computation progresses. An unstable method can lead to wildly fluctuating or exploding solutions, rendering them useless.</p>
+        <p>Explicit schemes (like forward difference) are often <b>conditionally stable</b>, meaning they require the time step ($\Delta t$) to be below a certain limit (e.g., the CFL condition: $\Delta t \le \frac{(\Delta x)^2}{2\alpha}$ for 1D diffusion).</p>
+        <p>Implicit schemes are typically <b>unconditionally stable</b>, allowing for larger time steps, though accuracy might still suffer if $\Delta t$ is too large.</p>
+    </div>
+
+    <div class="subtopics">Understanding Convergence</div>
+
+    <div class="concept-container">
+        <h3>Convergence: Approaching the True Solution</h3>
+        <div class="graph-container" id="convergenceGraph">
+            <div class="graph-axis x"></div>
+            <div class="graph-axis y"></div>
+            <div class="graph-label-x">Spatial Discretization (1/Δx)</div>
+            <div class="graph-label-y">Solution Error</div>
+
+            <div class="solution-line converged" style="width: 80%; top: 80%; left: 10%; background: #05eeff;"></div>
+            <div class="solution-line" id="coarseSolution" style="width: 80%; top: 20%; left: 10%; background: #ff8a8a;"></div>
+            <div class="solution-line" id="mediumSolution" style="width: 80%; top: 40%; left: 10%; background: #B06AB3;"></div>
+            <div class="solution-line" id="fineSolution" style="width: 80%; top: 60%; left: 10%; background: #00ffd5;"></div>
+        </div>
+        <p>A numerical method is <b>convergent</b> if its solution approaches the true (analytical) solution of the differential equation as the mesh size ($\Delta x$) and/or time step ($\Delta t$) approach zero.</p>
+        <p>The <b>Lax Equivalence Theorem</b> states that for a consistent numerical scheme, stability is a necessary and sufficient condition for convergence.</p>
+        <p>Achieving convergence means that by refining the discretization, we can get arbitrarily close to the exact solution.</p>
+    </div>
+
+    <div class="fact">
+        DID YOU KNOW? An unstable numerical solution might appear to be correct for a few initial steps before it "blows up" due to error amplification!
+    </div>
+
+    <div class="subtopics">Factors Affecting Stability & Convergence</div>
+
+    <div class="def">
+        <ul class="tech_points">
+            <li><b>Time Step Size ($\Delta t$):</b> Crucial for stability in explicit schemes; affects accuracy in all transient schemes.</li>
+            <li><b>Spatial Mesh Size ($\Delta x$, $\Delta y$, etc.):</b> Directly impacts accuracy and convergence; finer meshes lead to more accurate solutions but higher computational cost.</li>
+            <li><b>Numerical Scheme:</b> Explicit vs. Implicit methods have different stability characteristics.</li>
+            <li><b>Boundary Conditions:</b> Incorrectly applied boundary conditions can lead to instabilities or non-convergent solutions.</li>
+            <li><b>Non-linearity:</b> Non-linear terms in equations can introduce additional challenges for both stability and convergence, often requiring iterative solvers.</li>
+        </ul>
+    </div>
+
+    <div class="subtopics">Importance in Simulations</div>
+
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon">🛠️</div>
+            <div class="app-title">Reliable Simulations</div>
+            <p>Ensures that computational models produce physically meaningful and accurate results.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">⏱️</div>
+            <div class="app-title">Computational Efficiency</div>
+            <p>Understanding stability helps choose optimal time steps, balancing accuracy and computation time.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🔍</div>
+            <div class="app-title">Error Control</div>
+            <p>Knowledge of convergence rates allows for estimating and controlling the error in numerical solutions.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">📈</div>
+            <div class="app-title">Predictive Power</div>
+            <p>A stable and convergent model can accurately predict system behavior under various conditions.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">🔬</div>
+            <div class="app-title">Research & Development</div>
+            <p>Essential for developing and validating new numerical algorithms and models.</p>
+        </div>
+        <div class="app-item">
+            <div class="app-icon">⚙️</div>
+            <div class="app-title">Engineering Design</div>
+            <p>Critical for designing systems where thermal behavior is paramount (e.g., electronics, aerospace).</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to animate stability graph
+        function animateStabilityGraph() {
+            const stableLine = document.getElementById('stableLine');
+            const unstableLine = document.getElementById('unstableLine');
+
+            // Reset animations
+            stableLine.style.animation = 'none';
+            unstableLine.style.animation = 'none';
+            void stableLine.offsetWidth; // Trigger reflow
+            void unstableLine.offsetWidth; // Trigger reflow
+
+            // Apply animations
+            stableLine.style.animation = 'stable-oscillation 2s infinite alternate';
+            unstableLine.style.animation = 'unstable-explosion 3s forwards'; // forwards to stay at end state
+        }
+
+        // Function to animate convergence graph
+        function animateConvergenceGraph() {
+            const coarseSolution = document.getElementById('coarseSolution');
+            const mediumSolution = document.getElementById('mediumSolution');
+            const fineSolution = document.getElementById('fineSolution');
+
+            // Simulate lines moving towards the true solution (bottom line)
+            // This is a conceptual animation, not a true numerical simulation
+            coarseSolution.style.top = '70%'; // Moves closer to true solution
+            mediumSolution.style.top = '75%'; // Moves closer
+            fineSolution.style.top = '80%'; // Already close (true solution)
+
+            // Make them appear to 'converge' by adjusting their position over time
+            setTimeout(() => {
+                coarseSolution.style.top = '85%'; // Further away, higher error
+                mediumSolution.style.top = '82%'; // Closer, less error
+                fineSolution.style.top = '80%'; // True solution, zero error
+            }, 500); // Initial state
+            setTimeout(() => {
+                coarseSolution.style.top = '60%'; // Gradually improve
+                mediumSolution.style.top = '70%';
+                fineSolution.style.top = '78%';
+            }, 1500); // Intermediate state
+            setTimeout(() => {
+                coarseSolution.style.top = '80%'; // All converge to the same line (conceptually)
+                mediumSolution.style.top = '80%';
+                fineSolution.style.top = '80%';
+            }, 2500); // Final converged state
+        }
+
+
+        // Initialize visualizations on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            animateStabilityGraph();
+            animateConvergenceGraph();
+
+            // Re-run animations for continuous effect (optional)
+            setInterval(animateStabilityGraph, 4000); // Re-run stability animation every 4 seconds
+            setInterval(animateConvergenceGraph, 3000); // Re-run convergence animation every 3 seconds
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    box-sizing: border-box;
+  }
+  
+  .conduction_heading {
+    background: linear-gradient(to right, #00c6ff, #0072ff, #00ffd5);
+    font-size: 50px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+    padding: 50px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    margin: 30px auto;
+  }
+  
+  p, li {
+    font-size: 22px;
+    font-family: 'Audiowide', cursive;
+    color: #d3d3d3;
+    margin: 10px 0;
+    line-height: 1.8;
+  }
+  
+  .conduction_all_subtopics {
+    background: linear-gradient(to right, #B06AB3, #4568DC);
+    color: white;
+    font-size: 28px;
+    font-family: 'Audiowide', cursive;
+    padding: 15px 25px;
+    margin: 20px auto;
+    text-align: center;
+    border-radius: 50px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    transition: 0.4s;
+  }
+  
+  .conduction_all_subtopics:hover {
+    transform: scale(1.05);
+    background: linear-gradient(to right, #00ffe1, #0162bd);
+    color: black;
+  }
+  
+  .def, .fatc, .indus_ {
+    background-color: #111;
+    padding: 30px;
+    margin: 25px auto;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    text-align: center;
+  }
+  
+  .fatc {
+    color: #05eeff;
+    font-size: 34px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: bold;
+  }
+  
+  .future_tch_points {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px auto;
+    background: linear-gradient(58.2deg, rgba(40,91,212,0.3) -3%, rgba(171,53,163,0.2) 49.3%, rgba(255,204,112,0.2) 97.7%);
+    font-size: 20px;
+    color: #dadada;
+    font-family: 'Audiowide', cursive;
+    font-weight: bold;
+    text-align: left;
+    border-radius: 10px;
+    max-width: 90%;
+  }
+  
+  .future_tch_points li {
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .future_tch_points li:last-child {
+    border-bottom: none;
+  }
+  
+  code {
+    display: inline-block;
+    background: #222;
+    color: #f86f3d;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
